@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}FAQ - MediNest{% endblock %}
+{% block body_class %}faq-page{% endblock %}
+
+{% block body %}
+<div class="page-title">
+  <div class="heading">
+    <div class="container">
+      <div class="row d-flex justify-content-center text-center">
+        <div class="col-lg-8">
+          <h1 class="heading-title">Frequently Asked Questions</h1>
+          <p class="mb-0">Find answers to common questions about our services</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="breadcrumbs">
+    <div class="container">
+      <ol>
+        <li><a href="{{ path('app_home') }}">Home</a></li>
+        <li class="current">FAQ</li>
+      </ol>
+    </div>
+  </nav>
+</div>
+
+<section id="faq" class="faq section">
+  <div class="container" data-aos="fade-up">
+    <div class="faq-container">
+      <div class="faq-item">
+        <h3>How do I schedule an appointment?</h3>
+        <div class="faq-content">
+          <p>You can schedule an appointment by calling us, using our online booking system, or visiting our clinic.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <h3>What insurance do you accept?</h3>
+        <div class="faq-content">
+          <p>We accept most major insurance plans. Please contact us to verify coverage.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
 
 # This file is the entry point to configure your own services.
@@ -21,3 +22,23 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+=======
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+        public: true
+>>>>>>> team-origin/dev-badiss
