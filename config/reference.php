@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <?php
 
 // This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
@@ -126,135 +125,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     ...<string, DefinitionType|AliasType|PrototypeType|StackType|ArgumentsType|null>
  * }
  * @psalm-type ExtensionType = array<string, mixed>
-=======
-<?php
-
-// This file is auto-generated and is for apps only. Bundles SHOULD NOT rely on its content.
-
-namespace Symfony\Component\DependencyInjection\Loader\Configurator;
-
-use Symfony\Component\Config\Loader\ParamConfigurator as Param;
-
-/**
- * This class provides array-shapes for configuring the services and bundles of an application.
- *
- * Services declared with the config() method below are autowired and autoconfigured by default.
- *
- * This is for apps only. Bundles SHOULD NOT use it.
- *
- * Example:
- *
- *     ```php
- *     // config/services.php
- *     namespace Symfony\Component\DependencyInjection\Loader\Configurator;
- *
- *     return App::config([
- *         'services' => [
- *             'App\\' => [
- *                 'resource' => '../src/',
- *             ],
- *         ],
- *     ]);
- *     ```
- *
- * @psalm-type ImportsConfig = list<string|array{
- *     resource: string,
- *     type?: string|null,
- *     ignore_errors?: bool,
- * }>
- * @psalm-type ParametersConfig = array<string, scalar|\UnitEnum|array<scalar|\UnitEnum|array<mixed>|Param|null>|Param|null>
- * @psalm-type ArgumentsType = list<mixed>|array<string, mixed>
- * @psalm-type CallType = array<string, ArgumentsType>|array{0:string, 1?:ArgumentsType, 2?:bool}|array{method:string, arguments?:ArgumentsType, returns_clone?:bool}
- * @psalm-type TagsType = list<string|array<string, array<string, mixed>>> // arrays inside the list must have only one element, with the tag name as the key
- * @psalm-type CallbackType = string|array{0:string|ReferenceConfigurator,1:string}|\Closure|ReferenceConfigurator
- * @psalm-type DeprecationType = array{package: string, version: string, message?: string}
- * @psalm-type DefaultsType = array{
- *     public?: bool,
- *     tags?: TagsType,
- *     resource_tags?: TagsType,
- *     autowire?: bool,
- *     autoconfigure?: bool,
- *     bind?: array<string, mixed>,
- * }
- * @psalm-type InstanceofType = array{
- *     shared?: bool,
- *     lazy?: bool|string,
- *     public?: bool,
- *     properties?: array<string, mixed>,
- *     configurator?: CallbackType,
- *     calls?: list<CallType>,
- *     tags?: TagsType,
- *     resource_tags?: TagsType,
- *     autowire?: bool,
- *     bind?: array<string, mixed>,
- *     constructor?: string,
- * }
- * @psalm-type DefinitionType = array{
- *     class?: string,
- *     file?: string,
- *     parent?: string,
- *     shared?: bool,
- *     synthetic?: bool,
- *     lazy?: bool|string,
- *     public?: bool,
- *     abstract?: bool,
- *     deprecated?: DeprecationType,
- *     factory?: CallbackType,
- *     configurator?: CallbackType,
- *     arguments?: ArgumentsType,
- *     properties?: array<string, mixed>,
- *     calls?: list<CallType>,
- *     tags?: TagsType,
- *     resource_tags?: TagsType,
- *     decorates?: string,
- *     decoration_inner_name?: string,
- *     decoration_priority?: int,
- *     decoration_on_invalid?: 'exception'|'ignore'|null,
- *     autowire?: bool,
- *     autoconfigure?: bool,
- *     bind?: array<string, mixed>,
- *     constructor?: string,
- *     from_callable?: CallbackType,
- * }
- * @psalm-type AliasType = string|array{
- *     alias: string,
- *     public?: bool,
- *     deprecated?: DeprecationType,
- * }
- * @psalm-type PrototypeType = array{
- *     resource: string,
- *     namespace?: string,
- *     exclude?: string|list<string>,
- *     parent?: string,
- *     shared?: bool,
- *     lazy?: bool|string,
- *     public?: bool,
- *     abstract?: bool,
- *     deprecated?: DeprecationType,
- *     factory?: CallbackType,
- *     arguments?: ArgumentsType,
- *     properties?: array<string, mixed>,
- *     configurator?: CallbackType,
- *     calls?: list<CallType>,
- *     tags?: TagsType,
- *     resource_tags?: TagsType,
- *     autowire?: bool,
- *     autoconfigure?: bool,
- *     bind?: array<string, mixed>,
- *     constructor?: string,
- * }
- * @psalm-type StackType = array{
- *     stack: list<DefinitionType|AliasType|PrototypeType|array<class-string, ArgumentsType|null>>,
- *     public?: bool,
- *     deprecated?: DeprecationType,
- * }
- * @psalm-type ServicesConfig = array{
- *     _defaults?: DefaultsType,
- *     _instanceof?: InstanceofType,
- *     ...<string, DefinitionType|AliasType|PrototypeType|StackType|ArgumentsType|null>
- * }
- * @psalm-type ExtensionType = array<string, mixed>
->>>>>>> team-origin/dev-badiss
  * @psalm-type FrameworkConfig = array{
  *     secret?: scalar|Param|null,
  *     http_method_override?: bool|Param, // Set true to enable support for the '_method' request parameter to determine the intended HTTP method on POST requests. // Default: false
@@ -278,11 +148,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         cookie_name?: scalar|Param|null, // The name of the cookie to use when using stateless protection. // Default: "csrf-token"
  *     },
  *     form?: bool|array{ // Form configuration
-<<<<<<< HEAD
  *         enabled?: bool|Param, // Default: true
-=======
- *         enabled?: bool|Param, // Default: false
->>>>>>> team-origin/dev-badiss
  *         csrf_protection?: bool|array{
  *             enabled?: scalar|Param|null, // Default: null
  *             token_id?: scalar|Param|null, // Default: null
@@ -436,11 +302,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         },
  *     },
  *     translator?: bool|array{ // Translator configuration
-<<<<<<< HEAD
  *         enabled?: bool|Param, // Default: true
-=======
- *         enabled?: bool|Param, // Default: false
->>>>>>> team-origin/dev-badiss
  *         fallbacks?: list<scalar|Param|null>,
  *         logging?: bool|Param, // Default: false
  *         formatter?: scalar|Param|null, // Default: "translator.formatter.default"
@@ -468,11 +330,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     validation?: bool|array{ // Validation configuration
-<<<<<<< HEAD
  *         enabled?: bool|Param, // Default: true
-=======
- *         enabled?: bool|Param, // Default: false
->>>>>>> team-origin/dev-badiss
  *         cache?: scalar|Param|null, // Deprecated: Setting the "framework.validation.cache.cache" configuration option is deprecated. It will be removed in version 8.0.
  *         enable_attributes?: bool|Param, // Default: true
  *         static_method?: list<scalar|Param|null>,
@@ -494,11 +352,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         enabled?: bool|Param, // Default: false
  *     },
  *     serializer?: bool|array{ // Serializer configuration
-<<<<<<< HEAD
  *         enabled?: bool|Param, // Default: true
-=======
- *         enabled?: bool|Param, // Default: false
->>>>>>> team-origin/dev-badiss
  *         enable_attributes?: bool|Param, // Default: true
  *         name_converter?: scalar|Param|null,
  *         circular_reference_handler?: scalar|Param|null,
@@ -515,11 +369,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     property_access?: bool|array{ // Property access configuration
-<<<<<<< HEAD
  *         enabled?: bool|Param, // Default: true
-=======
- *         enabled?: bool|Param, // Default: false
->>>>>>> team-origin/dev-badiss
  *         magic_call?: bool|Param, // Default: false
  *         magic_get?: bool|Param, // Default: true
  *         magic_set?: bool|Param, // Default: true
@@ -527,19 +377,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         throw_exception_on_invalid_property_path?: bool|Param, // Default: true
  *     },
  *     type_info?: bool|array{ // Type info configuration
-<<<<<<< HEAD
  *         enabled?: bool|Param, // Default: true
  *         aliases?: array<string, scalar|Param|null>,
  *     },
  *     property_info?: bool|array{ // Property info configuration
  *         enabled?: bool|Param, // Default: true
-=======
- *         enabled?: bool|Param, // Default: false
- *         aliases?: array<string, scalar|Param|null>,
- *     },
- *     property_info?: bool|array{ // Property info configuration
- *         enabled?: bool|Param, // Default: false
->>>>>>> team-origin/dev-badiss
  *         with_constructor_extractor?: bool|Param, // Registers the constructor extractor.
  *     },
  *     cache?: array{ // Cache configuration
@@ -573,11 +415,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         log_channel?: scalar|Param|null, // The channel of log message. Null to let Symfony decide. // Default: null
  *     }>,
  *     web_link?: bool|array{ // Web links configuration
-<<<<<<< HEAD
  *         enabled?: bool|Param, // Default: true
-=======
- *         enabled?: bool|Param, // Default: false
->>>>>>> team-origin/dev-badiss
  *     },
  *     lock?: bool|string|array{ // Lock configuration
  *         enabled?: bool|Param, // Default: false
@@ -588,11 +426,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         resources?: array<string, scalar|Param|null>,
  *     },
  *     messenger?: bool|array{ // Messenger configuration
-<<<<<<< HEAD
  *         enabled?: bool|Param, // Default: true
-=======
- *         enabled?: bool|Param, // Default: false
->>>>>>> team-origin/dev-badiss
  *         routing?: array<string, array{ // Default: []
  *             senders?: list<scalar|Param|null>,
  *         }>,
@@ -742,11 +576,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     mailer?: bool|array{ // Mailer configuration
-<<<<<<< HEAD
  *         enabled?: bool|Param, // Default: true
-=======
- *         enabled?: bool|Param, // Default: false
->>>>>>> team-origin/dev-badiss
  *         message_bus?: scalar|Param|null, // The message bus to use. Defaults to the default bus if the Messenger component is installed. // Default: null
  *         dsn?: scalar|Param|null, // Default: null
  *         transports?: array<string, scalar|Param|null>,
@@ -787,11 +617,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         decryption_env_var?: scalar|Param|null, // Default: "base64:default::SYMFONY_DECRYPTION_SECRET"
  *     },
  *     notifier?: bool|array{ // Notifier configuration
-<<<<<<< HEAD
  *         enabled?: bool|Param, // Default: true
-=======
- *         enabled?: bool|Param, // Default: false
->>>>>>> team-origin/dev-badiss
  *         message_bus?: scalar|Param|null, // The message bus to use. Defaults to the default bus if the Messenger component is installed. // Default: null
  *         chatter_transports?: array<string, scalar|Param|null>,
  *         texter_transports?: array<string, scalar|Param|null>,
@@ -864,7 +690,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         enabled?: bool|Param, // Default: false
  *     },
  * }
-<<<<<<< HEAD
  * @psalm-type DoctrineConfig = array{
  *     dbal?: array{
  *         default_connection?: scalar|Param|null,
@@ -1125,8 +950,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     dump_destination?: scalar|Param|null, // A stream URL where dumps should be written to. // Default: null
  *     theme?: "dark"|"light"|Param, // Changes the color of the dump() output when rendered directly on the templating. "dark" (default) or "light". // Default: "dark"
  * }
-=======
->>>>>>> team-origin/dev-badiss
  * @psalm-type TwigConfig = array{
  *     form_themes?: list<scalar|Param|null>,
  *     globals?: array<string, array{ // Default: []
@@ -1160,7 +983,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         html_to_text_converter?: scalar|Param|null, // A service implementing the "Symfony\Component\Mime\HtmlToTextConverter\HtmlToTextConverterInterface". // Default: null
  *     },
  * }
-<<<<<<< HEAD
  * @psalm-type WebProfilerConfig = array{
  *     toolbar?: bool|array{ // Profiler toolbar configuration
  *         enabled?: bool|Param, // Default: false
@@ -1541,8 +1363,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     }>,
  *     role_hierarchy?: array<string, string|list<scalar|Param|null>>,
  * }
-=======
->>>>>>> team-origin/dev-badiss
  * @psalm-type MonologConfig = array{
  *     use_microseconds?: scalar|Param|null, // Default: true
  *     channels?: list<scalar|Param|null>,
@@ -1686,7 +1506,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         },
  *     }>,
  * }
-<<<<<<< HEAD
  * @psalm-type MakerConfig = array{
  *     root_namespace?: scalar|Param|null, // Default: "App"
  *     generate_final_classes?: bool|Param, // Default: true
@@ -1848,133 +1667,3 @@ final class Routes
         return $config;
     }
 }
-=======
- * @psalm-type ConfigType = array{
- *     imports?: ImportsConfig,
- *     parameters?: ParametersConfig,
- *     services?: ServicesConfig,
- *     framework?: FrameworkConfig,
- *     twig?: TwigConfig,
- *     monolog?: MonologConfig,
- *     "when@dev"?: array{
- *         imports?: ImportsConfig,
- *         parameters?: ParametersConfig,
- *         services?: ServicesConfig,
- *         framework?: FrameworkConfig,
- *         twig?: TwigConfig,
- *         monolog?: MonologConfig,
- *     },
- *     "when@prod"?: array{
- *         imports?: ImportsConfig,
- *         parameters?: ParametersConfig,
- *         services?: ServicesConfig,
- *         framework?: FrameworkConfig,
- *         twig?: TwigConfig,
- *         monolog?: MonologConfig,
- *     },
- *     "when@test"?: array{
- *         imports?: ImportsConfig,
- *         parameters?: ParametersConfig,
- *         services?: ServicesConfig,
- *         framework?: FrameworkConfig,
- *         twig?: TwigConfig,
- *         monolog?: MonologConfig,
- *     },
- *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
- *         imports?: ImportsConfig,
- *         parameters?: ParametersConfig,
- *         services?: ServicesConfig,
- *         ...<string, ExtensionType>,
- *     }>
- * }
- */
-final class App
-{
-    /**
-     * @param ConfigType $config
-     *
-     * @psalm-return ConfigType
-     */
-    public static function config(array $config): array
-    {
-        return AppReference::config($config);
-    }
-}
-
-namespace Symfony\Component\Routing\Loader\Configurator;
-
-/**
- * This class provides array-shapes for configuring the routes of an application.
- *
- * Example:
- *
- *     ```php
- *     // config/routes.php
- *     namespace Symfony\Component\Routing\Loader\Configurator;
- *
- *     return Routes::config([
- *         'controllers' => [
- *             'resource' => 'routing.controllers',
- *         ],
- *     ]);
- *     ```
- *
- * @psalm-type RouteConfig = array{
- *     path: string|array<string,string>,
- *     controller?: string,
- *     methods?: string|list<string>,
- *     requirements?: array<string,string>,
- *     defaults?: array<string,mixed>,
- *     options?: array<string,mixed>,
- *     host?: string|array<string,string>,
- *     schemes?: string|list<string>,
- *     condition?: string,
- *     locale?: string,
- *     format?: string,
- *     utf8?: bool,
- *     stateless?: bool,
- * }
- * @psalm-type ImportConfig = array{
- *     resource: string,
- *     type?: string,
- *     exclude?: string|list<string>,
- *     prefix?: string|array<string,string>,
- *     name_prefix?: string,
- *     trailing_slash_on_root?: bool,
- *     controller?: string,
- *     methods?: string|list<string>,
- *     requirements?: array<string,string>,
- *     defaults?: array<string,mixed>,
- *     options?: array<string,mixed>,
- *     host?: string|array<string,string>,
- *     schemes?: string|list<string>,
- *     condition?: string,
- *     locale?: string,
- *     format?: string,
- *     utf8?: bool,
- *     stateless?: bool,
- * }
- * @psalm-type AliasConfig = array{
- *     alias: string,
- *     deprecated?: array{package:string, version:string, message?:string},
- * }
- * @psalm-type RoutesConfig = array{
- *     "when@dev"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
- *     "when@prod"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
- *     "when@test"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
- *     ...<string, RouteConfig|ImportConfig|AliasConfig>
- * }
- */
-final class Routes
-{
-    /**
-     * @param RoutesConfig $config
-     *
-     * @psalm-return RoutesConfig
-     */
-    public static function config(array $config): array
-    {
-        return $config;
-    }
-}
->>>>>>> team-origin/dev-badiss

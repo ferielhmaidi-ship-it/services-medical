@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ form.vars.value.id ? 'Modifier' : 'Ajouter' }} Specialite{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f6fa;
+        color: #333;
+    }
+    .container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 30px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 30px;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    input, textarea, select {
+        padding: 10px 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    button {
+        padding: 12px;
+        background: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    button:hover {
+        background: #2980b9;
+    }
+    a {
+        display: inline-block;
+        margin-top: 20px;
+        color: #3498db;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    a:hover {
+        color: #2980b9;
+    }
+</style>
+
+<div class="container">
+    <h1>{{ form.vars.value.id ? 'Modifier' : 'Ajouter' }} Specialite</h1>
+
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button type="submit">{{ form.vars.value.id ? 'Modifier' : 'Ajouter' }}</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('list_specialites') }}">Retour à la liste</a>
+</div>
+{% endblock %}

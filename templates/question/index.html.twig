@@ -1,0 +1,995 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Questions{% endblock %}
+
+{% block body %}
+{% set questions = questions|default([]) %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%);
+        --primary-hover: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%);
+        --glass-bg: rgba(255, 255, 255, 0.75);
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.35);
+    }
+
+    .page-wrapper {
+        min-height: 100vh;
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 48px 0 80px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-wrapper::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -10%;
+        width: 120%;
+        height: 100%;
+        background: radial-gradient(ellipse at top, rgba(56, 189, 248, 0.12) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .header-section {
+        position: relative;
+        z-index: 1;
+        margin-bottom: 32px;
+    }
+
+    .page-title {
+        font-size: clamp(28px, 5vw, 36px);
+        font-weight: 800;
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+        letter-spacing: -0.02em;
+    }
+
+    .page-subtitle {
+        color: #64748b;
+        font-size: 15px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .page-subtitle::before {
+        content: '';
+        display: inline-block;
+        width: 4px;
+        height: 4px;
+        background: #0ea5e9;
+        border-radius: 50%;
+    }
+
+    .btn-cta {
+        background: var(--primary-gradient);
+        border: none;
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: var(--shadow-md), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-cta::before {
+        content: '+';
+        font-size: 18px;
+        font-weight: 300;
+    }
+
+    .btn-cta:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg), var(--shadow-glow);
+    }
+
+    .btn-cta:active {
+        transform: translateY(0);
+    }
+
+    .specialty-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 18px;
+        margin-bottom: 28px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .specialty-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 18px 18px 16px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .specialty-card:hover {
+        transform: translateY(-3px);
+        border-color: #bae6fd;
+        box-shadow: 0 16px 32px rgba(14, 165, 233, 0.15);
+    }
+
+    .specialty-card.is-active {
+        border-color: #0ea5e9;
+        box-shadow: 0 16px 32px rgba(14, 165, 233, 0.2);
+    }
+
+    .specialty-chip {
+        align-self: flex-start;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0f172a;
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        padding: 4px 10px;
+        border-radius: 999px;
+    }
+
+    .specialty-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+    }
+
+    .specialty-desc {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    .specialty-meta {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .filter-bar {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 22px;
+        padding: 22px;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        margin-bottom: 28px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .filter-header {
+        margin-bottom: 14px;
+    }
+
+    .filter-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 2px;
+    }
+
+    .filter-subtitle {
+        font-size: 14px;
+        color: #64748b;
+        margin: 0;
+    }
+
+    .filter-form {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .search-wrapper {
+        position: relative;
+        flex: 1;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        pointer-events: none;
+        transition: color 0.2s;
+    }
+
+    .filter-input {
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 12px 16px 12px 44px;
+        font-size: 15px;
+        background: #f8fafc;
+        transition: all 0.2s;
+        width: 100%;
+    }
+
+    .filter-input:focus {
+        outline: none;
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16);
+        background: #ffffff;
+    }
+
+    .search-hint {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 11px;
+        color: #94a3b8;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        border-radius: 6px;
+        padding: 2px 6px;
+        display: none;
+    }
+
+    @media (min-width: 768px) {
+        .search-hint {
+            display: inline-block;
+        }
+    }
+
+    .btn-search {
+        background: #0ea5e9;
+        border: none;
+        color: #fff;
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 20px rgba(14, 165, 233, 0.25);
+        transition: all 0.2s;
+    }
+
+    .btn-search:hover {
+        background: #0284c7;
+        transform: translateY(-1px);
+        box-shadow: 0 14px 26px rgba(14, 165, 233, 0.3);
+    }
+
+    .filter-tags {
+        margin-top: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .filter-tag {
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+    }
+
+    .icon-mini {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #64748b;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+    }
+    .icon-mini:hover {
+        color: #0ea5e9;
+        border-color: #0ea5e9;
+    }
+
+    .search-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: flex-end;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+        .filter-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .search-actions {
+            justify-content: flex-start;
+        }
+    }
+
+    .questions-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .question-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .question-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--primary-gradient);
+        transform: scaleX(0);
+        transition: transform 0.3s;
+    }
+
+    .question-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: #cbd5e1;
+    }
+
+    .question-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .card-body {
+        padding: 24px;
+    }
+
+    .author-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 200px;
+    }
+
+    .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+        color: #7c3aed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 18px;
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15);
+        flex-shrink: 0;
+    }
+
+    .author-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .meta-name {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .meta-sub {
+        color: #94a3b8;
+        font-size: 12px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .meta-sub::before {
+        content: '•';
+        color: #cbd5e1;
+    }
+
+    .content-section {
+        flex-grow: 1;
+    }
+
+    .q-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 12px;
+    }
+
+    .q-title-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        flex-grow: 1;
+    }
+
+    .q-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e293b;
+        line-height: 1.4;
+        margin: 0;
+    }
+
+    .q-title a {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .q-title a:hover {
+        color: #7c3aed;
+    }
+
+    .edit-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #64748b;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .edit-icon:hover {
+        color: #1e293b;
+        border-color: #cbd5e1;
+        background: #ffffff;
+        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+        transform: translateY(-1px);
+    }
+
+    .stats-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: #f1f5f9;
+        border-radius: 20px;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .stats-badge svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .q-desc {
+        color: #475569;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 16px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .tags-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .pill-specialty {
+        background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25);
+    }
+
+    .pill-date {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+    }
+
+    .pill-date svg {
+        width: 12px;
+        height: 12px;
+    }
+
+    .reply-btn {
+        color: #0284c7;
+        font-weight: 600;
+        font-size: 13px;
+        text-decoration: none;
+        padding: 6px 14px;
+        border-radius: 8px;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+    }
+
+    .reply-btn:hover {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .reply-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: #fff;
+        border-radius: 20px;
+        border: 2px dashed #e2e8f0;
+        color: #94a3b8;
+    }
+
+    .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        background: #f1f5f9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        color: #cbd5e1;
+    }
+
+    .empty-state-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .empty-state-sub {
+        font-size: 14px;
+        color: #94a3b8;
+    }
+
+    /* Inline Reply */
+    .reply-card {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .reply-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e0f2fe;
+        color: #0284c7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .reply-box {
+        flex: 1;
+        background: #f6f7fb;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 12px 14px;
+    }
+
+    .reply-textarea {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        font-size: 14px;
+        resize: none;
+        min-height: 90px;
+        outline: none;
+    }
+
+    .reply-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .reply-hint {
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+    .btn-close-custom {
+        background: #f1f5f9;
+        border: none;
+        color: #64748b;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .btn-close-custom:hover {
+        background: #e2e8f0;
+        color: #475569;
+    }
+
+    .btn-send {
+        background: var(--primary-gradient);
+        border: none;
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .btn-send:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .reply-inline {
+        border-top: 1px solid #eef2f7;
+        margin-top: 16px;
+        padding-top: 16px;
+    }
+
+    /* Modal usability */
+    .modal {
+        z-index: 2000;
+    }
+
+    .modal-backdrop {
+        z-index: 1990;
+        pointer-events: none;
+    }
+
+    .modal-backdrop.show {
+        opacity: 0.55;
+        background: rgba(15, 23, 42, 0.6);
+    }
+
+    .modal,
+    .modal-dialog,
+    .modal-content {
+        pointer-events: auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .question-card .d-flex.gap-4 {
+            flex-direction: column;
+        }
+
+        .author-section {
+            min-width: auto;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .page-wrapper {
+            padding: 24px 0 40px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .q-header {
+            flex-direction: column;
+        }
+
+        .stats-badge {
+            align-self: flex-start;
+        }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .question-card {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .question-card:nth-child(1) { animation-delay: 0.05s; }
+    .question-card:nth-child(2) { animation-delay: 0.1s; }
+    .question-card:nth-child(3) { animation-delay: 0.15s; }
+    .question-card:nth-child(4) { animation-delay: 0.2s; }
+    .question-card:nth-child(5) { animation-delay: 0.25s; }
+</style>
+
+<section id="home-about" class="home-about section">
+      <div class="container">
+        <!-- Header -->
+        <div class="header-section d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+            <div>
+            </div>
+            <a class="btn btn-cta" href="{{ path('question_new') }}">
+                Nouvelle question
+            </a>
+        </div>
+
+        <div class="specialty-grid">
+            <a class="specialty-card {{ selectedSpecialiteId == 0 ? 'is-active' : '' }}" href="{{ path('question_index', searchTerm ? {'search': searchTerm} : {}) }}">
+                <span class="specialty-chip">Toutes</span>
+                <p class="specialty-title">Toutes les spécialités</p>
+                <p class="specialty-desc">Afficher toutes les questions sans filtre.</p>
+                <div class="specialty-meta">Voir toutes</div>
+            </a>
+            {% for row in specialiteCards|default([]) %}
+                {% set spec = row[0] %}
+                {% set count = row['questionCount'] %}
+                <a class="specialty-card {{ selectedSpecialiteId == spec.id ? 'is-active' : '' }}"
+                   href="{{ path('question_index', searchTerm ? {'specialite': spec.id, 'search': searchTerm} : {'specialite': spec.id}) }}">
+                    <span class="specialty-chip">{{ spec.nom }}</span>
+                    <p class="specialty-title">{{ spec.nom }}</p>
+                    <p class="specialty-desc">{{ spec.description|default('')|length > 0 ? spec.description : 'Questions et discussions de cette spécialité.' }}</p>
+                    <div class="specialty-meta">{{ count }} question{{ count > 1 ? 's' : '' }}</div>
+                </a>
+            {% endfor %}
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-header">
+                <p class="filter-title">Recherche</p>
+                <p class="filter-subtitle">Trouvez rapidement une question par titre, description ou spécialité.</p>
+            </div>
+            <form action="{{ path('question_index') }}" method="get" class="filter-form">
+                <div class="search-wrapper">
+                    <span class="search-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </span>
+                    <input
+                        type="text"
+                        name="search"
+                        class="form-control filter-input"
+                        placeholder="Rechercher par titre, description ou spécialité..."
+                        value="{{ searchTerm|default('') }}"
+                    >
+                    <span class="search-hint">/</span>
+                </div>
+                <div class="search-actions">
+                    <button type="submit" class="btn btn-search" aria-label="Rechercher">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </button>
+                    <a class="icon-mini" href="{{ path('question_index') }}" aria-label="Afficher tout">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12h18"></path>
+                            <path d="M12 3v18"></path>
+                        </svg>
+                    </a>
+                </div>
+            </form>
+        </div>
+
+
+        <!-- Questions List -->
+        <div class="questions-grid">
+            {% for q in questions|default([]) %}
+                <article class="card question-card">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 flex-column flex-lg-row">
+                            <!-- Author Info -->
+                            <div class="author-section">
+                                <div class="avatar" aria-hidden="true">
+                                    {{ q.titre|default('Q')|slice(0, 1)|upper }}
+                                </div>
+                                <div class="author-info">
+                                    <span class="meta-name">Membre</span>
+                                    <span class="meta-sub">Membre depuis 2 ans</span>
+                                </div>
+                            </div>
+
+                            <!-- Content -->
+                            <div class="content-section">
+                                <div class="q-header">
+                                    <div class="q-title-row">
+                                        <h2 class="q-title">{{ q.titre }}</h2>
+                                        <button class="edit-icon" type="button" data-bs-toggle="modal" data-bs-target="#editModal-{{ q.id }}" aria-label="Modifier la question">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M12 20h9"></path>
+                                                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <span class="stats-badge">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        </svg>
+                                        {{ q.reponses|length }} réponse{{ q.reponses|length > 1 ? 's' : '' }}
+                                    </span>
+                                </div>
+
+                                <p class="q-desc">{{ q.description }}</p>
+
+                                <div class="tags-row">
+                                    <span class="pill pill-specialty">{{ q.specialite.nom }}</span>
+                                    <span class="pill pill-date">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        {{ q.createdAt|date('d M Y') }}
+                                    </span>
+                                    <a
+                                        class="reply-btn"
+                                        href="#replyForm-{{ q.id }}"
+                                        data-bs-toggle="collapse"
+                                        aria-expanded="false"
+                                        aria-controls="replyForm-{{ q.id }}"
+                                        aria-label="Répondre à cette question"
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        </svg>
+                                        Répondre
+                                    </a>
+                                </div>
+
+                                <div class="collapse reply-inline" id="replyForm-{{ q.id }}">
+                                    <form action="#" method="post">
+                                        <div class="reply-card">
+                                            <div class="reply-avatar" aria-hidden="true">{{ q.titre|default('Q')|slice(0, 1)|upper }}</div>
+                                            <div class="reply-box">
+                                                <textarea
+                                                    name="contenu"
+                                                    class="reply-textarea"
+                                                    rows="4"
+                                                    placeholder="Écrivez une réponse..."
+                                                    required
+                                                ></textarea>
+                                                <div class="reply-actions">
+                                                    <span class="reply-hint">Soyez respectueux et utile.</span>
+                                                    <div class="d-flex gap-2">
+                                                        <button type="reset" class="btn-close-custom">Annuler</button>
+                                                        <button type="submit" class="btn-send">Répondre</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <div class="modal fade" id="editModal-{{ q.id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ q.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel-{{ q.id }}">Modifier la question</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                            </div>
+                            <form action="{{ path('question_edit', {'id': q.id}) }}" method="post">
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="edit-title-{{ q.id }}">Titre</label>
+                                        <input
+                                            id="edit-title-{{ q.id }}"
+                                            type="text"
+                                            name="question[titre]"
+                                            class="form-control"
+                                            value="{{ q.titre }}"
+                                            required
+                                            maxlength="255"
+                                        >
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="edit-desc-{{ q.id }}">Description</label>
+                                        <textarea
+                                            id="edit-desc-{{ q.id }}"
+                                            name="question[description]"
+                                            class="form-control"
+                                            rows="4"
+                                            required
+                                        >{{ q.description }}</textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="edit-spec-{{ q.id }}">Spécialité</label>
+                                        <select id="edit-spec-{{ q.id }}" name="question[specialite]" class="form-select" required>
+                                            {% for s in specialitesList|default([]) %}
+                                                <option value="{{ s.id }}" {{ q.specialite and q.specialite.id == s.id ? 'selected' : '' }}>
+                                                    {{ s.nom }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="hidden" name="question[_token]" value="{{ csrf_token('question') }}">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal">Annuler</button>
+                                    <button type="submit" class="btn-send">Enregistrer</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </div>
+                    <div class="empty-state-text">Aucune question trouvée</div>
+                    <div class="empty-state-sub">Soyez le premier à poser une question !</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

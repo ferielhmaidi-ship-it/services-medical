@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # yaml-language-server: $schema=../vendor/symfony/routing/Loader/schema/routing.schema.json
 
 # This file is the entry point to configure the routes of your app.
@@ -9,9 +8,7 @@
 #   bin/console debug:router
 
 controllers:
-    resource: routing.controllers
-=======
-controllers:
-    resource: ../src/Controller/
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
     type: attribute
->>>>>>> team-origin/dev-badiss

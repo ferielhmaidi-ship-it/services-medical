@@ -1,20 +1,14 @@
 {
-<<<<<<< HEAD
     "name": "symfony/skeleton",
     "type": "project",
     "license": "proprietary",
     "description": "A minimal Symfony project recommended to create bare bones applications",
-=======
-    "type": "project",
-    "license": "proprietary",
->>>>>>> team-origin/dev-badiss
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
-<<<<<<< HEAD
         "doctrine/doctrine-bundle": "^2.18",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.6",
@@ -51,18 +45,6 @@
         "symfony/yaml": "7.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0"
-=======
-        "symfony/asset": "7.4.*",
-        "symfony/asset-mapper": "7.4.*",
-        "symfony/console": "7.4.*",
-        "symfony/dotenv": "7.4.*",
-        "symfony/flex": "^2",
-        "symfony/framework-bundle": "7.4.*",
-        "symfony/monolog-bundle": "^4.0",
-        "symfony/runtime": "7.4.*",
-        "symfony/twig-bundle": "7.4.*",
-        "symfony/yaml": "7.4.*"
->>>>>>> team-origin/dev-badiss
     },
     "config": {
         "allow-plugins": {
@@ -114,7 +96,6 @@
             "allow-contrib": false,
             "require": "7.4.*"
         }
-<<<<<<< HEAD
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5",
@@ -124,7 +105,5 @@
         "symfony/maker-bundle": "^1.0",
         "symfony/stopwatch": "7.4.*",
         "symfony/web-profiler-bundle": "7.4.*"
-=======
->>>>>>> team-origin/dev-badiss
     }
 }
