@@ -104,11 +104,45 @@
 
     .specialty-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(240px, 1fr);
         gap: 18px;
         margin-bottom: 28px;
         position: relative;
         z-index: 1;
+        overflow: hidden;
+        scroll-behavior: smooth;
+    }
+    .specialty-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        justify-content: flex-end;
+    }
+    .specialty-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #64748b;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        box-shadow: var(--shadow-sm);
+    }
+    .specialty-btn:hover {
+        border-color: #0ea5e9;
+        color: #0ea5e9;
+        background: #f0f9ff;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+    .specialty-btn svg {
+        width: 18px;
+        height: 18px;
     }
 
     .specialty-card {
@@ -372,6 +406,26 @@
     .card-body {
         padding: 24px;
     }
+    .card-hero {
+        width: 100%;
+        height: 160px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+        position: relative;
+    }
+    .card-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.25) 100%);
+        pointer-events: none;
+    }
+    .card-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
 
     .author-section {
         display: flex;
@@ -547,6 +601,30 @@
         height: 12px;
     }
 
+    .like-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid #e2e8f0;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .like-btn:hover {
+        background: #e0f2fe;
+        color: #0369a1;
+        border-color: #bae6fd;
+    }
+    .like-btn svg {
+        width: 12px;
+        height: 12px;
+    }
+
     .reply-btn {
         color: #0284c7;
         font-weight: 600;
@@ -693,6 +771,168 @@
         padding-top: 16px;
     }
 
+    .replies-list {
+        margin-top: 16px;
+        display: grid;
+        gap: 12px;
+    }
+    .replies-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 10px;
+        font-size: 12px;
+        color: #64748b;
+    }
+    .replies-btn {
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #475569;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .replies-btn:hover {
+        border-color: #0ea5e9;
+        color: #0ea5e9;
+        background: #f0f9ff;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 16px rgba(14, 165, 233, 0.15);
+    }
+    .replies-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    .replies-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+    .replies-btn.pulse {
+        animation: pulseArrow 1.6s ease-in-out infinite;
+    }
+    @keyframes pulseArrow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-2px); }
+    }
+    .reply-item {
+        background: #f9fbff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-size: 13px;
+        color: #334155;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .reply-item:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+    .reply-item-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+    .reply-actions-top {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .reply-item-meta {
+        font-size: 11px;
+        color: #94a3b8;
+        margin-bottom: 6px;
+    }
+    .reply-item-content {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    .reply-avatar-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        object-fit: cover;
+        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        flex-shrink: 0;
+    }
+    .reply-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .reply-body .like-btn {
+        align-self: flex-start;
+        margin-top: 2px;
+    }
+    .reply-like {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #ecfeff;
+        color: #0e7490;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid #cffafe;
+        box-shadow: 0 6px 14px rgba(6, 182, 212, 0.18);
+    }
+    .reply-like svg {
+        width: 12px;
+        height: 12px;
+    }
+    .reply-edit-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        color: #64748b;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+    .reply-edit-btn:hover {
+        color: #1e293b;
+        border-color: #cbd5e1;
+        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+        transform: translateY(-1px);
+    }
+    .reply-delete-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        border: 1px solid #fee2e2;
+        background: #fff;
+        color: #ef4444;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    .reply-delete-btn:hover {
+        background: #fef2f2;
+        border-color: #fecaca;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(239, 68, 68, 0.15);
+    }
+
     /* Modal usability */
     .modal {
         z-index: 2000;
@@ -792,6 +1032,18 @@
                 </a>
             {% endfor %}
         </div>
+        <div class="specialty-nav" data-specialty-nav>
+            <button type="button" class="specialty-btn" data-specialty-prev aria-label="Précédent">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"></path>
+                </svg>
+            </button>
+            <button type="button" class="specialty-btn" data-specialty-next aria-label="Suivant">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"></path>
+                </svg>
+            </button>
+        </div>
 
         <!-- Filter Bar -->
         <div class="filter-bar">
@@ -882,6 +1134,12 @@
                                         </svg>
                                         {{ q.createdAt|date('d M Y') }}
                                     </span>
+                                    <a href="#" class="like-btn" aria-label="Aimer cette question">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                                        </svg>
+                                        Utile
+                                    </a>
                                     <a
                                         class="reply-btn"
                                         href="#replyForm-{{ q.id }}"
@@ -898,7 +1156,8 @@
                                 </div>
 
                                 <div class="collapse reply-inline" id="replyForm-{{ q.id }}">
-                                    <form action="#" method="post">
+                                    <form action="{{ path('reponse_create', {'id': q.id}) }}" method="post">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('reponse_create_' ~ q.id) }}">
                                         <div class="reply-card">
                                             <div class="reply-avatar" aria-hidden="true">{{ q.titre|default('Q')|slice(0, 1)|upper }}</div>
                                             <div class="reply-box">
@@ -920,6 +1179,101 @@
                                         </div>
                                     </form>
                                 </div>
+
+                                {% if q.reponses|length > 0 %}
+                                    <div class="replies-list" data-page-size="3">
+                                        {% for r in q.reponses %}
+                                            <div class="reply-item">
+                                                <div class="reply-item-head">
+                                                    <div class="reply-item-meta">
+                                                        {{ r.createdAt ? r.createdAt|date('d M Y H:i') : '' }}
+                                                    </div>
+                                                    <div class="reply-actions-top">
+                                                        <button
+                                                            type="button"
+                                                            class="reply-edit-btn"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#editReponseModal-{{ r.id }}"
+                                                            aria-label="Modifier la rÃ©ponse"
+                                                        >
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                                <path d="M12 20h9"></path>
+                                                                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                                                            </svg>
+                                                        </button>
+                                                        <form action="{{ path('reponse_delete', {'id': r.id}) }}" method="post" style="display:inline;">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('reponse_delete_' ~ r.id) }}">
+                                                            <button type="submit" class="reply-delete-btn" aria-label="Supprimer la rÃ©ponse" onclick="return confirm('Supprimer cette rÃ©ponse ?');">
+                                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                                    <path d="M3 6h18"></path>
+                                                                    <path d="M8 6V4h8v2"></path>
+                                                                    <path d="M19 6l-1 14H6L5 6"></path>
+                                                                    <path d="M10 11v6"></path>
+                                                                    <path d="M14 11v6"></path>
+                                                                </svg>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                <div class="reply-item-content">
+                                                    <img class="reply-avatar-img" src="{{ asset('assets/assets/img/person/person-m-9.webp') }}" alt="Utilisateur">
+                                                    <div class="reply-body">
+                                                        <div>{{ r.contenu }}</div>
+                                                        <div class="mt-2">
+                                                            <a href="#" class="like-btn" aria-label="Aimer cette rÃ©ponse">
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                                                                </svg>
+                                                                Utile
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal fade" id="editReponseModal-{{ r.id }}" tabindex="-1" aria-labelledby="editReponseLabel-{{ r.id }}" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="editReponseLabel-{{ r.id }}">Modifier la rÃ©ponse</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                                                        </div>
+                                                        <form action="{{ path('reponse_edit', {'id': r.id}) }}" method="post">
+                                                            <div class="modal-body">
+                                                                <textarea
+                                                                    name="contenu"
+                                                                    class="form-control"
+                                                                    rows="4"
+                                                                    required
+                                                                >{{ r.contenu }}</textarea>
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('reponse_edit_' ~ r.id) }}">
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn-close-custom" data-bs-dismiss="modal">Annuler</button>
+                                                                <button type="submit" class="btn-send">Enregistrer</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="replies-controls" data-replies-controls>
+                                        <button type="button" class="replies-btn pulse" data-replies-prev aria-label="PrÃ©cÃ©dent">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M15 18l-6-6 6-6"></path>
+                                            </svg>
+                                            PrÃ©cÃ©dent
+                                        </button>
+                                        <span data-replies-page>Page 1</span>
+                                        <button type="button" class="replies-btn pulse" data-replies-next aria-label="Suivant">
+                                            Suivant
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M9 18l6-6-6-6"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -992,4 +1346,59 @@
         </div>
     </div>
 </section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const specGrid = document.querySelector('.specialty-grid');
+        const specPrev = document.querySelector('[data-specialty-prev]');
+        const specNext = document.querySelector('[data-specialty-next]');
+        if (specGrid && specPrev && specNext) {
+            const scrollBy = () => specGrid.clientWidth * 0.9;
+            specPrev.addEventListener('click', () => {
+                specGrid.scrollBy({ left: -scrollBy(), behavior: 'smooth' });
+            });
+            specNext.addEventListener('click', () => {
+                specGrid.scrollBy({ left: scrollBy(), behavior: 'smooth' });
+            });
+        }
+
+        const lists = document.querySelectorAll('.replies-list[data-page-size]');
+        lists.forEach((list) => {
+            const pageSize = parseInt(list.getAttribute('data-page-size'), 10) || 3;
+            const items = Array.from(list.querySelectorAll('.reply-item'));
+            if (items.length <= pageSize) {
+                const controls = list.parentElement.querySelector('[data-replies-controls]');
+                if (controls) controls.style.display = 'none';
+                return;
+            }
+
+            let page = 1;
+            const totalPages = Math.ceil(items.length / pageSize);
+            const controls = list.parentElement.querySelector('[data-replies-controls]');
+            const prevBtn = controls.querySelector('[data-replies-prev]');
+            const nextBtn = controls.querySelector('[data-replies-next]');
+            const pageLabel = controls.querySelector('[data-replies-page]');
+
+            function render() {
+                const start = (page - 1) * pageSize;
+                const end = start + pageSize;
+                items.forEach((item, idx) => {
+                    item.style.display = idx >= start && idx < end ? '' : 'none';
+                });
+                pageLabel.textContent = `Page ${page} / ${totalPages}`;
+                prevBtn.disabled = page === 1;
+                nextBtn.disabled = page === totalPages;
+            }
+
+            prevBtn.addEventListener('click', () => {
+                if (page > 1) { page -= 1; render(); }
+            });
+            nextBtn.addEventListener('click', () => {
+                if (page < totalPages) { page += 1; render(); }
+            });
+
+            render();
+        });
+    });
+</script>
 {% endblock %}
