@@ -9,7 +9,9 @@ use App\Entity\Feedback;
 use App\Form\RendezVousType;
 use App\Form\FeedbackType;
 use App\Service\EmailService;
+use App\Service\SentimentAnalysisService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -323,7 +325,9 @@ class AppointmentController extends AbstractController
     public function addFeedback(
         RendezVous $rendezVous,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        SentimentAnalysisService $sentimentService,
+        LoggerInterface $logger
     ): Response {
         // Check if patient owns this appointment and it's completed
         $patientId = $request->getSession()->get('patient_id');
@@ -354,12 +358,42 @@ class AppointmentController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
+                // 🔍 Analyze sentiment using Flask API before persisting
+                $analysisResult = $sentimentService->analyzeSentiment(
+                    $feedback->getComment(),
+                    $feedback->getRating()
+                );
+
+                if ($analysisResult) {
+                    $feedback->setSentimentScore((float)$analysisResult['final_score']);
+                    $logger->info('✅ Sentiment score calculated in appointment feedback', [
+                        'score' => $analysisResult['final_score'],
+                        'label' => $analysisResult['sentiment_label'],
+                        'feedback_id' => $feedback->getId()
+                    ]);
+                } else {
+                    // Fallback: use rating if sentiment analysis fails
+                    $feedback->setSentimentScore((float)$feedback->getRating());
+                    $logger->warning('⚠️ Sentiment analysis failed, using rating as fallback');
+                }
+
                 $em->persist($feedback);
                 $em->flush();
-                $this->addFlash('success', 'Thank you for your feedback!');
+
+                // Update doctor's average AI score
+                $doctor = $feedback->getMedecin();
+                $doctor->updateAiAverageScore();
+                $em->flush();
+
+                $this->addFlash('success', '✅ Thank you for your feedback!');
                 return $this->redirectToRoute('app_my_appointments');
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Error saving feedback: ' . $e->getMessage());
+                $this->addFlash('error', '❌ Error saving feedback: ' . $e->getMessage());
+                $logger->error('Error in feedback creation', [
+                    'exception' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]);
             }
         }
 

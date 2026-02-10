@@ -42,6 +42,9 @@ class Feedback
     #[ORM\JoinColumn(nullable: true)]
     private ?RendezVous $rendezVous = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $sentimentScore = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -61,6 +64,9 @@ class Feedback
     public function setMedecin(?Medecin $medecin): self { $this->medecin = $medecin; return $this; }
     public function getRendezVous(): ?RendezVous { return $this->rendezVous; }
     public function setRendezVous(?RendezVous $rendezVous): self { $this->rendezVous = $rendezVous; return $this; }
+
+    public function getSentimentScore(): ?float { return $this->sentimentScore; }
+    public function setSentimentScore(?float $sentimentScore): self { $this->sentimentScore = $sentimentScore; return $this; }
 
     public function getStars(): string { return str_repeat('⭐', $this->rating); }
 }

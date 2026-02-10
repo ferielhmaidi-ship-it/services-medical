@@ -48,13 +48,20 @@ class Medecin
     #[ORM\OneToMany(mappedBy: 'medecin', targetEntity: Feedback::class, cascade: ['remove'])]
     private Collection $feedbacks;
 
+    // ✅ NOUVEAUX CHAMPS AI
+    #[ORM\Column(nullable: true)]
+    private ?float $aiAverageScore = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $aiScoreUpdatedAt = null;
+
     public function __construct()
     {
         $this->rendezVous = new ArrayCollection();
         $this->feedbacks = new ArrayCollection();
     }
 
-    // GETTERS & SETTERS
+    // GETTERS & SETTERS EXISTANTS
     public function getId(): ?int { return $this->id; }
     public function getFirstName(): ?string { return $this->firstName; }
     public function setFirstName(string $firstName): self { $this->firstName = $firstName; return $this; }
@@ -115,6 +122,56 @@ class Medecin
             $total += $feedback->getRating();
         }
         return round($total / $this->feedbacks->count(), 1);
+    }
+
+    // ✅ NOUVEAUX GETTERS/SETTERS AI
+    public function getAiAverageScore(): ?float
+    {
+        return $this->aiAverageScore;
+    }
+
+    public function setAiAverageScore(?float $aiAverageScore): self
+    {
+        $this->aiAverageScore = $aiAverageScore;
+        $this->aiScoreUpdatedAt = new \DateTimeImmutable();
+        return $this;
+    }
+
+    public function getAiScoreUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->aiScoreUpdatedAt;
+    }
+
+    /**
+     * Calculer et mettre à jour le score AI moyen
+     */
+    public function updateAiAverageScore(): void
+    {
+        $feedbacks = $this->feedbacks;
+        
+        if ($feedbacks->isEmpty()) {
+            $this->aiAverageScore = null;
+            $this->aiScoreUpdatedAt = null;
+            return;
+        }
+
+        $total = 0;
+        $count = 0;
+
+        foreach ($feedbacks as $feedback) {
+            if ($feedback->getSentimentScore() !== null) {
+                $total += $feedback->getSentimentScore();
+                $count++;
+            }
+        }
+
+        if ($count > 0) {
+            $this->aiAverageScore = round($total / $count, 2);
+            $this->aiScoreUpdatedAt = new \DateTimeImmutable();
+        } else {
+            $this->aiAverageScore = null;
+            $this->aiScoreUpdatedAt = null;
+        }
     }
 
     public function __toString(): string { return 'Dr. ' . $this->firstName . ' ' . $this->lastName; }
