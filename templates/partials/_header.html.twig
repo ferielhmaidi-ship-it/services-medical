@@ -12,6 +12,7 @@
         <li><a href="{{ url('app_departments') }}" class="{{ app.request.get('_route') == 'app_departments' ? 'active' : '' }}">Departments</a></li>
         <li><a href="{{ url('app_services') }}" class="{{ app.request.get('_route') == 'app_services' ? 'active' : '' }}">Services</a></li>
         <li><a href="{{ url('app_doctors') }}" class="{{ app.request.get('_route') == 'app_doctors' ? 'active' : '' }}">Doctors</a></li>
+        <li><a href="{{ url('app_doctor_appointments') }}" class="{{ app.request.get('_route') == 'app_doctor_appointments' ? 'active' : '' }}">Doctor Rendez-vous</a></li>
         <li class="dropdown"><a href="#"><span>More Pages</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
           <ul>
             <li><a href="{{ url('app_department_details') }}">Department Details</a></li>
@@ -24,6 +25,7 @@
             <li><a href="{{ url('app_privacy') }}">Privacy</a></li>
           </ul>
         </li>
+        
         <li class="dropdown"><a href="#"><span>Rapports Médicales</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
           <ul>
             <li><a href="#">Rapport 1</a></li>

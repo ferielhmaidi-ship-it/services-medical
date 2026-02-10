@@ -56,12 +56,6 @@ class WebController extends AbstractController
         return $this->render('pages/contact.html.twig');
     }
 
-    #[Route('/appointment', name: 'app_appointment')]
-    public function appointment(): Response
-    {
-        return $this->render('pages/appointment.html.twig');
-    }
-
     #[Route('/testimonials', name: 'app_testimonials')]
     public function testimonials(): Response
     {
