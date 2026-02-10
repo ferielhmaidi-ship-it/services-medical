@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
+        h1, h2 { color: #007BFF; text-align: center; }
+        h3 { margin-top: 25px; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #333; padding: 8px; vertical-align: top; }
+        th { background: #f0f0f0; width: 30%; text-align: left; }
+        .section { margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+
+<h1>Dossier Médical</h1>
+
+{# ================= DOCUMENT ================= #}
+<div class="section">
+    <h2>📄 Document</h2>
+    <table>
+        <tr><th>Nom</th><td>{{ document.nom }}</td></tr>
+        <tr><th>Type</th><td>{{ document.type }}</td></tr>
+        <tr><th>Description</th><td>{{ document.description }}</td></tr>
+        <tr><th>Date création</th><td>{{ document.createdAt|date('d/m/Y H:i') }}</td></tr>
+    </table>
+</div>
+
+{# ================= RAPPORT ================= #}
+<div class="section">
+    <h2>🩺 Rapports Médicaux</h2>
+
+    {% if rapports is empty %}
+        <p>Aucun rapport.</p>
+    {% endif %}
+
+    {% for r in rapports %}
+        <h3>Rapport #{{ r.idrapport }}</h3>
+        <table>
+            <tr><th>Motif</th><td>{{ r.consultationReason }}</td></tr>
+            <tr><th>Diagnostic</th><td>{{ r.diagnosis }}</td></tr>
+            <tr><th>Observations</th><td>{{ r.observations }}</td></tr>
+            <tr><th>Recommandations</th><td>{{ r.recommendations }}</td></tr>
+            <tr><th>Traitements</th><td>{{ r.treatments }}</td></tr>
+            <tr><th>Date</th><td>{{ r.createdAt|date('d/m/Y') }}</td></tr>
+            <tr><th>Patient</th><td>{{ r.idpatient.prenom }} {{ r.idpatient.nom }}</td></tr>
+            <tr><th>Médecin</th><td>{{ r.idmedecin.nom }}</td></tr>
+        </table>
+    {% endfor %}
+</div>
+
+{# ================= ORDONNANCE ================= #}
+<div class="section">
+    <h2>💊 Ordonnances</h2>
+
+    {% if ordonnances is empty %}
+        <p>Aucune ordonnance.</p>
+    {% endif %}
+
+    {% for o in ordonnances %}
+        <h3>Ordonnance #{{ o.idordonnance }}</h3>
+        <table>
+            <tr><th>Médicament</th><td>{{ o.medicament }}</td></tr>
+            <tr><th>Posologie</th><td>{{ o.posologie }}</td></tr>
+            <tr><th>Instructions</th><td>{{ o.instructions }}</td></tr>
+            <tr><th>Notes</th><td>{{ o.notes }}</td></tr>
+            <tr><th>Date</th><td>{{ o.dateordonnance|date('d/m/Y') }}</td></tr>
+            <tr><th>Patient</th><td>{{ o.idpatient.prenom }} {{ o.idpatient.nom }}</td></tr>
+            <tr><th>Médecin</th><td>{{ o.idmedecin.nom }}</td></tr>
+        </table>
+    {% endfor %}
+</div>
+
+</body>
+</html>

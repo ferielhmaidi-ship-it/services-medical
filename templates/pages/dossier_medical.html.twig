@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dossier Médical{% endblock %}
+
+{% block body %}
+<style>
+.page {
+    padding: 40px 20px;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+}
+.container-box {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+h1 {
+    text-align: center;
+    color: #007BFF;
+    margin-bottom: 20px;
+}
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.table th, .table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    vertical-align: top;
+    text-align: center;
+}
+.table th {
+    background-color: #007BFF;
+    color: white;
+}
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+.actions a {
+    margin: 2px 2px 2px 0;
+    display: inline-block;
+}
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+</style>
+
+<section class="page">
+    <div class="container-box">
+        <h1>📁 Dossier Médical</h1>
+
+        {{ render(controller(
+            'App\\Controller\\DossierMedicalController::tableauDossierMedical',
+            {'_route': 'pages_dossier_medical'} 
+        )) }}
+    </div>
+</section>
+{% endblock %}

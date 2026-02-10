@@ -1,0 +1,65 @@
+/* Centrage vertical et horizontal */
+.page-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* ⬅ ne plus coller au centre vertical */
+    background: #e3f2fd;
+    padding-top: 80px; /* ⬅ descend tout le formulaire */
+}
+
+/* Carte du formulaire */
+.form-card {
+    background: #1976d2;
+    padding: 40px;
+    width: 650px;          /* ⬅ PLUS LARGE */
+    max-width: 95%;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    color: white;
+
+    transform: translateY(40px); /* ⬅ translation vers le bas */
+}
+
+/* Titre */
+.form-title {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 22px;
+}
+
+/* Inputs */
+.form-card input,
+.form-card textarea,
+.form-card select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: none;
+    margin-bottom: 15px;
+    font-size: 15px;
+}
+
+/* Labels */
+.form-card label {
+    font-weight: bold;
+    margin-bottom: 4px;
+    display: block;
+}
+
+/* Bouton */
+.btn-submit {
+    width: 100%;
+    background: #0d47a1;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 17px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-submit:hover {
+    background: #08306b;
+}

@@ -1,0 +1,272 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<style>
+.page {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding-top: 80px;
+    padding-bottom: 120px;
+    background-color: #f0f2f5;
+}
+
+.box {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    width: 98%;
+    max-width: 1300px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+h2, h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #007BFF;
+}
+
+/* ===== NOUVEAU : BOUTONS HAUT ===== */
+.top-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 25px 0 35px 0;
+}
+
+.top-actions a {
+    padding: 12px 22px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #fff;
+    transition: 0.2s;
+}
+
+.btn-add-rapport {
+    background: #0d6efd;
+}
+.btn-add-rapport:hover {
+    background: #0b5ed7;
+}
+
+.btn-add-ordonnance {
+    background: #198754;
+}
+.btn-add-ordonnance:hover {
+    background: #157347;
+}
+
+/* ================================ */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #007BFF;
+    color: white;
+}
+
+.btn-create {
+    background: #28a745;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-create:hover {
+    background: #218838;
+}
+
+#document-form {
+    display: none;
+    margin-top: 25px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #f9f9f9;
+}
+</style>
+
+<div class="page">
+<div class="box">
+
+<h2>Dossier Médical</h2>
+
+<p style="text-align:center;">
+    Patient ID : {{ idpatient }} | Médecin ID : {{ idmedecin }}
+</p>
+
+{# ===== NOUVEAU : 2 BOUTONS AJOUT ===== #}
+<div class="top-actions">
+    <a href="{{ path('rapport_add') }}" class="btn-add-rapport">
+        ➕ Ajouter Rapport
+    </a>
+
+    <a href="{{ path('ordonnance_add') }}" class="btn-add-ordonnance">
+        ➕ Ajouter Ordonnance
+    </a>
+</div>
+
+{# ===================== RAPPORTS ===================== #}
+<h3>Rapports Médicaux</h3>
+
+{% if rapports is empty %}
+<p style="text-align:center;">Aucun rapport trouvé.</p>
+{% else %}
+<table>
+<thead>
+<tr>
+    <th>ID</th>
+    <th>Motif</th>
+    <th>Diagnostic</th>
+    <th>Observations</th>
+    <th>Recommandations</th>
+    <th>Traitements</th>
+    <th>Date</th>
+    <th>Actions</th>
+</tr>
+</thead>
+<tbody>
+
+{% for r in rapports %}
+<tr>
+    <td><strong>{{ r.idrapport }}</strong></td>
+    <td>{{ r.consultationReason }}</td>
+    <td>{{ r.diagnosis }}</td>
+    <td>{{ r.observations }}</td>
+    <td>{{ r.recommendations }}</td>
+    <td>{{ r.treatments }}</td>
+    <td>{{ r.createdAt|date('Y-m-d H:i') }}</td>
+
+    <td>
+        <a href="{{ path('rapport_show', { idrapport: r.idrapport }) }}"
+           class="btn btn-info btn-sm">👁</a>
+
+        <a href="{{ path('rapport_mod', {
+            idrendezvous: r.idrendezvous.idrendezvous,
+            idmedecin: r.idmedecin.idmedecin,
+            idpatient: r.idpatient.idpatient,
+            idrapport: r.idrapport
+        }) }}"
+           class="btn btn-warning btn-sm">✏️</a>
+
+        <a href="{{ path('rapport_delete', {
+            idrendezvous: r.idrendezvous.idrendezvous,
+            idmedecin: r.idmedecin.idmedecin,
+            idpatient: r.idpatient.idpatient,
+            idrapport: r.idrapport
+        }) }}"
+           class="btn btn-danger btn-sm"
+           onclick="return confirm('Supprimer ce rapport ?')">🗑</a>
+    </td>
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
+{% endif %}
+
+{# ===================== ORDONNANCES ===================== #}
+<h3>Ordonnances</h3>
+
+{% if ordonnances is empty %}
+<p style="text-align:center;">Aucune ordonnance trouvée.</p>
+{% else %}
+<table>
+<thead>
+<tr>
+    <th>ID</th>
+    <th>Médicament</th>
+    <th>Posologie</th>
+    <th>Instructions</th>
+    <th>Notes</th>
+    <th>Date</th>
+    <th>Actions</th>
+</tr>
+</thead>
+<tbody>
+
+{% for o in ordonnances %}
+<tr>
+    <td><strong>{{ o.idordonnance }}</strong></td>
+    <td>{{ o.medicament }}</td>
+    <td>{{ o.posologie }}</td>
+    <td>{{ o.instructions }}</td>
+    <td>{{ o.notes }}</td>
+    <td>{{ o.createdAt|date('Y-m-d H:i') }}</td>
+
+    <td>
+        <a href="{{ path('ordonnance_show', { idordonnance: o.idordonnance }) }}"
+           class="btn btn-info btn-sm">👁</a>
+
+        <a href="{{ path('ordonnance_mod', {
+            idrendezvous: o.idrendezvous.idrendezvous,
+            idmedecin: o.idmedecin.idmedecin,
+            idpatient: o.idpatient.idpatient,
+            idordonnance: o.idordonnance
+        }) }}"
+           class="btn btn-warning btn-sm">✏️</a>
+
+        <a href="{{ path('ordonnance_del', {
+            idrendezvous: o.idrendezvous.idrendezvous,
+            idmedecin: o.idmedecin.idmedecin,
+            idpatient: o.idpatient.idpatient,
+            idordonnance: o.idordonnance
+        }) }}"
+           class="btn btn-danger btn-sm"
+           onclick="return confirm('Supprimer cette ordonnance ?')">🗑</a>
+    </td>
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
+{% endif %}
+
+{# ===================== CREER DOCUMENT ===================== #}
+{% if showCreateButton %}
+<div style="text-align:right; margin-top:30px;">
+<button class="btn-create" onclick="toggleForm()">➕ Créer Document</button>
+
+<div id="document-form">
+<h3>Créer un Document</h3>
+{{ form_start(form) }}
+{{ form_widget(form) }}
+<button class="btn-create" style="margin-top:15px;">Enregistrer</button>
+{{ form_end(form) }}
+</div>
+</div>
+{% endif %}
+
+</div>
+</div>
+
+<script>
+function toggleForm() {
+    const form = document.getElementById('document-form');
+    form.style.display = (form.style.display === 'none' || form.style.display === '')
+        ? 'block'
+        : 'none';
+}
+</script>
+
+<footer style="text-align:center; padding:20px; background:#007BFF; color:white;">
+© 2026 Clinique Example
+</footer>
+
+{% endblock %}

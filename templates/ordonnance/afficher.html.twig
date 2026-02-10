@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Afficher Ordonnance{% endblock %}
+
+{% block body %}
+<style>
+/* ===== PAGE (FAIT DESCENDRE LE CONTENU + BACKGROUND) ===== */
+.page {
+    background: #f0f2f5;
+
+    padding-top: 140px;   /* 🔽 DESCEND LA PAGE */
+    padding-right: 20px;
+    padding-left: 20px;
+    padding-bottom: 40px; /* espace bas réduit */
+
+    min-height: auto;     /* évite grand espace inutile */
+}
+
+/* ===== CARD ===== */
+.card {
+    max-width: 650px;
+    margin: auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+/* ===== TITRE ===== */
+h2 {
+    text-align: center;
+    color: #198754;
+    margin-bottom: 25px;
+}
+
+/* ===== CONTENT ===== */
+.item {
+    margin-bottom: 14px;
+    font-size: 15px;
+}
+
+.label {
+    font-weight: bold;
+    color: #555;
+}
+
+/* ===== ACTIONS ===== */
+.actions {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.actions a {
+    margin: 0 8px;
+}
+</style>
+
+<div class="page">
+    <div class="card">
+        <h2>💊 Détails de l’Ordonnance</h2>
+
+        <div class="item">
+            <span class="label">ID :</span>
+            {{ ordonnance.idordonnance }}
+        </div>
+
+        <div class="item">
+            <span class="label">Médicament :</span>
+            {{ ordonnance.medicament }}
+        </div>
+
+        <div class="item">
+            <span class="label">Posologie :</span>
+            {{ ordonnance.posologie }}
+        </div>
+
+        <div class="item">
+            <span class="label">Instructions :</span>
+            {{ ordonnance.instructions }}
+        </div>
+
+        <div class="item">
+            <span class="label">Notes :</span>
+            {{ ordonnance.notes ?: '-' }}
+        </div>
+
+        <div class="item">
+            <span class="label">Date :</span>
+            {{ ordonnance.createdAt|date('d/m/Y H:i') }}
+        </div>
+
+        <a href="javascript:history.back()" class="btn-back">
+            ⬅ Retour
+        </a>
+    </div>
+</div>
+{% endblock %}

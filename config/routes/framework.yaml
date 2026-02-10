@@ -1,0 +1,14 @@
+# config/routes/framework.yaml
+# -----------------------------
+# Ce fichier peut rester vide en Symfony 6/7 si tu n'as pas besoin de routes spécifiques au framework.
+# Les anciennes références à ErrorController ou errors.php sont obsolètes et doivent être supprimées.
+
+# Exemple facultatif pour le dev avec le profiler Symfony
+when@dev:
+    _profiler:
+        resource: '@WebProfilerBundle/Resources/config/routing/wdt.xml'
+        prefix: /_wdt
+
+    _profiler_main:
+        resource: '@WebProfilerBundle/Resources/config/routing/profiler.xml'
+        prefix: /_profiler

@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<style>
+.page {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding-top: 80px;
+    padding-bottom: 120px; /* ⬅ ESPACE AVANT LE FOOTER */
+}
+
+.box {
+    background: #ffffff75;
+    padding: 35px;
+    border-radius: 10px;
+    width: 700px;
+    max-width: 95%;
+    transform: translateY(40px);
+}
+
+.box input,
+.box textarea,
+.box select {
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+}
+</style>
+
+<div class="page">
+    <div class="box">
+
+        {{ form_start(form) }}
+
+        {{ form_row(form.consultation_reason) }}
+        {{ form_row(form.diagnosis) }}
+        {{ form_row(form.observations) }}
+        {{ form_row(form.recommendations) }}
+        {{ form_row(form.treatments) }}
+
+        {{ form_row(form.idrendezvous) }}
+        {{ form_row(form.idmedecin) }}
+        {{ form_row(form.idpatient) }}
+
+        <button>Enregistrer</button>
+
+        {{ form_end(form) }}
+
+        <datalist id="rendezvous_list">
+    {% for r in rendezvous %}
+        <option value="{{ r.date|date('Y-m-d H:i') }}">
+    {% endfor %}
+</datalist>
+
+<datalist id="medecin_list">
+    {% for m in medecins %}
+        <option value="{{ m.nom }}">
+    {% endfor %}
+</datalist>
+
+<datalist id="patient_list">
+    {% for p in patients %}
+        <option value="{{ p.nom }} {{ p.prenom }}">
+    {% endfor %}
+</datalist>
+
+<a href="javascript:history.back()" class="btn-back">
+            ⬅ Retour
+        </a>
+
+    </div>
+</div>
+
+{% endblock %}

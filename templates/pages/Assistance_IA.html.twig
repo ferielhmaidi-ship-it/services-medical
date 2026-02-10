@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Assistance IA{% endblock %}
+
+{% block body %}
+<section class="page">
+    <div class="container-box">
+        <h1>🧠 Assistance IA Médicale</h1>
+
+        <form id="iaForm">
+            <textarea name="prompt" id="prompt" rows="5" class="form-control" placeholder="Posez votre question..."></textarea><br>
+            <button type="submit" class="btn btn-primary">Envoyer</button>
+        </form>
+
+        <h2>Réponse :</h2>
+        <pre id="answer" style="background:#f8f9fa;padding:15px;border-radius:8px;"></pre>
+    </div>
+</section>
+
+<script>
+document.getElementById('iaForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const prompt = document.getElementById('prompt').value;
+    const answerBox = document.getElementById('answer');
+    answerBox.textContent = "Chargement...";
+
+    const response = await fetch('{{ path('ia_db') }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: new URLSearchParams({prompt})
+    });
+
+    if (response.ok) {
+        const html = await response.text();
+
+        // Récupère seulement la partie de la réponse IA depuis index.html.twig
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const answerContent = doc.querySelector('#iaAnswer');
+        answerBox.textContent = answerContent ? answerContent.textContent : "Pas de réponse";
+    } else {
+        answerBox.textContent = "Erreur de communication avec le serveur.";
+    }
+});
+</script>
+{% endblock %}

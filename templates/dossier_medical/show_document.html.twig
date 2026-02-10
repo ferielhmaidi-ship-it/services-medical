@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Document{% endblock %}
+
+{% block body %}
+<style>
+.page {
+    padding: 100px 30px;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+}
+
+.container-box {
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    max-width: 700px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+    color: #007BFF;
+    margin-bottom: 30px;
+}
+
+.document-line {
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.document-label {
+    font-weight: bold;
+    width: 150px;
+    display: inline-block;
+}
+</style>
+
+<div class="page">
+    <div class="container-box">
+        <h1>📄 Détails du Document</h1>
+
+        <div class="document-line">
+            <span class="document-label">ID :</span> {{ document.iddocument }}
+        </div>
+        <div class="document-line">
+            <span class="document-label">Nom :</span> {{ document.nom }}
+        </div>
+        <div class="document-line">
+            <span class="document-label">Type :</span> {{ document.type }}
+        </div>
+        <div class="document-line">
+            <span class="document-label">Chemin :</span> {{ document.chemin }}
+        </div>
+        <div class="document-line">
+            <span class="document-label">Taille :</span> {{ document.taille }}
+        </div>
+        <div class="document-line">
+            <span class="document-label">Description :</span> {{ document.description }}
+        </div>
+        <div class="document-line">
+            <span class="document-label">Créé le :</span> {{ document.createdAt ? document.createdAt|date('d/m/Y H:i') : '-' }}
+        </div>
+        <div class="document-line">
+            <span class="document-label">Modifié le :</span> {{ document.updatedAt ? document.updatedAt|date('d/m/Y H:i') : '-' }}
+        </div>
+
+        <a href="{{ path('pages_dossier_medical', {'idpatient': idpatient, 'idmedecin': idmedecin}) }}">
+    ← Retour au Dossier Médical
+</a>
+    </div>
+</div>
+{% endblock %}

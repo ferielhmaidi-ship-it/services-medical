@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Services - MediNest{% endblock %}
+{% block body_class %}services-page{% endblock %}
+
+{% block body %}
+<!-- Page Title -->
+<div class="page-title">
+  <div class="heading">
+    <div class="container">
+      <div class="row d-flex justify-content-center text-center">
+        <div class="col-lg-8">
+          <h1 class="heading-title">Services</h1>
+          <p class="mb-0">Comprehensive healthcare services for all your medical needs</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="breadcrumbs">
+    <div class="container">
+      <ol>
+        <li><a href="{{ path('app_home') }}">Home</a></li>
+        <li class="current">Services</li>
+      </ol>
+    </div>
+  </nav>
+</div>
+
+<!-- Services Section -->
+<section id="services" class="services section">
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row gy-4">
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="fas fa-heartbeat"></i>
+          </div>
+          <h3>Cardiology Excellence</h3>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ante ipsum primis.</p>
+          <a href="{{ path('app_service_details') }}" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          <h3>Neurology Care</h3>
+          <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+          <a href="{{ path('app_service_details') }}" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="fas fa-bone"></i>
+          </div>
+          <h3>Orthopedic Surgery</h3>
+          <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.</p>
+          <a href="{{ path('app_service_details') }}" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="fas fa-baby"></i>
+          </div>
+          <h3>Pediatric Care</h3>
+          <p>Sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <a href="{{ path('app_service_details') }}" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="fas fa-ribbon"></i>
+          </div>
+          <h3>Oncology Treatment</h3>
+          <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.</p>
+          <a href="{{ path('app_service_details') }}" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="fas fa-flask"></i>
+          </div>
+          <h3>Laboratory Services</h3>
+          <p>Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus.</p>
+          <a href="{{ path('app_service_details') }}" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

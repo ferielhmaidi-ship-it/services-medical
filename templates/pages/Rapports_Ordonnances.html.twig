@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Rapports & Ordonnances{% endblock %}
+{% block body_class %}rapports-ordonnances-page{% endblock %}
+
+{% block body %}
+<section class="section">
+    <div style="
+        max-width: 600px;
+        margin: 50px auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    ">
+        <h2 style="text-align:center; color:#007BFF; margin-bottom:20px;">
+            Accès Rapports & Ordonnances
+        </h2>
+
+        <form id="ro-form">
+            <div style="margin-bottom: 15px;">
+                <label for="idpatient">ID Patient :</label>
+                <input
+                    type="number"
+                    id="idpatient"
+                    required
+                    style="
+                        width:100%;
+                        padding:8px;
+                        border-radius:6px;
+                        border:1px solid #ccc;
+                    "
+                >
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label for="idmedecin">ID Médecin :</label>
+                <input
+                    type="number"
+                    id="idmedecin"
+                    required
+                    style="
+                        width:100%;
+                        padding:8px;
+                        border-radius:6px;
+                        border:1px solid #ccc;
+                    "
+                >
+            </div>
+
+            <button
+                type="submit"
+                style="
+                    width:100%;
+                    padding:12px;
+                    background:#28a745;
+                    color:white;
+                    border:none;
+                    border-radius:6px;
+                    font-weight:bold;
+                    cursor:pointer;
+                "
+            >
+                Voir Rapports & Ordonnances
+            </button>
+        </form>
+    </div>
+</section>
+
+<script>
+document.getElementById('ro-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const idpatient = document.getElementById('idpatient').value;
+    const idmedecin = document.getElementById('idmedecin').value;
+
+    if (idpatient && idmedecin) {
+        window.location.href = `/rapportsordonnances/${idpatient}/${idmedecin}`;
+    }
+});
+</script>
+{% endblock %}
