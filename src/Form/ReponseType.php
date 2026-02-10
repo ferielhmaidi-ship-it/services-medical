@@ -9,7 +9,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ReponseType extends AbstractType
 {
@@ -17,10 +16,7 @@ class ReponseType extends AbstractType
     {
         $builder
             ->add('contenu', TextareaType::class, [
-                'label' => 'Votre rÃ©ponse',
-                'constraints' => [
-                    new NotBlank(['message' => 'La rÃ©ponse ne peut pas Ãªtre vide'])
-                ],
+                'label' => 'Votre reponse',
             ])
             ->add('question', EntityType::class, [
                 'class' => Question::class,

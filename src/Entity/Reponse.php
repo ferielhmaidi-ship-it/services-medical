@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ReponseRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReponseRepository::class)]
 class Reponse
@@ -14,6 +15,13 @@ class Reponse
     private ?int $id = null;
 
     #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank(message: 'La reponse ne peut pas etre vide.')]
+    #[Assert\Length(
+        min: 5,
+        max: 1000,
+        minMessage: 'La reponse doit contenir au moins {{ limit }} caracteres.',
+        maxMessage: 'La reponse ne peut pas depasser {{ limit }} caracteres.'
+    )]
     private ?string $contenu = null;
 
     #[ORM\Column(type: 'datetime')]
@@ -21,6 +29,7 @@ class Reponse
 
     #[ORM\ManyToOne(targetEntity: Question::class, inversedBy: 'reponses')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Veuillez choisir une question.')]
     private ?Question $question = null;
 
     public function __construct()

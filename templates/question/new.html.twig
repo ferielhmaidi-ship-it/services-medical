@@ -416,8 +416,7 @@
                             {{ form_label(form.titre, null, {'label_attr': {'class': 'form-label'}}) }}
                             {{ form_widget(form.titre, {'attr': {
                                 'class': 'form-control' ~ (form.titre.vars.errors|length ? ' is-invalid' : ''),
-                                'placeholder': 'Ex: Comment résoudre cette équation différentielle ?',
-                                'maxlength': '30'
+                                'placeholder': 'Ex: Comment résoudre cette équation différentielle ?'
                             }}) }}
                             {% if form.titre.vars.errors|length %}
                                 <div class="invalid-feedback">
@@ -434,20 +433,61 @@
                             </div>
                         </div>
 
-                        <div class="form-group" style="position: relative;">
-                            {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
-                            {{ form_widget(form.description, {'attr': {
-                                'class': 'form-control' ~ (form.description.vars.errors|length ? ' is-invalid' : ''),
-                                'placeholder': 'Décrivez votre problème en détail...',
-                                'rows': '5'
-                            }}) }}
-                            <span class="char-counter" id="descCounter">0 / 1000</span>
-                            {% if form.description.vars.errors|length %}
-                                <div class="invalid-feedback">
-                                    {{ form_errors(form.description) }}
-                                </div>
-                            {% endif %}
-                        </div>
+<div class="form-group" style="position: relative;">
+    {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+
+    {{ form_widget(form.description, {
+        'attr': {
+            'id': 'question_description',
+            'class': 'form-control' ~ (form.description.vars.errors|length ? ' is-invalid' : ''),
+            'placeholder': 'Décrivez votre problème en détail...',
+            'rows': '5'
+        }
+    }) }}
+<div style="
+    position:absolute;
+    right:10px;
+    bottom:10px;
+    display:flex;
+    gap:6px;
+    align-items:center;
+">
+
+    <!-- Select language -->
+    <select id="langSelect"
+        style="
+            padding:5px 8px;
+            border-radius:6px;
+            border:1px solid #ccc;
+            font-size:12px;
+        ">
+        <option value="fr">🇫🇷 FR</option>
+        <option value="en">🇬🇧 EN</option>
+        <option value="ar">🇸🇦 AR</option>
+    </select>
+
+    <!-- Fix -->
+    <button type="button"
+        onclick="fixDescription()"
+        style="background:#6f42c1;color:white;border:none;padding:6px 10px;border-radius:6px;font-size:12px;">
+        ✨ Fix
+    </button>
+
+    <!-- Translate -->
+    <button type="button"
+        onclick="translateDescription()"
+        style="background:#0d6efd;color:white;border:none;padding:6px 10px;border-radius:6px;font-size:12px;">
+        🌍 Translate
+</div>
+
+
+    {% if form.description.vars.errors|length %}
+        <div class="invalid-feedback">
+            {{ form_errors(form.description) }}
+        </div>
+    {% endif %}
+</div>
+
 
                         <div class="form-group">
                             {{ form_label(form.specialite, null, {'label_attr': {'class': 'form-label'}}) }}
@@ -484,63 +524,61 @@
         </div>
     </div>
 </section>
-
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Character counter for description
-        const descField = document.querySelector('textarea[name$="[description]"]');
-        const counter = document.getElementById('descCounter');
-        const maxLength = 1000;
+function translateDescription() {
+    const textarea = document.getElementById('question_description');
+    const lang = document.getElementById('langSelect').value;
+    const text = textarea.value;
 
-        if (descField && counter) {
-            function updateCounter() {
-                const length = descField.value.length;
-                counter.textContent = `${length} / ${maxLength}`;
+    if (!text.trim()) {
+        alert("Write something first");
+        return;
+    }
 
-                counter.classList.remove('warning', 'danger');
-                if (length > maxLength * 0.9) {
-                    counter.classList.add('danger');
-                } else if (length > maxLength * 0.8) {
-                    counter.classList.add('warning');
-                }
-            }
-
-            descField.addEventListener('input', updateCounter);
-            updateCounter();
-        }
-
-        // Form validation enhancement
-        const form = document.querySelector('.needs-validation');
-        const submitBtn = document.getElementById('submitBtn');
-
-        form.addEventListener('submit', function(e) {
-            if (!form.checkValidity()) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                // Shake animation for invalid fields
-                const invalidFields = form.querySelectorAll('.is-invalid');
-                invalidFields.forEach(field => {
-                    field.style.animation = 'none';
-                    setTimeout(() => {
-                        field.style.animation = '';
-                    }, 10);
-                });
-            } else {
-                // Loading state
-                submitBtn.classList.add('loading');
-                submitBtn.disabled = true;
-            }
-
-            form.classList.add('was-validated');
-        });
-
-        if (descField) {
-            descField.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.max(140, this.scrollHeight) + 'px';
-            });
-        }
+    fetch('/chatbot/translate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            text: text,
+            target: lang
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        textarea.value = data.result;
     });
+}
+function fixDescription() {
+    const textarea = document.getElementById('question_description');
+    const lang = document.getElementById('langSelect').value;
+    const text = textarea.value;
+
+    if (!text.trim()) {
+        alert("Write something first");
+        return;
+    }
+
+    fetch('/chatbot/fix', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            text: text,
+            lang: lang
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        textarea.value = data.result;
+    });
+}
+
 </script>
+;
+    }
 {% endblock %}

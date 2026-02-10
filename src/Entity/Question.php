@@ -6,6 +6,7 @@ use App\Repository\QuestionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: QuestionRepository::class)]
 class Question
@@ -16,9 +17,23 @@ class Question
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le titre ne peut pas etre vide.')]
+    #[Assert\Length(
+        min: 5,
+        max: 30,
+        minMessage: 'Le titre doit contenir au moins {{ limit }} caracteres.',
+        maxMessage: 'Le titre ne peut pas depasser {{ limit }} caracteres.'
+    )]
     private ?string $titre = null;
 
     #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank(message: 'La description ne peut pas etre vide.')]
+    #[Assert\Length(
+        min: 10,
+        max: 1000,
+        minMessage: 'La description doit contenir au moins {{ limit }} caracteres.',
+        maxMessage: 'La description ne peut pas depasser {{ limit }} caracteres.'
+    )]
     private ?string $description = null;
 
     #[ORM\Column(type: 'datetime')]
@@ -26,6 +41,7 @@ class Question
 
     #[ORM\ManyToOne(targetEntity: Specialite::class, inversedBy: 'questions')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Veuillez choisir une specialite.')]
     private ?Specialite $specialite = null;
 
     #[ORM\OneToMany(mappedBy: 'question', targetEntity: Reponse::class)]

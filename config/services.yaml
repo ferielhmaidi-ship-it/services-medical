@@ -1,4 +1,5 @@
 parameters:
+    openrouter_api_key: '%env(OPENROUTER_API_KEY)%'
 
 services:
     _defaults:
@@ -16,3 +17,7 @@ services:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
         public: true
+
+    App\Service\ChatbotService:
+        arguments:
+            $openRouterApiKey: '%openrouter_api_key%'

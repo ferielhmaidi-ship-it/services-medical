@@ -6,6 +6,7 @@ use App\Repository\SpecialiteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SpecialiteRepository::class)]
 class Specialite
@@ -16,9 +17,20 @@ class Specialite
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Le nom ne peut pas etre vide.')]
+    #[Assert\Length(
+        min: 2,
+        max: 100,
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caracteres.',
+        maxMessage: 'Le nom ne peut pas depasser {{ limit }} caracteres.'
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
+    #[Assert\Length(
+        max: 500,
+        maxMessage: 'La description ne peut pas depasser {{ limit }} caracteres.'
+    )]
     private ?string $description = null;
 
     #[ORM\OneToMany(mappedBy: 'specialite', targetEntity: Question::class)]
