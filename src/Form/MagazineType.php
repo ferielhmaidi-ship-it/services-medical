@@ -27,13 +27,6 @@ class MagazineType extends AbstractType
                     'rows' => 4,
                 ],
             ])
-            ->add('image', null, [
-                'label' => 'Cover image URL',
-                'required' => false,
-                'attr' => [
-                    'placeholder' => 'https://example.com/cover.jpg',
-                ],
-            ])
             ->add('dateCreate', null, [
                 'label' => 'Created date',
                 'widget' => 'single_text',
@@ -45,18 +38,34 @@ class MagazineType extends AbstractType
                 ],
             ])
             ->add('image', FileType::class, [
-                    'label' => 'Image du magazine',
-                    'mapped' => false,
-                    'required' => false,
-                    'constraints' => [
+                'label' => 'Image du magazine',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
                     new File([
-                    'maxSize' => '2M',
-                    'mimeTypes' => [
-                        'image/jpeg',
-                    'image/png',
-                    'image/webp',
+                        'maxSize' => '2M',
+                        'mimeTypes' => [
+                            'image/jpeg',      // .jpeg
+                            'image/jpg',       // .jpg
+                            'image/png',       // .png
+                            'image/gif',       // .gif
+                            'image/webp',      // .webp
+                        ],
+                        'mimeTypesMessage' => 'Veuillez uploader une image valide (JPEG, JPG, PNG, GIF ou WebP)',
+                    ])
+                ],
+            ])
+            ->add('pdfFileUpload', FileType::class, [
+                'label' => 'Fichier PDF du magazine',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '10M',
+                        'mimeTypes' => [
+                        'application/pdf',
             ],
-            'mimeTypesMessage' => 'Veuillez uploader une image valide',
+            'mimeTypesMessage' => 'Veuillez uploader un PDF valide',
         ])
     ],
 ])

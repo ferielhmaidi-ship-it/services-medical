@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ article.title }} | TabibNet{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/magazine.css') }}">
+{% endblock %}
+
+{% block body %}
+<section class="mag-section">
+  <div class="container">
+
+    <div class="article-card" style="padding:28px;">
+
+      <div style="margin-bottom:14px;">
+        <a href="{{ path('front_magazine_show', { id: article.magazine.id }) }}" class="mag-kicker" style="text-decoration:none;">
+          ← Retour au magazine : {{ article.magazine.title }}
+        </a>
+      </div>
+
+      {% if article.image %}
+        <div class="article-card__image" style="margin-bottom:18px;">
+          <img src="{{ asset('uploads/' ~ article.image) }}" alt="{{ article.title }}">
+        </div>
+      {% endif %}
+
+      <h1 style="margin:0 0 10px 0;">{{ article.title }}</h1>
+
+      <div class="article-card__meta" style="margin-bottom:18px;">
+        <span>{{ article.auteur }}</span>
+        <span>•</span>
+        <span>{{ article.datePub ? article.datePub|date('d/m/Y') : '' }}</span>
+      </div>
+
+      {# إذا عندك contenu استعمله، إذا ما عندكش نعرض resume #}
+      <div style="color:#334155; line-height:1.9; font-size:16px;">
+        {% if article.contenu is defined and article.contenu %}
+          {{ article.contenu|raw }}
+        {% else %}
+          {{ article.resume }}
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- NAV BUTTONS -->
+    <div style="display:flex; justify-content:space-between; gap:12px; margin-top:24px;">
+
+      {% if previous %}
+        <a class="btn btn-outline-primary"
+           href="{{ path('front_article_show', { magazineId: previous.magazine.id, id: previous.id }) }}">
+          ← Précédent
+        </a>
+      {% else %}
+        <span></span>
+      {% endif %}
+
+      {% if next %}
+        <a class="btn btn-primary"
+           href="{{ path('front_article_show', { magazineId: next.magazine.id, id: next.id }) }}">
+          Suivant →
+        </a>
+      {% endif %}
+
+    </div>
+
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'magazine-admin/base.html.twig' %}
+
+{% block title %}Liste des Articles{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-4">Liste des Articles</h1>
+
+    <table class="table table-bordered table-striped text-center align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Resume</th>
+                <th>Image</th>
+
+                <th>Auteur</th>
+                <th>DatePub</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for article in articles %}
+            <tr>
+                <td>{{ article.id }}</td>
+                <td>{{ article.title }}</td>
+                <td>{{ article.resume }}</td>
+
+                <td>
+                    {% if article.image is defined and article.image %}
+                        <img src="{{ asset('uploads/' ~ article.image) }}"
+                             width="80"
+                             class="img-thumbnail">
+                    {% else %}
+                        <span class="text-muted">Pas d'image</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ article.auteur }}</td>
+
+                <td>
+                    {{ article.datePub ? article.datePub|date('Y-m-d') : '' }}
+                </td>
+
+                <td>{{ article.statut }}</td>
+
+                <td>
+                    <a href="{{ path('app_article_show', {'id': article.id}) }}"
+                       class="btn btn-info btn-sm">Show</a>
+
+                    <a href="{{ path('app_article_edit', {'id': article.id}) }}"
+                       class="btn btn-warning btn-sm">Edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">Aucun article trouvé</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_article_new') }}" class="btn btn-success">
+        + Create new
+    </a>
+</div>
+{% endblock %}

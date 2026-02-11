@@ -18,7 +18,7 @@ class Article
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Le titre de l’article est obligatoire.")]
     #[Assert\Length(
-        min: 5,
+        min: 2,
         max: 255,
         minMessage: "Le titre doit contenir au moins {{ limit }} caractères.",
         maxMessage: "Le titre ne doit pas dépasser {{ limit }} caractères."
@@ -28,7 +28,7 @@ class Article
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: "Le résumé est obligatoire.")]
     #[Assert\Length(
-        min: 20,
+        min: 5,
         minMessage: "Le résumé doit contenir au moins {{ limit }} caractères."
     )]
     private ?string $resume = null;
@@ -62,6 +62,10 @@ class Article
         message: "Le statut doit être : draft ou published."
     )]
     private ?string $statut = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image = null;
+
+
 
     // ---------------- GETTERS & SETTERS ----------------
 
@@ -133,6 +137,18 @@ class Article
     public function setStatut(string $statut): static
     {
         $this->statut = $statut;
+        return $this;
+    }
+
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): self
+    {
+        $this->image = $image;
         return $this;
     }
 }

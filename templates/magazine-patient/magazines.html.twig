@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Magazines{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+  <h2>Nos Magazines</h2>
+
+  <form method="get">
+      <input type="text" name="search" placeholder="Rechercher..." value="{{ searchTerm }}">
+      <button type="submit">Rechercher</button>
+  </form>
+
+  <div class="row mt-4">
+    {% for magazine in magazines %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          {% if magazine.image %}
+            <img src="{{ asset('uploads/' ~ magazine.image) }}" class="card-img-top">
+          {% endif %}
+          <div class="card-body">
+            <h5>{{ magazine.title }}</h5>
+            <p>{{ magazine.description|slice(0,120) }}...</p>
+            <a href="{{ path('front_magazine_show', {id: magazine.id}) }}" class="btn btn-primary">
+              Voir Articles
+            </a>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <p>Aucun magazine trouvé.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

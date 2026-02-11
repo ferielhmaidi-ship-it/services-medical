@@ -16,9 +16,11 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ArticleController extends AbstractController
 {
     #[Route(name: 'app_article_index', methods: ['GET'])]
-    public function index(ArticleRepository $articleRepository): Response
+    public function index(ArticleRepository $articleRepository, EntityManagerInterface $entityManager): Response
     {
-        return $this->render('article/index.html.twig', [
+
+
+        return $this->render('magazine-admin/article/index.html.twig', [
             'articles' => $articleRepository->findAll(),
         ]);
     }
@@ -29,18 +31,29 @@ final class ArticleController extends AbstractController
         EntityManagerInterface $entityManager,
         FileUploader $fileUploader
     ): Response {
+        // 🚨 CORRECTIF D'URGENCE SQL : Création forcée de la colonne image
+        try {
+            $conn = $entityManager->getConnection();
+            // On vérifie si la colonne existe
+            $columns = $conn->fetchAllAssociative("SHOW COLUMNS FROM article LIKE 'image'");
+            if (empty($columns)) {
+                $conn->executeStatement("ALTER TABLE article ADD image VARCHAR(255) DEFAULT NULL");
+            }
+        } catch (\Exception $e) {
+            // L'erreur est ignorée si la table n'existe pas encore ou autre souci non lié à la colonne
+        }
+
         $article = new Article();
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            // 🔽 UPLOAD IMAGE
             $imageFile = $form->get('image')->getData();
 
             if ($imageFile) {
-                $fileName = $fileUploader->upload($imageFile);
-                $article->setImage($fileName);
+                $newFilename = uniqid().'.'.$imageFile->guessExtension();
+                $imageFile->move($this->getParameter('images_directory'), $newFilename);
+                $article->setImage($newFilename);
             }
 
             $entityManager->persist($article);
@@ -49,7 +62,7 @@ final class ArticleController extends AbstractController
             return $this->redirectToRoute('app_article_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('article/new.html.twig', [
+        return $this->render('magazine-admin/article/new.html.twig', [
             'article' => $article,
             'form' => $form,
         ]);
@@ -58,7 +71,7 @@ final class ArticleController extends AbstractController
     #[Route('/{id}', name: 'app_article_show', methods: ['GET'])]
     public function show(Article $article): Response
     {
-        return $this->render('article/show.html.twig', [
+        return $this->render('magazine-admin/article/show.html.twig', [
             'article' => $article,
         ]);
     }
@@ -70,17 +83,25 @@ final class ArticleController extends AbstractController
         EntityManagerInterface $entityManager,
         FileUploader $fileUploader
     ): Response {
+        // 🚨 CORRECTIF D'URGENCE SQL : Création forcée de la colonne image
+        try {
+            $conn = $entityManager->getConnection();
+            $columns = $conn->fetchAllAssociative("SHOW COLUMNS FROM article LIKE 'image'");
+            if (empty($columns)) {
+                $conn->executeStatement("ALTER TABLE article ADD image VARCHAR(255) DEFAULT NULL");
+            }
+        } catch (\Exception $e) {}
+
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            // 🔽 UPLOAD IMAGE (si modifiée)
             $imageFile = $form->get('image')->getData();
 
             if ($imageFile) {
-                $fileName = $fileUploader->upload($imageFile);
-                $article->setImage($fileName);
+                $newFilename = uniqid().'.'.$imageFile->guessExtension();
+                $imageFile->move($this->getParameter('images_directory'), $newFilename);
+                $article->setImage($newFilename);
             }
 
             $entityManager->flush();
@@ -88,7 +109,7 @@ final class ArticleController extends AbstractController
             return $this->redirectToRoute('app_article_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('article/edit.html.twig', [
+        return $this->render('magazine-admin/article/edit.html.twig', [
             'article' => $article,
             'form' => $form,
         ]);
