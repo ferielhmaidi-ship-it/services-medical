@@ -1,0 +1,359 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Calendrier{% endblock %}
+
+{% block body %}
+<style>
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: 100px repeat(15, 1fr); /* 1 + 7 past + 1 today + 7 future */
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        overflow-x: auto;
+        background: #fff;
+    }
+    .calendar-header {
+        background: #f8f9fa;
+        font-weight: 600;
+        text-align: center;
+        padding: 10px;
+        border-bottom: 2px solid #007bff;
+        border-right: 1px solid #dee2e6;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    .calendar-day-header {
+        border-right: 1px solid #dee2e6;
+        min-width: 140px;
+    }
+    .today-header {
+        background: #e3f2fd !important;
+        border-bottom: 2px solid #0d47a1 !important;
+    }
+    .calendar-time-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid #eee;
+        border-right: 1px solid #dee2e6;
+        background: #fdfdfd;
+        height: 60px;
+    }
+    .calendar-slot-cell {
+        border-bottom: 1px solid #eee;
+        border-right: 1px solid #dee2e6;
+        padding: 5px;
+        position: relative;
+        height: 60px;
+        overflow-y: auto;
+    }
+    .past-day { background-color: #fcfcfc; opacity: 0.9; }
+    
+    .slot-item {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin-bottom: 2px;
+        cursor: pointer;
+        transition: transform 0.1s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .slot-item:hover {
+        transform: scale(1.02);
+    }
+    .slot-available {
+        background-color: #e3f2fd;
+        border-left: 3px solid #007bff;
+        color: #0d47a1;
+    }
+    .slot-reserved {
+        background-color: #ffebee;
+        border-left: 3px solid #dc3545;
+        color: #b71c1c;
+        cursor: not-allowed;
+    }
+    .slot-pause {
+        background-color: #f1f3f4;
+        border-left: 3px solid #6c757d;
+        color: #495057;
+        opacity: 0.7;
+    }
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .dot-available { background: #007bff; }
+    .dot-reserved { background: #dc3545; }
+
+    /* Modern scrollbar */
+    .calendar-grid::-webkit-scrollbar { height: 10px; }
+    .calendar-grid::-webkit-scrollbar-track { background: #f1f1f1; }
+    .calendar-grid::-webkit-scrollbar-thumb { background: #007bff; border-radius: 5px; }
+</style>
+
+    <!-- Page Title -->
+    <div class="page-title" data-aos="fade">
+      <div class="heading">
+        <div class="container">
+          <div class="row d-flex justify-content-center text-center">
+            <div class="col-lg-8">
+              <h1>Gestion du Calendrier</h1>
+              <p class="mb-0">Configurez vos disponibilités. Les modifications s'appliquent dès demain.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="breadcrumbs">
+        <div class="container">
+          <ol>
+            <li><a href="{{ url('app_home') }}">Home</a></li>
+            <li class="current">Calendrier</li>
+          </ol>
+        </div>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section id="calendar-config" class="calendar-config section">
+      <div class="container-fluid px-lg-5">
+
+        <div class="row gy-4">
+            
+          <div class="col-lg-3">
+            <div class="card shadow-sm border-0 p-4 sticky-top" style="top: 100px;">
+                <h4 class="mb-4">Paramètres</h4>
+                <div class="alert alert-info py-2 small mb-4">
+                    <i class="bi bi-info-circle me-1"></i> S'applique à partir de demain.
+                </div>
+                <form id="calendarSettings" class="php-email-form">
+                    <div class="mb-3">
+                        <label for="consultation_duration" class="form-label">Durée (minutes)</label>
+                        <input type="number" class="form-control" id="consultation_duration" value="30" min="10" max="120" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="pause_start" class="form-label">Début Pause</label>
+                            <input type="time" class="form-control" id="pause_start" value="12:00">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="pause_end" class="form-label">Fin Pause</label>
+                            <input type="time" class="form-control" id="pause_end" value="14:00">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label d-block">Jours de travail</label>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="mon" checked data-day="1">
+                            <label class="form-check-label" for="mon">Lundi</label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="tue" checked data-day="2">
+                            <label class="form-check-label" for="tue">Mardi</label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="wed" checked data-day="3">
+                            <label class="form-check-label" for="wed">Mercredi</label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="thu" checked data-day="4">
+                            <label class="form-check-label" for="thu">Jeudi</label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="fri" checked data-day="5">
+                            <label class="form-check-label" for="fri">Vendredi</label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="sat" data-day="6">
+                            <label class="form-check-label" for="sat">Samedi</label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="sun" data-day="0">
+                            <label class="form-check-label" for="sun">Dimanche</label>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary w-100" onclick="updateCalendar()">Actualiser Preview</button>
+                </form>
+            </div>
+          </div>
+
+          <div class="col-lg-9">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 text-primary"><i class="bi bi-calendar3 me-2"></i>Aperçu Interactif (-7 / +7 Jours)</h5>
+                    <div id="currentMonthYear" class="fw-bold text-muted"></div>
+                </div>
+                <div class="card-body p-0">
+                    <div id="calendar-container" class="calendar-grid">
+                        <!-- Slots will be injected here by JS -->
+                    </div>
+                </div>
+                <div class="card-footer bg-light d-flex gap-3 justify-content-center py-3">
+                    <small><span class="status-dot dot-available"></span> Disponible</small>
+                    <small><span class="status-dot dot-reserved"></span> Réservé</small>
+                    <small><span class="status-dot bg-secondary"></span> Pause</small>
+                    <small class="ms-3 text-muted"><i class="bi bi-info-circle"></i> Gris = Passé ou Pause</small>
+                </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+<script>
+    // Default config (for past and today)
+    const defaultConfig = {
+        duration: 30,
+        pauseStart: "12:00",
+        pauseEnd: "14:00",
+        workDays: [1, 2, 3, 4, 5]
+    };
+
+    function updateCalendar() {
+        const newConfig = {
+            duration: parseInt(document.getElementById('consultation_duration').value),
+            pauseStart: document.getElementById('pause_start').value,
+            pauseEnd: document.getElementById('pause_end').value,
+            workDays: Array.from(document.querySelectorAll('.form-check-input[data-day]'))
+                .filter(i => i.checked)
+                .map(i => parseInt(i.getAttribute('data-day')))
+        };
+
+        generateSlots(newConfig);
+    }
+
+    function generateSlots(newConfig) {
+        const container = document.getElementById('calendar-container');
+        container.innerHTML = '';
+
+        // Current Date
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Time Header
+        const timeHeaderCorner = document.createElement('div');
+        timeHeaderCorner.className = 'calendar-header';
+        timeHeaderCorner.textContent = 'Heure';
+        container.appendChild(timeHeaderCorner);
+
+        // Dates range: -7 to +7
+        const displayDates = [];
+        for (let i = -7; i <= 7; i++) {
+            const date = new Date();
+            date.setDate(date.getDate() + i);
+            displayDates.push(date);
+
+            const div = document.createElement('div');
+            const isToday = date.getTime() === today.getTime();
+            div.className = `calendar-header calendar-day-header ${isToday ? 'today-header' : ''}`;
+            div.innerHTML = `
+                <div>${date.toLocaleDateString('fr-FR', { weekday: 'short' })}</div>
+                <div class="small text-muted">${date.getDate()} ${date.toLocaleDateString('fr-FR', { month: 'short' })}</div>
+            `;
+            container.appendChild(div);
+
+            if (i === 0) {
+                document.getElementById('currentMonthYear').textContent = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+            }
+        }
+
+        // Prepare Grid Cells (Pre-generate all cells for 9:00 to 17:00 rows)
+        const cellMap = {}; // hour-day -> cell
+        for (let hour = 9; hour < 17; hour++) {
+            const timeLabel = document.createElement('div');
+            timeLabel.className = 'calendar-time-label';
+            timeLabel.textContent = `${hour.toString().padStart(2, '0')}:00`;
+            container.appendChild(timeLabel);
+
+            for (let i = 0; i < displayDates.length; i++) {
+                const cell = document.createElement('div');
+                const date = displayDates[i];
+                cell.className = 'calendar-slot-cell';
+                if (date.getTime() <= today.getTime()) cell.classList.add('past-day');
+                
+                container.appendChild(cell);
+                cellMap[`${hour}-${i}`] = cell;
+            }
+        }
+
+        // Fill cells with slots
+        for (let i = 0; i < displayDates.length; i++) {
+            const date = displayDates[i];
+            const isPastOrToday = date.getTime() <= today.getTime();
+            const config = isPastOrToday ? defaultConfig : newConfig;
+            const dayOfWeek = date.getDay();
+
+            if (config.workDays.includes(dayOfWeek)) {
+                let currentTotalMinutes = 9 * 60; // Start at 9:00
+                const endTotalMinutes = 17 * 60; // End at 17:00
+
+                while (currentTotalMinutes + config.duration <= endTotalMinutes) {
+                    const startHour = Math.floor(currentTotalMinutes / 60);
+                    const startMin = currentTotalMinutes % 60;
+                    const endTotalMin = currentTotalMinutes + config.duration;
+                    
+                    const timeStr = `${startHour.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`;
+                    const cell = cellMap[`${startHour}-${i}`];
+
+                    if (cell) {
+                        // Strict Overlap Check
+                        if (isSlotOverlappingPause(currentTotalMinutes, endTotalMin, config.pauseStart, config.pauseEnd)) {
+                            const pauseItem = document.createElement('div');
+                            pauseItem.className = 'slot-item slot-pause';
+                            pauseItem.innerHTML = `<span>${timeStr}</span> <span>Pause</span>`;
+                            cell.appendChild(pauseItem);
+                        } else {
+                            const isReserved = Math.random() < 0.2; 
+                            const slot = document.createElement('div');
+                            slot.className = `slot-item ${isReserved ? 'slot-reserved' : 'slot-available'}`;
+                            slot.innerHTML = `
+                                <span>${timeStr}</span>
+                                <span>${isReserved ? 'RESERVÉ' : 'LIBRE'}</span>
+                            `;
+                            cell.appendChild(slot);
+                        }
+                    }
+
+                    currentTotalMinutes += config.duration;
+                }
+            } else {
+                // If it's a day off, show "Repos" in the row center (or all cells)
+                // For simplicity, we just leave it with the "Repos" text mapped to the 12:00 row cell maybe?
+                // Or let's just mark the first cell of that day.
+                const middleCell = cellMap[`12-${i}`];
+                if (middleCell) {
+                    middleCell.innerHTML = '<div class="text-center text-muted fw-bold small mt-2">Repos</div>';
+                }
+            }
+        }
+    }
+
+    function isSlotOverlappingPause(slotStart, slotEnd, pauseStartStr, pauseEndStr) {
+        if (!pauseStartStr || !pauseEndStr) return false;
+        
+        const [sh, sm] = pauseStartStr.split(':').map(Number);
+        const [eh, em] = pauseEndStr.split(':').map(Number);
+        
+        const pStart = sh * 60 + sm;
+        const pEnd = eh * 60 + em;
+        
+        // Strict Overlap Condition: (Slot starts before pause ends) AND (Slot ends after pause starts)
+        return slotStart < pEnd && slotEnd > pStart;
+    }
+
+    window.addEventListener('load', () => {
+        updateCalendar();
+        if (typeof AOS !== 'undefined') AOS.refresh();
+    });
+</script>
+{% endblock %}

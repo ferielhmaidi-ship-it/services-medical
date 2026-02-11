@@ -9,7 +9,7 @@
       <ul>
         <li><a href="{{ url('app_home') }}" class="{{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Home</a></li>
         <li><a href="{{ url('app_about') }}" class="{{ app.request.get('_route') == 'app_about' ? 'active' : '' }}">About</a></li>
-        <li><a href="{{ url('app_departments') }}" class="{{ app.request.get('_route') == 'app_departments' ? 'active' : '' }}">Departments</a></li>
+        <li><a href="{{ url('app_calendrier') }}" class="{{ app.request.get('_route') == 'app_calendrier' ? 'active' : '' }}">Calendrier</a></li>
         <li><a href="{{ url('app_services') }}" class="{{ app.request.get('_route') == 'app_services' ? 'active' : '' }}">Services</a></li>
         <li><a href="{{ url('app_doctors') }}" class="{{ app.request.get('_route') == 'app_doctors' ? 'active' : '' }}">Doctors</a></li>
         <li class="dropdown"><a href="#"><span>More Pages</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
@@ -29,6 +29,12 @@
             <li><a href="#">Rapport 1</a></li>
             <li><a href="#">Rapport 2</a></li>
             <li><a href="#">Rapport 3</a></li>
+          </ul>
+        </li>
+        <li class="dropdown"><a href="#"><span>Magazines</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+          <ul>
+            <li><a href="{{ url('front_magazine_index') }}">Tous les magazines</a></li>
+            <li><a href="{{ url('front_articles_search') }}">Rechercher des articles</a></li>
           </ul>
         </li>
         <li><a href="{{ url('app_contact') }}" class="{{ app.request.get('_route') == 'app_contact' ? 'active' : '' }}">Contact</a></li>

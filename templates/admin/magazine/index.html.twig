@@ -1,0 +1,75 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Magazine index{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% include 'admin/magazine/_styles.html.twig' %}
+{% endblock %}
+
+{% block body_class %}magazine-page{% endblock %}
+
+{% block body %}
+    <section class="mag-shell">
+        <div class="container">
+            <div class="mag-header">
+                <div>
+                    <h1 class="mag-title">Magazine library</h1>
+                    <p class="mag-subtitle">Manage your editorial content in one clean view.</p>
+                </div>
+                <div class="mag-toolbar">
+                    <a class="btn btn-mag" href="{{ path('app_magazine_new') }}">
+                        <i class="bi bi-plus-lg me-2"></i>
+                        Create new
+                    </a>
+                </div>
+            </div>
+
+            <div class="mag-card">
+                <div class="table-responsive">
+                    <table class="table mag-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Image</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for magazine in magazines %}
+                            <tr>
+                                <td class="fw-semibold text-dark">{{ magazine.title }}</td>
+                                <td class="text-muted">{{ magazine.description }}</td>
+                                <td>
+                                    {% if magazine.image %}
+                                        <span class="mag-link">{{ magazine.image }}</span>
+                                    {% else %}
+                                        <span class="text-muted">No image</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ magazine.dateCreate ? magazine.dateCreate|date('Y-m-d') : '—' }}</td>
+                                <td><span class="mag-badge">{{ magazine.statut }}</span></td>
+                                <td class="text-end">
+                                    <div class="mag-actions">
+                                        <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_magazine_show', {'id': magazine.id}) }}">View</a>
+                                        <a class="btn btn-outline-primary btn-sm" href="{{ path('app_magazine_edit', {'id': magazine.id}) }}">Edit</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    No magazines yet. Click "Create new" to add the first one.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
