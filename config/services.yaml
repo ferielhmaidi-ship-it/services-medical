@@ -1,0 +1,35 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\Twig\SpecialtyExtension:
+        tags: ['twig.extension']
+
+    App\Twig\GovernorateExtension:
+        tags: ['twig.extension']
+
+    App\Twig\AppExtension:
+        tags: ['twig.extension']
+
+    App\Service\AnnuaireService:
+        arguments:
+            $flaskApiUrl: '%env(FLASK_API_URL)%'
+
+    App\Service\DoctorVerificationService:
+        arguments:
+            $flaskApiUrl: '%env(FLASK_API_URL)%'
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+        public: true

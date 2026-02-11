@@ -1,0 +1,164 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Gestion des Patients{% endblock %}
+
+{% block body %}
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Gestion des Patients</h1>
+        <div>
+            <span class="badge badge-primary">
+                <i class="fas fa-user-injured"></i> {{ patients|length }} Patient(s)
+            </span>
+        </div>
+    </div>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Liste des Patients</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="patientTable" width="100%" cellspacing="0">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom Complet</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                            <th>Date de Naissance</th>
+                            <th>Assurance</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td>{{ patient.id }}</td>
+                            <td>
+                                <strong>{{ patient.getFullName() }}</strong><br>
+                                <small class="text-muted">{{ patient.age ? patient.age ~ ' ans' : 'Âge non spécifié' }}</small>
+                            </td>
+                            <td>
+                                {{ patient.email }}
+                            </td>
+                            <td>
+                                {% if patient.phoneNumber %}
+                                    <a href="tel:{{ patient.phoneNumber }}" class="text-primary">
+                                        <i class="fas fa-phone"></i> {{ patient.phoneNumber }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Non renseigné</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if patient.dateOfBirth %}
+                                    {{ patient.dateOfBirth|date('d/m/Y') }}<br>
+                                    <small class="text-muted">({{ calculate_age(patient.dateOfBirth) }} ans)</small>
+                                {% else %}
+                                    <span class="text-muted">Non spécifiée</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if patient.hasInsurance %}
+                                    <span class="badge badge-success"><i class="fas fa-check"></i> Oui</span><br>
+                                    <small>{{ patient.insuranceNumber ?? 'N° non renseigné' }}</small>
+                                {% else %}
+                                    <span class="badge badge-warning"><i class="fas fa-times"></i> Non</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if patient.isActive %}
+                                    <span class="badge badge-success"><i class="fas fa-check"></i> Actif</span>
+                                {% else %}
+                                    <span class="badge badge-danger"><i class="fas fa-times"></i> Inactif</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ path('admin_patient_show', {'id': patient.id}) }}"
+                                       class="btn btn-info btn-sm"
+                                       data-toggle="tooltip"
+                                       title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('admin_patient_edit', {'id': patient.id}) }}"
+                                       class="btn btn-warning btn-sm"
+                                       data-toggle="tooltip"
+                                       title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-danger btn-sm"
+                                            data-toggle="modal"
+                                            data-target="#deleteModal{{ patient.id }}"
+                                            title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Delete Modal -->
+                                <div class="modal fade" id="deleteModal{{ patient.id }}" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirmer la suppression</h5>
+                                                <button type="button" class="close" data-dismiss="modal">
+                                                    <span>&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Êtes-vous sûr de vouloir supprimer le patient <strong>{{ patient.getFullName() }}</strong> ?</p>
+                                                <p class="text-danger"><i class="fas fa-exclamation-triangle"></i> Cette action est irréversible !</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                                                <form method="post" action="{{ path('admin_patient_delete', {'id': patient.id}) }}" style="display: inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ patient.id) }}">
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <i class="fas fa-trash"></i> Supprimer
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-user-injured fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Aucun patient trouvé</h5>
+                                <p class="text-muted">Les patients inscrits apparaîtront ici</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            $('#patientTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
+                },
+                "order": [[0, "desc"]],
+                "pageLength": 10,
+                "responsive": true
+            });
+
+            // Initialize tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock %}
