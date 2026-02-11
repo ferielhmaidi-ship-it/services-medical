@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recherche Articles{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+
+  <h2>Recherche d'articles</h2>
+
+  <form method="get" action="{{ path('front_articles_search') }}">
+      <input type="text" name="search" value="{{ searchTerm }}" placeholder="Rechercher...">
+      <button type="submit">Rechercher</button>
+  </form>
+
+  {% if searchTerm %}
+      <h5 class="mt-4">{{ articles|length }} résultat(s)</h5>
+
+      {% for article in articles %}
+        <div class="card mt-3">
+          <div class="card-body">
+            <h5>{{ article.title }}</h5>
+            <p>{{ article.resume|slice(0,150) }}...</p>
+            <span class="badge bg-info">{{ article.magazine.title }}</span>
+          </div>
+        </div>
+      {% else %}
+        <p>Aucun article trouvé.</p>
+      {% endfor %}
+  {% endif %}
+
+</div>
+{% endblock %}

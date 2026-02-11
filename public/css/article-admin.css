@@ -1,0 +1,298 @@
+/* ========================================
+   ARTICLE ADMIN - MODERN FORM STYLES
+   ======================================== */
+
+:root {
+    --article-primary: #2563eb;
+    --article-primary-hover: #1d4ed8;
+    --article-success: #10b981;
+    --article-danger: #ef4444;
+    --article-dark: #1e293b;
+    --article-gray: #64748b;
+    --article-light-gray: #f1f5f9;
+    --article-border: #e2e8f0;
+    --article-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --article-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Container */
+.article-admin-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Header Section */
+.article-admin-header {
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--article-border);
+}
+
+.article-admin-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--article-dark);
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.article-admin-header h1::before {
+    content: "📝";
+    font-size: 36px;
+}
+
+.article-admin-subtitle {
+    color: var(--article-gray);
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Form Card */
+.article-form-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--article-shadow-lg);
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+/* Form Groups */
+.article-form-group {
+    margin-bottom: 24px;
+}
+
+.article-form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--article-dark);
+    margin-bottom: 8px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.article-form-group label::after {
+    content: " *";
+    color: var(--article-danger);
+}
+
+/* Input Fields */
+.article-form-control {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 15px;
+    border: 2px solid var(--article-border);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    background: white;
+}
+
+.article-form-control:focus {
+    outline: none;
+    border-color: var(--article-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.article-form-control:hover {
+    border-color: var(--article-gray);
+}
+
+/* Textarea */
+textarea.article-form-control {
+    min-height: 120px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+/* Select Dropdowns */
+select.article-form-control {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
+}
+
+/* File Input */
+.article-file-input-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.article-file-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px dashed var(--article-border);
+    border-radius: 8px;
+    background: var(--article-light-gray);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.article-file-input:hover {
+    border-color: var(--article-primary);
+    background: rgba(37, 99, 235, 0.05);
+}
+
+/* Date Inputs */
+.article-date-group {
+    display: flex;
+    gap: 12px;
+}
+
+.article-date-group select {
+    flex: 1;
+}
+
+/* Buttons */
+.article-btn {
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-family: inherit;
+}
+
+.article-btn-primary {
+    background: var(--article-primary);
+    color: white;
+    box-shadow: var(--article-shadow);
+}
+
+.article-btn-primary:hover {
+    background: var(--article-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--article-shadow-lg);
+}
+
+.article-btn-secondary {
+    background: white;
+    color: var(--article-gray);
+    border: 2px solid var(--article-border);
+}
+
+.article-btn-secondary:hover {
+    background: var(--article-light-gray);
+    border-color: var(--article-gray);
+}
+
+/* Button Group */
+.article-btn-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--article-border);
+}
+
+/* Back Link */
+.article-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--article-gray);
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+.article-back-link:hover {
+    color: var(--article-primary);
+}
+
+.article-back-link::before {
+    content: "←";
+    font-size: 18px;
+}
+
+/* Helper Text */
+.article-help-text {
+    font-size: 13px;
+    color: var(--article-gray);
+    margin-top: 6px;
+    font-style: italic;
+}
+
+/* Error Messages */
+.article-error {
+    color: var(--article-danger);
+    font-size: 13px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.article-error::before {
+    content: "⚠";
+}
+
+/* Success Messages */
+.article-success-message {
+    background: #d1fae5;
+    border-left: 4px solid var(--article-success);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    color: #065f46;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .article-admin-container {
+        padding: 0 16px;
+    }
+
+    .article-form-card {
+        padding: 20px;
+    }
+
+    .article-admin-header h1 {
+        font-size: 24px;
+    }
+
+    .article-btn-group {
+        flex-direction: column;
+    }
+
+    .article-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .article-date-group {
+        flex-direction: column;
+    }
+}
+
+/* Loading State */
+.article-btn-primary:disabled {
+    background: var(--article-gray);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.article-btn-primary:disabled:hover {
+    transform: none;
+}
+
+/* Focus Visible */
+.article-btn:focus-visible,
+.article-form-control:focus-visible {
+    outline: 2px solid var(--article-primary);
+    outline-offset: 2px;
+}

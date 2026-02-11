@@ -36,9 +36,6 @@ class Magazine
     private ?string $description = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Url(
-        message: "L’image doit être une URL valide."
-    )]
     private ?string $image = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
@@ -68,6 +65,11 @@ class Magazine
         $this->articles = new ArrayCollection();
         $this->dateCreate = new \DateTime(); // auto
     }
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $pdfFile = null;
+
+
 
     // ---------------- GETTERS & SETTERS ----------------
 
@@ -157,4 +159,15 @@ class Magazine
         }
         return $this;
     }
+    public function getPdfFile(): ?string
+{
+    return $this->pdfFile;
+}
+
+public function setPdfFile(?string $pdfFile): static
+{
+    $this->pdfFile = $pdfFile;
+    return $this;
+}
+
 }

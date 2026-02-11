@@ -1,0 +1,23 @@
+{% extends 'magazine-admin/base.html.twig' %}
+
+{% block title %}Créer un Article | TabibNet{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/article-admin.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="article-admin-container">
+    <a href="{{ path('app_article_index') }}" class="article-back-link">Retour à la liste</a>
+    
+    <div class="article-admin-header">
+        <h1>Créer un Article</h1>
+        <p class="article-admin-subtitle">Ajoutez un nouvel article médical à votre magazine</p>
+    </div>
+
+    <div class="article-form-card">
+        {{ include('magazine-admin/article/_form.html.twig') }}
+    </div>
+</div>
+{% endblock %}
