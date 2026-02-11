@@ -1,0 +1,296 @@
+{# templates/medecin_dashboard/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de Bord Médecin - MediNest{% endblock %}
+
+{% block body_class %}medecin-dashboard{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h1 class="h3 mb-1">Bonjour, Dr. {{ medecin.firstName }} 👋</h1>
+                            <p class="text-muted mb-0">Bienvenue sur votre tableau de bord médical</p>
+                        </div>
+                        <div class="avatar-circle bg-success-gradient text-white d-flex align-items-center justify-content-center" style="width: 70px; height: 70px; font-size: 1.8rem;">
+                            {{ medecin.fullName|split(' ')|map(word => word|first)|join('')|upper }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">Actions Rapides</h4>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <a href="{{ path('medecin_profile') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100 hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-success mb-3 mx-auto">
+                                <i class="fas fa-user-edit text-white"></i>
+                            </div>
+                            <h5 class="card-title mb-2">Mon Profil</h5>
+                            <p class="card-text small text-muted">Gérer mes informations professionnelles</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="#" class="card border-0 shadow-sm text-decoration-none text-dark h-100 hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-primary mb-3 mx-auto">
+                                <i class="fas fa-calendar-check text-white"></i>
+                            </div>
+                            <h5 class="card-title mb-2">Rendez-vous</h5>
+                            <p class="card-text small text-muted">Gérer mon agenda de consultations</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="#" class="card border-0 shadow-sm text-decoration-none text-dark h-100 hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-info mb-3 mx-auto">
+                                <i class="fas fa-users text-white"></i>
+                            </div>
+                            <h5 class="card-title mb-2">Mes Patients</h5>
+                            <p class="card-text small text-muted">Consulter les dossiers patients</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="#" class="card border-0 shadow-sm text-decoration-none text-dark h-100 hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-warning mb-3 mx-auto">
+                                <i class="fas fa-file-medical text-white"></i>
+                            </div>
+                            <h5 class="card-title mb-2">Prescriptions</h5>
+                            <p class="card-text small text-muted">Créer et gérer les ordonnances</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Summary -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-id-card me-2 text-success"></i>Résumé de votre Profil</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Nom complet</span>
+                                <p class="info-value fw-bold">Dr. {{ medecin.fullName }}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Email</span>
+                                <p class="info-value">{{ medecin.email }}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Téléphone</span>
+                                <p class="info-value">{{ medecin.phoneNumber ?? 'Non renseigné' }}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">CIN</span>
+                                <p class="info-value">{{ medecin.cin }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Âge / Genre</span>
+                                <p class="info-value">
+                                    {% if medecin.age %}{{ medecin.age }} ans{% endif %}
+                                    {% if medecin.gender %} / {{ medecin.gender }}{% endif %}
+                                </p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Spécialité</span>
+                                <p class="info-value">{{ medecin.specialty|specialty_display }}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Gouvernorat</span>
+                                <p class="info-value">{{ medecin.governorate ? medecin.governorate|governorate_display : 'Non renseigné' }}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Statut</span>
+                                <p class="info-value">
+                                    {% if medecin.isActive and medecin.isVerified %}
+                                        <span class="badge bg-success">Actif & Vérifié</span>
+                                    {% elseif medecin.isActive %}
+                                        <span class="badge bg-warning">Actif (Non vérifié)</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactif</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if medecin.address %}
+                    <div class="info-item">
+                        <span class="info-label text-muted">Adresse</span>
+                        <p class="info-value">{{ medecin.address }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if medecin.education %}
+                    <div class="info-item mt-3">
+                        <span class="info-label text-muted">Formation</span>
+                        <p class="info-value">{{ medecin.education }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if medecin.experience %}
+                    <div class="info-item mt-3">
+                        <span class="info-label text-muted">Expérience</span>
+                        <p class="info-value">{{ medecin.experience }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <a href="{{ path('medecin_profile') }}" class="btn btn-success">
+                            <i class="fas fa-edit me-2"></i>Modifier mon profil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Today's Appointments -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-calendar-day me-2 text-primary"></i>RDV d'Aujourd'hui</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-clock text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <p class="text-muted">Aucun rendez-vous aujourd'hui</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-calendar-plus me-1"></i>Voir l'agenda
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2 text-info"></i>Statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="stat-number text-primary">0</div>
+                            <div class="stat-label small text-muted">RDV Aujourd'hui</div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="stat-number text-success">0</div>
+                            <div class="stat-label small text-muted">Patients Totaux</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-number text-warning">0</div>
+                            <div class="stat-label small text-muted">Prescriptions</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-number text-danger">0</div>
+                            <div class="stat-label small text-muted">Urgences</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+.medecin-dashboard {
+    background-color: #f8f9fa;
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.info-item .info-label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.info-item .info-value {
+    margin-bottom: 0;
+    font-size: 1rem;
+}
+
+.bg-success-gradient {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .icon-circle {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+}
+</style>
+{% endblock %}

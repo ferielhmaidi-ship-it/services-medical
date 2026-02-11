@@ -1,0 +1,401 @@
+{# templates/pages/doctors.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Find Doctors - MediNest{% endblock %}
+{% block description %}Search and find the best doctors by name, specialty, or location.{% endblock %}
+
+{% block body %}
+<!-- Doctors Search Hero -->
+<section class="doctors-hero section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center" data-aos="fade-up">
+                <h1 class="hero-title mb-3">Trouvez le Bon Médecin pour Vous</h1>
+                <p class="lead mb-4">Recherchez parmi notre réseau de spécialistes médicaux vérifiés.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search Filters -->
+<section class="search-filters section bg-light pt-0">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="card search-card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-3 text-primary">
+                    <i class="fas fa-filter me-2"></i>Filtrer par
+                </h5>
+
+                <form action="{{ path('app_doctors') }}" method="get" class="row g-3 align-items-end">
+                    <!-- Name Input -->
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <label class="form-label fw-semibold">Nom du médecin</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-primary text-white"><i class="fas fa-user-md"></i></span>
+                            <input type="text" class="form-control" name="name" placeholder="Ex: ahmed" value="{{ name }}">
+                        </div>
+                    </div>
+
+                    <!-- Specialty Select (Using Constants Groups) -->
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <label class="form-label fw-semibold">Spécialité médicale</label>
+                        <select class="form-select" name="specialty">
+                            <option value="">Toutes les spécialités</option>
+                            {% for group, specs in specialtyGroups %}
+                                <optgroup label="{{ group }}">
+                                    {% for specValue in specs %}
+                                        <option value="{{ specValue }}" {{ currentSpecialty == specValue ? 'selected' : '' }}>
+                                            {{ specValue }}
+                                        </option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Governorate Select (Using Constants Choices) -->
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <label class="form-label fw-semibold">Gouvernorat</label>
+                        <select class="form-select" name="governorate">
+                            <option value="">Tous les gouvernorats</option>
+                            {% for label, value in governorates %}
+                                <option value="{{ value }}" {{ currentGovernorate == value ? 'selected' : '' }}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="col-xl-3 col-lg-12 col-md-12">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="fas fa-search me-2"></i> Rechercher
+                            </button>
+                            <a href="{{ path('app_doctors') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-redo me-2"></i> Reset
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Search Stats -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h6 class="mb-0">
+                            <i class="fas fa-stethoscope me-2 text-primary"></i>
+                            Trouvé <span class="text-primary fw-bold">{{ medecins|length }}</span>
+                            médecin{{ medecins|length != 1 ? 's' : '' }}
+                        </h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Doctors Listing (HORIZONTAL CARDS like Doctolib) -->
+<section class="doctors-listing section">
+    <div class="container" data-aos="fade-up" data-aos-delay="200">
+        {% if medecins|length > 0 %}
+
+            <!-- Horizontal Cards Layout -->
+            <div class="row g-4">
+                {% for medecin in medecins %}
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm doctor-card-horizontal h-100">
+                        <div class="card-body p-0">
+                            <div class="row g-0 h-100">
+                                <!-- Left Column: Doctor Info -->
+                                <div class="col-md-8 border-end">
+                                    <div class="p-4 h-100 d-flex flex-column">
+                                        <!-- Doctor Header -->
+                                        <div class="d-flex align-items-start mb-3">
+                                            <div class="avatar-circle bg-primary-gradient text-white d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px;">
+                                                {{ medecin.fullName|split(' ')|map(word => word|first)|join('')|upper }}
+                                            </div>
+                                            <div>
+                                                <h4 class="card-title mb-1">Dr. {{ medecin.fullName }}</h4>
+                                                <span class="badge bg-primary rounded-pill mb-2">{{ medecin.specialty }}</span>
+                                                <div class="d-flex align-items-center small text-muted">
+                                                    {% if medecin.isVerified %}
+                                                    <span class="text-success me-3">
+                                                        <i class="fas fa-check-circle me-1"></i>Vérifié
+                                                    </span>
+                                                    {% endif %}
+                                                    <span class="text-warning">
+                                                        <i class="fas fa-star me-1"></i>4.8 (124 avis)
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Doctor Details -->
+                                        <div class="flex-grow-1">
+                                            <!-- Availability - Mock data (you can replace with real data) -->
+                                            <div class="mb-3">
+                                                <h6 class="text-muted mb-2">Disponibilités cette semaine</h6>
+                                                <div class="availability-days d-flex flex-wrap gap-2">
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="fas fa-calendar-day me-1 text-primary"></i>Lun : 10 févr.
+                                                    </span>
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="fas fa-calendar-day me-1 text-primary"></i>Mar : 11 févr.
+                                                    </span>
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="fas fa-calendar-day me-1 text-primary"></i>Mer : 12 févr.
+                                                    </span>
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="fas fa-calendar-day me-1 text-primary"></i>Jeu : 13 févr.
+                                                    </span>
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="fas fa-calendar-day me-1 text-primary"></i>Ven : 14 févr.
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Contact Info -->
+                                            <div class="contact-info">
+                                                <div class="mb-2">
+                                                    <i class="fas fa-map-marker-alt text-primary me-2" style="width: 20px;"></i>
+                                                    <strong>{{ medecin.address ?? medecin.governorate ?? 'Adresse non spécifiée' }}</strong>
+                                                </div>
+                                                {% if medecin.phoneNumber %}
+                                                <div class="mb-2">
+                                                    <i class="fas fa-phone text-primary me-2" style="width: 20px;"></i>
+                                                    {{ medecin.phoneNumber }}
+                                                </div>
+                                                {% endif %}
+                                                <div class="mb-2">
+                                                    <i class="fas fa-envelope text-primary me-2" style="width: 20px;"></i>
+                                                    {{ medecin.email }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Additional Info -->
+                                            <div class="mt-3 pt-3 border-top">
+                                                <div class="d-flex align-items-center text-muted small">
+                                                    <i class="fas fa-info-circle me-2 text-info"></i>
+                                                    <span>Conventionné secteur 2 avec OPTAM</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column: Appointment & Actions -->
+                                <div class="col-md-4">
+                                    <div class="p-4 h-100 d-flex flex-column justify-content-between">
+                                        <!-- Next Available Appointment -->
+                                        <div class="text-center mb-4">
+                                            <div class="text-muted small mb-2">Prochain RDV disponible</div>
+                                            <div class="next-appointment bg-light rounded p-3 border">
+                                                <div class="fw-bold text-primary" style="font-size: 1.1rem;">5 mars 2026</div>
+                                                <div class="small text-muted">À partir de 09:00</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Action Buttons -->
+                                        <div class="d-grid gap-2">
+                                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewDoctor{{ medecin.id }}">
+                                                <i class="fas fa-eye me-1"></i> Voir Profil Complet
+                                            </button>
+                                            <a href="{{ path('app_appointment') }}" class="btn btn-primary">
+                                                <i class="fas fa-calendar-check me-1"></i> Prendre RDV en ligne
+                                            </a>
+                                        </div>
+
+                                        <!-- Map Link (Optional) -->
+                                        <div class="text-center mt-4 pt-3 border-top">
+                                            <a href="#" class="text-decoration-none small">
+                                                <i class="fas fa-map-marked-alt me-1 text-primary"></i>
+                                                Voir sur la carte
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal (Hidden by default) -->
+                    <div class="modal fade" id="viewDoctor{{ medecin.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Profil Complet - Dr. {{ medecin.fullName }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-4 text-center border-end">
+                                            <div class="avatar-circle bg-primary-gradient text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width:100px; height:100px; font-size:2rem;">
+                                                {{ medecin.fullName|split(' ')|map(word => word|first)|join('')|upper }}
+                                            </div>
+                                            <h4>Dr. {{ medecin.fullName }}</h4>
+                                            <p class="text-primary fw-bold">{{ medecin.specialty }}</p>
+                                            <div class="mt-3">
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check-circle me-1"></i>Vérifié
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <h6>Informations Détaillées</h6>
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2"><i class="fas fa-map-marker-alt text-muted me-2"></i> {{ medecin.address ?? medecin.governorate }}</li>
+                                                <li class="mb-2"><i class="fas fa-envelope text-muted me-2"></i> {{ medecin.email }}</li>
+                                                {% if medecin.phoneNumber %}
+                                                <li class="mb-2"><i class="fas fa-phone text-muted me-2"></i> {{ medecin.phoneNumber }}</li>
+                                                {% endif %}
+                                                <li class="mb-2"><i class="fas fa-id-card text-muted me-2"></i> CIN: {{ medecin.cin }}</li>
+                                            </ul>
+                                            <hr>
+                                            {% if medecin.education %}
+                                            <h6>Formation</h6>
+                                            <p class="small">{{ medecin.education }}</p>
+                                            <hr>
+                                            {% endif %}
+                                            {% if medecin.experience %}
+                                            <h6>Expérience</h6>
+                                            <p class="small">{{ medecin.experience }}</p>
+                                            {% else %}
+                                            <p class="small text-muted">Aucune description disponible.</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                    <a href="{{ path('app_appointment') }}" class="btn btn-primary">Prendre Rendez-vous</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <!-- No Results -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-search text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+                </div>
+                <h4 class="mb-3">Aucun médecin trouvé</h4>
+                <p class="text-muted">Essayez de modifier vos filtres de recherche.</p>
+                <a href="{{ path('app_doctors') }}" class="btn btn-primary mt-3">Voir tous les médecins</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* Hero Section */
+    .doctors-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 100px 0 60px;
+        position: relative;
+    }
+
+    /* Floating Search Card */
+    .search-card {
+        border-radius: 15px;
+        margin-top: -40px;
+        z-index: 10;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* Horizontal Card Styling */
+    .doctor-card-horizontal {
+        border-radius: 12px;
+        border: 1px solid #e0e0e0 !important;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .doctor-card-horizontal:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* Avatar Styling */
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 1rem;
+    }
+
+    .bg-primary-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+
+    /* Availability Days */
+    .availability-days .badge {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    /* Next Appointment Box */
+    .next-appointment {
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .doctors-hero {
+            padding: 80px 0 40px;
+        }
+
+        .search-card {
+            margin-top: -30px;
+        }
+
+        .doctor-card-horizontal .border-end {
+            border-right: none !important;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .availability-days {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .availability-days .badge {
+            flex: 0 0 calc(50% - 0.5rem);
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-submit on select change
+        const filterSelects = document.querySelectorAll('select[name="specialty"], select[name="governorate"]');
+        filterSelects.forEach(select => {
+            select.addEventListener('change', function() {
+                // Add loading indicator
+                const btn = this.form.querySelector('button[type="submit"]');
+                if(btn) {
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Chargement...';
+                    btn.disabled = true;
+                }
+                this.form.submit();
+            });
+        });
+    });
+</script>
+{% endblock %}

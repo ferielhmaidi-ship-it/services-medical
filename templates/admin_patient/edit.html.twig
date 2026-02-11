@@ -1,0 +1,226 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Modifier Patient - {{ patient.getFullName() }}{% endblock %}
+
+{% block body %}
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-edit text-warning"></i> Modifier le Patient
+        </h1>
+        <div>
+            <a href="{{ path('admin_patient_show', {'id': patient.id}) }}" class="btn btn-info">
+                <i class="fas fa-eye"></i> Voir détails
+            </a>
+            <a href="{{ path('admin_patient_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+        </div>
+    </div>
+
+    <!-- Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-user-edit"></i> Modifier les informations de {{ patient.getFullName() }}
+            </h6>
+        </div>
+        <div class="card-body">
+            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-md-6">
+                    <h5 class="mb-3 text-primary">
+                        <i class="fas fa-user"></i> Informations Personnelles
+                    </h5>
+
+                    <div class="form-group">
+                        {{ form_label(form.firstName) }}
+                        {{ form_widget(form.firstName, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.firstName) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.lastName) }}
+                        {{ form_widget(form.lastName, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.lastName) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.email) }}
+                        {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.email) }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.age) }}
+                                {{ form_widget(form.age, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.age) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.gender) }}
+                                {{ form_widget(form.gender, {'attr': {'class': 'form-control select2'}}) }}
+                                {{ form_errors(form.gender) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.phoneNumber) }}
+                        {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.phoneNumber) }}
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-md-6">
+                    <h5 class="mb-3 text-primary">
+                        <i class="fas fa-file-medical"></i> Informations Médicales
+                    </h5>
+
+                    <div class="form-group">
+                        {{ form_label(form.dateOfBirth) }}
+                        {{ form_widget(form.dateOfBirth, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.dateOfBirth) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.address) }}
+                        {{ form_widget(form.address, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+                        {{ form_errors(form.address) }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.hasInsurance) }}
+                                <div class="form-check">
+                                    {{ form_widget(form.hasInsurance, {'attr': {'class': 'form-check-input'}}) }}
+                                    <label class="form-check-label" for="{{ form.hasInsurance.vars.id }}">
+                                        {{ form.hasInsurance.vars.label }}
+                                    </label>
+                                </div>
+                                {{ form_errors(form.hasInsurance) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.insuranceNumber) }}
+                                {{ form_widget(form.insuranceNumber, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.insuranceNumber) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password Section -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card border-left-warning shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-warning">
+                                <i class="fas fa-key"></i> Modifier le mot de passe
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form_label(form.plainPassword.first) }}
+                                        {{ form_widget(form.plainPassword.first, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.plainPassword.first) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form_label(form.plainPassword.second) }}
+                                        {{ form_widget(form.plainPassword.second, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.plainPassword.second) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Laissez ces champs vides pour conserver le mot de passe actuel.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Section -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card border-left-success shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-success">
+                                <i class="fas fa-toggle-on"></i> Statut du compte
+                            </h6>
+                            <div class="custom-control custom-switch">
+                                {{ form_widget(form.isActive, {'attr': {'class': 'custom-control-input'}}) }}
+                                <label class="custom-control-label" for="{{ form.isActive.vars.id }}">
+                                    {{ form.isActive.vars.label }}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2">
+                                <strong>Statut actuel:</strong>
+                                {% if patient.isActive %}
+                                    <span class="badge badge-success">Actif</span>
+                                {% else %}
+                                    <span class="badge badge-danger">Inactif</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="form-group mt-4">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ path('admin_patient_show', {'id': patient.id}) }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer les modifications
+                    </button>
+                </div>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2 for dropdowns
+            $('.select2').select2({
+                theme: 'bootstrap4',
+                placeholder: "Sélectionner",
+                allowClear: true
+            });
+
+            // Form validation
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms).forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        });
+    </script>
+{% endblock %}

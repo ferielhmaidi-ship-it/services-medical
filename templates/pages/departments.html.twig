@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Departments - MediNest{% endblock %}
+{% block body_class %}departments-page{% endblock %}
+
+{% block body %}
+<!-- Page Title -->
+<div class="page-title">
+  <div class="heading">
+    <div class="container">
+      <div class="row d-flex justify-content-center text-center">
+        <div class="col-lg-8">
+          <h1 class="heading-title">Departments</h1>
+          <p class="mb-0">Explore our specialized medical departments</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="breadcrumbs">
+    <div class="container">
+      <ol>
+        <li><a href="{{ path('app_home') }}">Home</a></li>
+        <li class="current">Departments</li>
+      </ol>
+    </div>
+  </nav>
+</div>
+
+<!-- Departments Section -->
+<section id="departments" class="departments section">
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row gy-4">
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="department-card">
+          <div class="card-icon">
+            <i class="fas fa-heartbeat"></i>
+          </div>
+          <h3>Cardiology</h3>
+          <p>Specialized care for heart conditions with advanced diagnostic and treatment options.</p>
+          <a href="{{ path('app_department_details') }}" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="department-card">
+          <div class="card-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          <h3>Neurology</h3>
+          <p>Expert diagnosis and treatment for neurological disorders and conditions.</p>
+          <a href="{{ path('app_department_details') }}" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+        <div class="department-card">
+          <div class="card-icon">
+            <i class="fas fa-baby"></i>
+          </div>
+          <h3>Pediatrics</h3>
+          <p>Comprehensive healthcare for infants, children, and adolescents.</p>
+          <a href="{{ path('app_department_details') }}" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+        <div class="department-card">
+          <div class="card-icon">
+            <i class="fas fa-cut"></i>
+          </div>
+          <h3>Surgery</h3>
+          <p>State-of-the-art surgical procedures with minimally invasive techniques.</p>
+          <a href="{{ path('app_department_details') }}" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+        <div class="department-card">
+          <div class="card-icon">
+            <i class="fas fa-ambulance"></i>
+          </div>
+          <h3>Emergency</h3>
+          <p>24/7 emergency services with rapid response and critical care.</p>
+          <a href="{{ path('app_department_details') }}" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
+        <div class="department-card">
+          <div class="card-icon">
+            <i class="fas fa-ribbon"></i>
+          </div>
+          <h3>Oncology</h3>
+          <p>Comprehensive cancer care with the latest treatment options.</p>
+          <a href="{{ path('app_department_details') }}" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

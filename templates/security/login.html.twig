@@ -1,0 +1,354 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion - TabibNet{% endblock %}
+
+{% block body_class %}login-page{% endblock %}
+
+{% block body %}
+<!-- Login Hero Section -->
+<section class="login-hero section position-relative overflow-hidden">
+    <div class="container position-relative z-2">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8" data-aos="fade-up">
+                <div class="login-card-wrapper">
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-body p-4 p-lg-5">
+                            <!-- Header -->
+                            <div class="text-center mb-4">
+                                <div class="login-icon mb-3">
+                                    <i class="fas fa-user-circle text-primary" style="font-size: 3.5rem;"></i>
+                                </div>
+                                <h2 class="fw-bold mb-2">Bienvenue !</h2>
+                                <p class="text-muted">Connectez-vous à votre espace TabibNet</p>
+                            </div>
+
+                            <!-- Flash Messages -->
+                            {% if error %}
+                                <div class="alert alert-danger alert-dismissible fade show border-0 bg-danger bg-opacity-10" role="alert">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-exclamation-circle me-3 text-danger" style="font-size: 1.2rem;"></i>
+                                        <div>
+                                            <strong>Erreur de connexion</strong><br>
+                                            <small>{{ error.messageKey|trans(error.messageData, 'security') }}</small>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endif %}
+
+                            <!-- Login Form -->
+                            <form method="post" class="login-form">
+                                <div class="row gy-4">
+                                    <!-- Email Field -->
+                                    <div class="col-12">
+                                        <label for="inputEmail" class="form-label fw-semibold">
+                                            <i class="fas fa-envelope me-2 text-primary"></i>Adresse e-mail
+                                        </label>
+                                        <div class="input-group input-group-lg">
+                                            <span class="input-group-text bg-light border-end-0">
+                                                <i class="fas fa-envelope text-primary"></i>
+                                            </span>
+                                            <input
+                                                type="email"
+                                                value="{{ last_username }}"
+                                                name="email"
+                                                id="inputEmail"
+                                                class="form-control border-start-0 bg-light"
+                                                placeholder="votre@email.com"
+                                                autocomplete="email"
+                                                required
+                                                autofocus
+                                            >
+                                        </div>
+                                        <div class="form-text text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>Utilisez votre adresse e-mail professionnelle
+                                        </div>
+                                    </div>
+
+                                    <!-- Password Field -->
+                                    <div class="col-12">
+                                        <label for="inputPassword" class="form-label fw-semibold">
+                                            <i class="fas fa-lock me-2 text-primary"></i>Mot de passe
+                                        </label>
+                                        <div class="input-group input-group-lg">
+                                            <span class="input-group-text bg-light border-end-0">
+                                                <i class="fas fa-lock text-primary"></i>
+                                            </span>
+                                            <input
+                                                type="password"
+                                                name="password"
+                                                id="inputPassword"
+                                                class="form-control border-start-0 bg-light"
+                                                placeholder="••••••••"
+                                                autocomplete="current-password"
+                                                required
+                                            >
+                                            <button class="btn btn-outline-secondary border-start-0 toggle-password" type="button">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Remember Me & Forgot Password -->
+                                    <div class="col-12 d-flex justify-content-between align-items-center">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="remember_me" name="_remember_me">
+                                            <label class="form-check-label" for="remember_me">Se souvenir de moi</label>
+                                        </div>
+                                        <a href="#" class="text-decoration-none small text-primary">
+                                            <i class="fas fa-key me-1"></i>Mot de passe oublié ?
+                                        </a>
+                                    </div>
+
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                                    <!-- Submit Button -->
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary w-100 btn-lg">
+                                            <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                                        </button>
+                                    </div>
+
+                                   
+                                </div>
+                            </form>
+
+                            <!-- Register Link -->
+                            <div class="text-center mt-4 pt-3 border-top">
+                                <p class="mb-0">
+                                    <span class="text-muted">Pas encore de compte ?</span>
+                                    <a href="{{ path('register_choice') }}" class="fw-bold text-primary text-decoration-none ms-2">
+                                        Inscrivez-vous <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trust Badge -->
+                    <div class="text-center mt-4">
+                        <div class="d-inline-flex align-items-center gap-3 bg-white p-2 px-3 rounded-pill shadow-sm">
+                            <i class="fas fa-shield-alt text-success"></i>
+                            <span class="small fw-semibold">Connexion sécurisée</span>
+                            <i class="fas fa-lock text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background decoration -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 z-1">
+        <div class="bg-blur-1"></div>
+        <div class="bg-blur-2"></div>
+    </div>
+</section>
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+/* Login Page Specific Styles */
+.login-page {
+    background-color: #f8fafc;
+}
+
+.login-hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 100px 0;
+    position: relative;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.login-hero .bg-blur-1 {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.1);
+    filter: blur(60px);
+    top: -150px;
+    right: -150px;
+}
+
+.login-hero .bg-blur-2 {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: rgba(118, 75, 162, 0.1);
+    filter: blur(80px);
+    bottom: -200px;
+    left: -200px;
+}
+
+.login-card-wrapper .card {
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-card-wrapper .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Form inputs */
+.input-group-lg .input-group-text {
+    padding: 0.75rem 1.25rem;
+    border: 1px solid #e0e0e0;
+    border-right: none;
+    border-radius: 12px 0 0 12px;
+    background: #f8fafc;
+}
+
+.input-group-lg .form-control {
+    padding: 0.75rem 1.25rem;
+    border: 1px solid #e0e0e0;
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    background: #f8fafc;
+}
+
+.input-group-lg .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+.input-group-lg .btn-outline-secondary {
+    border: 1px solid #e0e0e0;
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    background: #f8fafc;
+}
+
+/* Checkbox styling */
+.form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 0.15em;
+    border-radius: 0.3em;
+    border: 2px solid #d1d5db;
+}
+
+.form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.form-check-label {
+    font-size: 0.95rem;
+}
+
+/* Primary button gradient */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Alert styling */
+.alert-danger {
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    color: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .login-hero {
+        padding: 80px 0;
+    }
+
+    .login-card-wrapper .card-body {
+        padding: 2rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .login-card-wrapper .card-body {
+        padding: 1.5rem !important;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+}
+
+/* Password toggle animation */
+.toggle-password i {
+    transition: opacity 0.2s;
+}
+
+.toggle-password.active i {
+    color: #667eea;
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password visibility toggle
+    const togglePassword = document.querySelector('.toggle-password');
+    if (togglePassword) {
+        const passwordInput = document.querySelector('#inputPassword');
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('active');
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        });
+    }
+
+    // Animate the login card on load
+    const loginCard = document.querySelector('.login-card-wrapper .card');
+    if (loginCard) {
+        loginCard.style.opacity = '0';
+        loginCard.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            loginCard.style.transition = 'all 0.6s ease';
+            loginCard.style.opacity = '1';
+            loginCard.style.transform = 'translateY(0)';
+        }, 100);
+    }
+
+    // Auto-focus email field
+    const emailField = document.querySelector('#inputEmail');
+    if (emailField) {
+        emailField.focus();
+    }
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
