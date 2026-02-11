@@ -5,6 +5,8 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'patients')]
@@ -26,9 +28,13 @@ class Patient extends BaseUser
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
     private ?string $insuranceNumber = null;
 
+    #[ORM\OneToMany(mappedBy: 'patient', targetEntity: Question::class)]
+    private Collection $questions;
+
     public function __construct()
     {
         $this->roles = ['ROLE_PATIENT'];
+        $this->questions = new ArrayCollection();
     }
 
     public function getPhoneNumber(): ?string
@@ -93,5 +99,35 @@ class Patient extends BaseUser
             $roles[] = 'ROLE_PATIENT';
         }
         return array_unique($roles);
+    }
+
+    /**
+     * @return Collection<int, Question>
+     */
+    public function getQuestions(): Collection
+    {
+        return $this->questions;
+    }
+
+    public function addQuestion(Question $question): self
+    {
+        if (!$this->questions->contains($question)) {
+            $this->questions->add($question);
+            $question->setPatient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeQuestion(Question $question): self
+    {
+        if ($this->questions->removeElement($question)) {
+            // set the owning side to null (unless already changed)
+            if ($question->getPatient() === $this) {
+                $question->setPatient(null);
+            }
+        }
+
+        return $this;
     }
 }

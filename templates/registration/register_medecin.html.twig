@@ -248,7 +248,13 @@
                             </div>
                         {% endfor %}
 
-                        {{ form_start(registrationForm, {'attr': {'class': 'row g-4 needs-validation', 'novalidate': 'novalidate'}}) }}
+                        {{ form_start(registrationForm, {
+                            attr: {
+                                'class': 'row g-4 needs-validation',
+                                'novalidate': 'novalidate',
+                                'data-turbo': 'false'
+                            }
+                        }) }}
 
                             <!-- Row 1: Email and Phone -->
                             <div class="col-md-6">
@@ -499,6 +505,9 @@
         <div class="bg-blur-2"></div>
     </div>
 </section>
+
+<!-- jQuery (required by Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
 
 <!-- Select2 JS for searchable dropdown -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

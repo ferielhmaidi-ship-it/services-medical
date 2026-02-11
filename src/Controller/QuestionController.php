@@ -7,6 +7,7 @@ use App\Entity\Specialite;
 use App\Form\QuestionType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -14,6 +15,30 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/question')]
 class QuestionController extends AbstractController
 {
+    #[Route('/{id}/like', name: 'question_like', methods: ['POST'])]
+    public function like(Question $question, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], 401);
+        }
+
+        if ($question->isLikedBy($user)) {
+            $question->removeLikedBy($user);
+            $question->setLikes(max(0, $question->getLikes() - 1));
+        } else {
+            $question->addLikedBy($user);
+            $question->setLikes($question->getLikes() + 1);
+        }
+        
+        $em->flush();
+
+        return $this->json([
+            'likes' => $question->getLikes(),
+            'liked' => $question->isLikedBy($user)
+        ]);
+    }
+
     #[Route('/', name: 'question_index', methods: ['GET'])]
     public function index(Request $request, EntityManagerInterface $em): Response
     {
@@ -65,12 +90,23 @@ class QuestionController extends AbstractController
     #[Route('/new', name: 'question_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
+        // Ensure only patients can post questions
+        if (!$this->isGranted('ROLE_PATIENT')) {
+            $this->addFlash('error', 'Vous devez être connecté en tant que patient pour poser une question.');
+            return $this->redirectToRoute('question_index');
+        }
+
         $question = new Question();
         $form = $this->createForm(QuestionType::class, $question);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $question->setCreatedAt(new \DateTime());
+            
+            // Assign the current user (Patient) to the question
+            /** @var \App\Entity\Patient $user */
+            $user = $this->getUser();
+            $question->setPatient($user);
 
             $em->persist($question);
             $em->flush();

@@ -20,11 +20,8 @@
 }
 
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
-<<<<<<< HEAD
 :root { 
-=======
 :root {
->>>>>>> origin/yassin
   --background-color: #ffffff; /* Background color for the entire website, including individual sections */
   --default-color: #363f40; /* Default color used for the majority of the text content across the entire website */
   --heading-color: #1f2f31; /* Color for headings, subheadings and title throughout the website */
@@ -6409,9 +6406,7 @@ section,
   padding-top: 60px;
   padding-bottom: 60px;
   /* Add your styles here */
-<<<<<<< HEAD
 }
-=======
 }
 
 
@@ -6491,4 +6486,3 @@ section,
 }
 
 
->>>>>>> origin/yassin

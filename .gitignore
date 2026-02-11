@@ -9,24 +9,17 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
-<<<<<<< HEAD
 
 
-<<<<<<< HEAD
 ###> phpunit/phpunit ###
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
 
-=======
->>>>>>> team-origin/dev-badiss
-=======
->>>>>>> origin/yassin
+
 ###> symfony/asset-mapper ###
 
 /assets/vendor/
 ###< symfony/asset-mapper ###
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/yassin
+

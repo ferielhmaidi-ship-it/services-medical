@@ -16,8 +16,6 @@ return [
         'path' => './assets/app.js',
         'entrypoint' => true,
     ],
-<<<<<<< HEAD
-
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],
@@ -27,6 +25,4 @@ return [
     '@hotwired/turbo' => [
         'version' => '7.3.0',
     ],
-=======
->>>>>>> origin/yassin
 ];

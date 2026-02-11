@@ -171,6 +171,14 @@
                 </a>
             </li>
 
+            <!-- Nav Item - Specialties Management -->
+            <li class="nav-item {{ 'specialite' in app.request.get('_route') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ path('list_specialites') }}">
+                    <i class="fas fa-fw fa-stethoscope"></i>
+                    <span>Spécialités</span>
+                </a>
+
+
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 

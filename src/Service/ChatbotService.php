@@ -19,25 +19,36 @@ class ChatbotService
 
     public function ask(string $message): string
     {
-        $response = $this->client->request(
-            'POST',
-            'https://openrouter.ai/api/v1/chat/completions',
-            [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->apiKey,
-                    'Content-Type'  => 'application/json',
-                ],
-                'json' => [
-                    'model' => 'openai/gpt-3.5-turbo',
-                    'messages' => [
-                        ['role' => 'user', 'content' => $message]
+        try {
+            $response = $this->client->request(
+                'POST',
+                'https://openrouter.ai/api/v1/chat/completions',
+                [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $this->apiKey,
+                        'Content-Type'  => 'application/json',
+                        'HTTP-Referer'  => 'https://github.com/symfony/symfony', // Optional for OpenRouter
+                        'X-Title'       => 'Symfony App', // Optional for OpenRouter
+                    ],
+                    'json' => [
+                        'model' => 'openai/gpt-3.5-turbo',
+                        'messages' => [
+                            ['role' => 'user', 'content' => $message]
+                        ]
                     ]
                 ]
-            ]
-        );
+            );
 
-        $data = $response->toArray();
+            $statusCode = $response->getStatusCode();
+            if ($statusCode !== 200) {
+                return 'Error: API returned status ' . $statusCode;
+            }
 
-        return $data['choices'][0]['message']['content'] ?? 'No response';
+            $data = $response->toArray();
+            return $data['choices'][0]['message']['content'] ?? 'No response';
+
+        } catch (\Throwable $e) {
+            return 'Error: ' . $e->getMessage();
+        }
     }
 }

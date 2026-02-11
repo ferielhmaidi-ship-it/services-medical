@@ -46,10 +46,14 @@ class Medecin extends BaseUser
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $isVerified = false;
 
+    #[ORM\OneToMany(mappedBy: 'medecin', targetEntity: Reponse::class, orphanRemoval: true)]
+    private $reponses;
+
     public function __construct()
     {
         $this->roles = ['ROLE_MEDECIN'];
         $this->isVerified = false;
+        $this->reponses = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     public function getSpecialty(): string
@@ -147,5 +151,35 @@ class Medecin extends BaseUser
             $roles[] = 'ROLE_MEDECIN';
         }
         return array_unique($roles);
+    }
+
+    /**
+     * @return Collection<int, Reponse>
+     */
+    public function getReponses(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->reponses;
+    }
+
+    public function addReponse(Reponse $reponse): self
+    {
+        if (!$this->reponses->contains($reponse)) {
+            $this->reponses[] = $reponse;
+            $reponse->setMedecin($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReponse(Reponse $reponse): self
+    {
+        if ($this->reponses->removeElement($reponse)) {
+            // set the owning side to null (unless already changed)
+            if ($reponse->getMedecin() === $this) {
+                $reponse->setMedecin(null);
+            }
+        }
+
+        return $this;
     }
 }

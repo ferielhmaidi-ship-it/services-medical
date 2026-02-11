@@ -44,13 +44,31 @@ class Question
     #[Assert\NotNull(message: 'Veuillez choisir une specialite.')]
     private ?Specialite $specialite = null;
 
-    #[ORM\OneToMany(mappedBy: 'question', targetEntity: Reponse::class)]
+    #[ORM\OneToMany(mappedBy: 'question', targetEntity: Reponse::class, orphanRemoval: true)]
     private Collection $reponses;
+
+    #[ORM\ManyToOne(targetEntity: Patient::class, inversedBy: 'questions')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Patient $patient = null;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private ?int $likes = 0;
+
+    #[ORM\ManyToMany(targetEntity: Patient::class)]
+    #[ORM\JoinTable(name: 'question_likes_patients')]
+    private Collection $likedByPatients;
+
+    #[ORM\ManyToMany(targetEntity: Medecin::class)]
+    #[ORM\JoinTable(name: 'question_likes_medecins')]
+    private Collection $likedByMedecins;
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->reponses = new ArrayCollection();
+        $this->likedByPatients = new ArrayCollection();
+        $this->likedByMedecins = new ArrayCollection();
+        $this->likes = 0;
     }
 
 
@@ -128,5 +146,69 @@ class Question
             }
         }
         return $this;
+    }
+
+    public function getPatient(): ?Patient
+    {
+        return $this->patient;
+    }
+
+    public function setPatient(?Patient $patient): self
+    {
+        $this->patient = $patient;
+        return $this;
+    }
+
+    public function getLikes(): ?int
+    {
+        return $this->likes;
+    }
+
+    public function setLikes(int $likes): self
+    {
+        $this->likes = $likes;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BaseUser>
+     */
+    public function getLikedBy(): Collection
+    {
+        return $this->likedBy;
+    }
+
+    public function addLikedBy(BaseUser $user): self
+    {
+        if ($user instanceof Patient) {
+            if (!$this->likedByPatients->contains($user)) {
+                $this->likedByPatients->add($user);
+            }
+        } elseif ($user instanceof Medecin) {
+             if (!$this->likedByMedecins->contains($user)) {
+                $this->likedByMedecins->add($user);
+            }
+        }
+        return $this;
+    }
+
+    public function removeLikedBy(BaseUser $user): self
+    {
+        if ($user instanceof Patient) {
+            $this->likedByPatients->removeElement($user);
+        } elseif ($user instanceof Medecin) {
+            $this->likedByMedecins->removeElement($user);
+        }
+        return $this;
+    }
+
+    public function isLikedBy(BaseUser $user): bool
+    {
+        if ($user instanceof Patient) {
+            return $this->likedByPatients->contains($user);
+        } elseif ($user instanceof Medecin) {
+            return $this->likedByMedecins->contains($user);
+        }
+        return false;
     }
 }

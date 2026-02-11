@@ -1,0 +1,136 @@
+{# templates/spesialitdash/spes.html.twig #}
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Liste des Specialites{% endblock %}
+
+{% block body %}
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Gestion des Spécialités</h1>
+        <button type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#addSpecialtyModal">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Ajouter Nouvelle Spécialité
+        </button>
+    </div>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Liste des Spécialités</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        {% for s in specialites %}
+                        <tr>
+                            <td>{{ s.id }}</td>
+                            <td>{{ s.nom }}</td>
+                            <td>{{ s.description }}</td>
+                            <td>
+                                <button type="button" class="btn btn-info btn-circle btn-sm btn-edit" data-id="{{ s.id }}" data-url="{{ path('update_specialite', {'id': s.id}) }}" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a href="{{ path('delete_specialite', {'id': s.id}) }}" class="btn btn-danger btn-circle btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette spécialité ?')" title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">Aucune spécialité trouvée</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Specialty Modal -->
+    <div class="modal fade" id="addSpecialtyModal" tabindex="-1" role="dialog" aria-labelledby="addSpecialtyModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addSpecialtyModalLabel">Ajouter Nouvelle Spécialité</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {{ form_start(addForm) }}
+                        {% include 'specialite/_form.html.twig' with {'form': addForm} %}
+                    {{ form_end(addForm) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Specialty Modal -->
+    <div class="modal fade" id="editSpecialtyModal" tabindex="-1" role="dialog" aria-labelledby="editSpecialtyModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editSpecialtyModalLabel">Modifier Spécialité</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="editSpecialtyModalBody">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Chargement...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            // Handle Edit Button Click
+            $('.btn-edit').click(function() {
+                var url = $(this).data('url');
+                var modal = $('#editSpecialtyModal');
+                var modalBody = $('#editSpecialtyModalBody');
+
+                // Clear previous content and show spinner
+                modalBody.html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="sr-only">Chargement...</span></div></div>');
+                
+                // Show Modal
+                modal.modal('show');
+
+                // Fetch Form via AJAX
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(response) {
+                        modalBody.html(response);
+                    },
+                    error: function() {
+                        modalBody.html('<div class="alert alert-danger">Une erreur est survenue lors du chargement du formulaire.</div>');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

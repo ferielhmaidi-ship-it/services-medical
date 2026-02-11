@@ -1,90 +1,75 @@
 <header id="header" class="header d-flex align-items-center fixed-top">
   <div class="container position-relative d-flex align-items-center justify-content-between">
 
-<<<<<<< HEAD
-    <a href="{{ url('app_home') }}" class="logo d-flex align-items-center me-auto me-xl-0">
-      <h1 class="sitename">Medi<span>Nest</span></h1>
-=======
     <!-- Logo -->
     <a href="{{ path('app_home') }}" class="logo d-flex align-items-center me-auto me-xl-0">
       <h1 class="sitename">Tabib<span>Net</span></h1>
->>>>>>> origin/yassin
     </a>
 
     <nav id="navmenu" class="navmenu">
       <ul>
-<<<<<<< HEAD
-        <li><a href="{{ url('app_home') }}" class="{{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Home</a></li>
-        <li><a href="{{ url('app_about') }}" class="{{ app.request.get('_route') == 'app_about' ? 'active' : '' }}">About</a></li>
-        <li><a href="{{ url('app_calendrier') }}" class="{{ app.request.get('_route') == 'app_calendrier' ? 'active' : '' }}">Calendrier</a></li>
-        <li><a href="{{ url('app_services') }}" class="{{ app.request.get('_route') == 'app_services' ? 'active' : '' }}">Services</a></li>
-        <li><a href="{{ url('app_doctors') }}" class="{{ app.request.get('_route') == 'app_doctors' ? 'active' : '' }}">Doctors</a></li>
-        <li class="dropdown"><a href="#"><span>More Pages</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-          <ul>
-            <li><a href="{{ url('app_department_details') }}">Department Details</a></li>
-            <li><a href="{{ url('app_service_details') }}">Service Details</a></li>
-            <li><a href="{{ url('app_appointment') }}">Appointment</a></li>
-            <li><a href="{{ url('app_testimonials') }}">Testimonials</a></li>
-            <li><a href="{{ url('app_faq') }}">Frequently Asked Questions</a></li>
-            <li><a href="{{ url('app_gallery') }}">Gallery</a></li>
-            <li><a href="{{ url('app_terms') }}">Terms</a></li>
-            <li><a href="{{ url('app_privacy') }}">Privacy</a></li>
-          </ul>
-        </li>
-        <li class="dropdown"><a href="#"><span>Rapports Médicales</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-          <ul>
-            <li><a href="#">Rapport 1</a></li>
-            <li><a href="#">Rapport 2</a></li>
-            <li><a href="#">Rapport 3</a></li>
-          </ul>
-        </li>
+        <!-- Accueil -->
+        <li><a href="{{ path('app_home') }}" class="{{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Accueil</a></li>
+        
+        <!-- À propos -->
+        <li><a href="{{ path('app_about') }}" class="{{ app.request.get('_route') == 'app_about' ? 'active' : '' }}">À propos</a></li>
+
+        <!-- Services -->
+        <li><a href="{{ path('app_services') }}" class="{{ app.request.get('_route') == 'app_services' ? 'active' : '' }}">Services</a></li>
+
+        <!-- Annuaire -->
+        <li><a href="{{ path('app_annuaire') }}" class="{{ app.request.get('_route') == 'app_annuaire' ? 'active' : '' }}"><i class="fas fa-book-medical me-1"></i>Annuaire</a></li>
+
+        <!-- Forum -->
+        <li><a href="{{ path('question_index') }}" class="{{ app.request.get('_route') starts with 'question_' ? 'active' : '' }}">Forum</a></li>
+
+        <!-- Magazines Dropdown -->
         <li class="dropdown"><a href="#"><span>Magazines</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
           <ul>
             <li><a href="{{ url('front_magazine_index') }}">Tous les magazines</a></li>
             <li><a href="{{ url('front_articles_search') }}">Rechercher des articles</a></li>
           </ul>
         </li>
-        <li><a href="{{ url('app_contact') }}" class="{{ app.request.get('_route') == 'app_contact' ? 'active' : '' }}">Contact</a></li>
-=======
-        <!-- Accueil -->
-        <li><a href="{{ path('app_home') }}" class="{{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Accueil</a></li>
-        <!-- Add this to your navigation menu (both for logged in and non-logged in users) -->
-        <li><a href="{{ path('app_annuaire') }}" class="{{ app.request.get('_route') == 'app_annuaire' ? 'active' : '' }}"><i class="fas fa-book-medical me-1"></i>Annuaire Médical</a></li>
 
-        <!-- À propos -->
-        <li><a href="{{ path('app_about') }}" class="{{ app.request.get('_route') == 'app_about' ? 'active' : '' }}">À propos</a></li>
+         <!-- Rapports Dropdown -->
+        <li class="dropdown"><a href="#"><span>Rapports</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+          <ul>
+            <li><a href="#">Rapport 1</a></li>
+            <li><a href="#">Rapport 2</a></li>
+          </ul>
+        </li>
 
         {% if app.user %}
           <!-- Contenu spécifique à l'utilisateur -->
           {% if is_granted('ROLE_PATIENT') %}
-            <!-- Trouver un médecin pour les patients -->
-            <li><a href="{{ path('app_doctors') }}" class="{{ app.request.get('_route') == 'app_doctors' ? 'active' : '' }}">Trouver un Médecin</a></li>
-
-            <!-- Prendre rendez-vous pour les patients -->
-            <li><a href="{{ path('app_appointment') }}" class="{{ app.request.get('_route') == 'app_appointment' ? 'active' : '' }}">Prendre Rendez-vous</a></li>
+            <!-- Trouver un médecin -->
+            <li><a href="{{ path('app_doctors') }}" class="{{ app.request.get('_route') == 'app_doctors' ? 'active' : '' }}">Médecins</a></li>
+            
+            <!-- Prendre rendez-vous -->
+            <li><a href="{{ path('app_appointment') }}" class="{{ app.request.get('_route') == 'app_appointment' ? 'active' : '' }}">Rendez-vous</a></li>
           {% endif %}
 
           {% if is_granted('ROLE_ADMIN') %}
-            <!-- Panneau d'administration -->
-            <li><a href="{{ path('admin_dashboard') }}" class="{{ app.request.get('_route') starts with 'admin_' ? 'active' : '' }}">Panneau Admin</a></li>
+            <li><a href="{{ path('admin_dashboard') }}" class="{{ app.request.get('_route') starts with 'admin_' ? 'active' : '' }}">Admin</a></li>
           {% endif %}
 
         {% else %}
-          <!-- Utilisateurs non authentifiés -->
           <!-- Trouver un médecin (pour tous) -->
-          <li><a href="{{ path('app_doctors') }}" class="{{ app.request.get('_route') == 'app_doctors' ? 'active' : '' }}">Trouver un Médecin</a></li>
+          <li><a href="{{ path('app_doctors') }}" class="{{ app.request.get('_route') == 'app_doctors' ? 'active' : '' }}">Médecins</a></li>
         {% endif %}
 
-        <!-- Toujours afficher Contact -->
+        <!-- Contact -->
         <li><a href="{{ path('app_contact') }}" class="{{ app.request.get('_route') == 'app_contact' ? 'active' : '' }}">Contact</a></li>
 
         <!-- Menu déroulant utilisateur (seulement connecté) -->
         {% if app.user %}
-          <li class="dropdown">
-            <a href="#">
-              <span>
-                <i class="fas fa-user-circle me-1"></i>
-                {{ app.user.firstName }}
+          <li class="dropdown ps-3">
+            <a href="#" class="pe-0">
+              <span class="d-flex align-items-center">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                   {{ app.user.firstName|first|upper }}
+                </div>
+                <span>{{ app.user.firstName }}</span>
               </span>
               <i class="bi bi-chevron-down toggle-dropdown"></i>
             </a>
@@ -93,7 +78,7 @@
               {% if is_granted('ROLE_ADMIN') %}
                 <li>
                   <a href="{{ path('admin_dashboard') }}">
-                    <i class="fas fa-tachometer-alt me-2"></i>Panneau Admin
+                    <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
                   </a>
                 </li>
               {% elseif is_granted('ROLE_MEDECIN') %}
@@ -120,22 +105,17 @@
             </ul>
           </li>
         {% else %}
-          <!-- Connexion seulement -->
-          <li>
-            <a href="{{ path('app_login') }}" class="{{ app.request.get('_route') == 'app_login' ? 'active' : '' }}">
-              <i class="fas fa-sign-in-alt me-1"></i>Connexion
+          <!-- Connexion -->
+          <li class="ms-lg-3">
+            <a href="{{ path('app_login') }}" class="btn btn-primary text-white px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center" style="height: auto; line-height: normal;">
+              <i class="fas fa-sign-in-alt me-2"></i>Connexion
             </a>
           </li>
         {% endif %}
->>>>>>> origin/yassin
       </ul>
       <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
     </nav>
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> origin/yassin
   </div>
 </header>
+

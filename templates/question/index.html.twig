@@ -1095,11 +1095,21 @@
                             <!-- Author Info -->
                             <div class="author-section">
                                 <div class="avatar" aria-hidden="true">
-                                    {{ q.titre|default('Q')|slice(0, 1)|upper }}
+                                    {% if q.patient %}
+                                        {{ q.patient.firstName|first|upper }}
+                                    {% else %}
+                                        ?
+                                    {% endif %}
                                 </div>
                                 <div class="author-info">
-                                    <span class="meta-name">Membre</span>
-                                    <span class="meta-sub">Membre depuis 2 ans</span>
+                                    <span class="meta-name">
+                                        {% if q.patient %}
+                                            {{ q.patient.firstName }} {{ q.patient.lastName }}
+                                        {% else %}
+                                            Anonyme
+                                        {% endif %}
+                                    </span>
+                                    <span class="meta-sub">Patient</span>
                                 </div>
                             </div>
 
@@ -1134,12 +1144,14 @@
                                         </svg>
                                         {{ q.createdAt|date('d M Y') }}
                                     </span>
-                                    <a href="#" class="like-btn" aria-label="Aimer cette question">
+                                    {% set isLiked = app.user and q.isLikedBy(app.user) %}
+                                    <button class="like-btn" onclick="likeQuestion(this, {{ q.id }})" aria-label="Aimer cette question" 
+                                        style="border:1px solid {{ isLiked ? '#0ea5e9' : '#e2e8f0' }}; background: {{ isLiked ? '#e0f2fe' : '#f1f5f9' }}; color: {{ isLiked ? '#0ea5e9' : '#64748b' }};">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
                                         </svg>
-                                        Utile
-                                    </a>
+                                        Utile <span class="ms-1 badge {{ isLiked ? 'bg-primary' : 'bg-secondary' }}">{{ q.likes }}</span>
+                                    </button>
                                     <a
                                         class="reply-btn"
                                         href="#replyForm-{{ q.id }}"
@@ -1220,12 +1232,14 @@
                                                     <div class="reply-body">
                                                         <div>{{ r.contenu }}</div>
                                                         <div class="mt-2">
-                                                            <a href="#" class="like-btn" aria-label="Aimer cette rÃ©ponse">
+                                                            {% set isLiked = app.user and r.isLikedBy(app.user) %}
+                                                            <button class="like-btn" onclick="likeReponse(this, {{ r.id }})" aria-label="Aimer cette réponse" 
+                                                                style="border:1px solid {{ isLiked ? '#0ea5e9' : '#e2e8f0' }}; background: {{ isLiked ? '#e0f2fe' : '#f1f5f9' }}; color: {{ isLiked ? '#0ea5e9' : '#64748b' }};">
                                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                                     <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
                                                                 </svg>
-                                                                Utile
-                                                            </a>
+                                                                Utile <span class="ms-1 badge {{ isLiked ? 'bg-primary' : 'bg-secondary' }}">{{ r.likes }}</span>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1400,5 +1414,61 @@
             render();
         });
     });
+
+    function likeQuestion(btn, id) {
+        fetch(`/question/${id}/like`, { method: 'POST' })
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                const badge = btn.querySelector('.badge');
+                badge.textContent = data.likes;
+                if (data.liked) {
+                    btn.style.borderColor = '#0ea5e9';
+                    btn.style.backgroundColor = '#e0f2fe';
+                    btn.style.color = '#0ea5e9';
+                    badge.classList.replace('bg-secondary', 'bg-primary');
+                } else {
+                    btn.style.borderColor = '#e2e8f0';
+                    btn.style.backgroundColor = '#f1f5f9';
+                    btn.style.color = '#64748b';
+                    badge.classList.replace('bg-primary', 'bg-secondary');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function likeReponse(btn, id) {
+        fetch(`/reponse/${id}/like`, { method: 'POST' })
+            .then(response => {
+                 if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                const badge = btn.querySelector('.badge');
+                badge.textContent = data.likes;
+                if (data.liked) {
+                    btn.style.borderColor = '#0ea5e9';
+                    btn.style.backgroundColor = '#e0f2fe';
+                    btn.style.color = '#0ea5e9';
+                    badge.classList.replace('bg-secondary', 'bg-primary');
+                } else {
+                    btn.style.borderColor = '#e2e8f0';
+                    btn.style.backgroundColor = '#f1f5f9';
+                    btn.style.color = '#64748b';
+                    badge.classList.replace('bg-primary', 'bg-secondary');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
 </script>
 {% endblock %}

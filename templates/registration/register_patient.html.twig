@@ -226,7 +226,13 @@
                             </div>
                         {% endfor %}
 
-                        {{ form_start(registrationForm, {'attr': {'class': 'row g-4 needs-validation', 'novalidate': 'novalidate'}}) }}
+                        {{ form_start(registrationForm, {
+                            attr: {
+                                'class': 'row g-4 needs-validation',
+                                'novalidate': 'novalidate',
+                                'data-turbo': 'false'
+                            }
+                        }) }}
 
                             <!-- Email and Phone -->
                             <div class="col-md-6">
