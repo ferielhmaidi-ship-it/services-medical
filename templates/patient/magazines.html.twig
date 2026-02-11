@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Magazines | TabibNet{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/magazine.css') }}">
+{% endblock %}
+
+{% block body %}
+<section class="mag-hero">
+  <div class="container">
+    <div class="mag-hero__content">
+      <span class="mag-kicker">Bibliothèque santé</span>
+      <h1>Nos magazines médicaux</h1>
+      <p>Des contenus clairs, vérifiés et pensés pour les patients.</p>
+      
+      <form action="{{ path('front_magazine_index') }}" method="get" class="mag-search-form">
+        <div class="autocomplete-wrapper">
+          <div class="mag-search-group">
+            <input type="text" id="magazine-search-input" name="search" placeholder="Rechercher un magazine..." value="{{ searchTerm }}" class="mag-search-input" autocomplete="off">
+            <button type="submit" class="mag-search-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+          </div>
+          <div id="magazine-autocomplete-results" class="autocomplete-results"></div>
+        </div>
+        {% if searchTerm %}
+          <div class="mag-search-results">
+            Résultats pour "{{ searchTerm }}" <a href="{{ path('front_magazine_index') }}" class="mag-search-clear">Effacer</a>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="mag-section">
+  <div class="container">
+    <div class="mag-grid">
+      {% for magazine in magazines %}
+        <article class="mag-card">
+          <a href="{{ path('front_magazine_show', { id: magazine.id }) }}" class="mag-card__link">
+            <div class="mag-card__media">
+              {% if magazine.image %}
+                <img src="{{ asset('uploads/' ~ magazine.image) }}" alt="{{ magazine.title }}">
+              {% else %}
+                <div class="mag-card__placeholder">Sans image</div>
+              {% endif %}
+              <div class="mag-card__tag">{{ magazine.statut|default('Magazine') }}</div>
+            </div>
+            <div class="mag-card__body">
+              <h3>{{ magazine.title }}</h3>
+              <p>
+                {% if magazine.description %}
+                  {{ magazine.description|slice(0, 120) }}{% if magazine.description|length > 120 %}...{% endif %}
+                {% endif %}
+              </p>
+            </div>
+          </a>
+        </article>
+      {% else %}
+        <div class="mag-empty">
+          Aucun magazine trouvé.
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="{{ asset('js/autocomplete.js') }}"></script>
+{% endblock %}

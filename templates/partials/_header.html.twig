@@ -1,0 +1,48 @@
+<header id="header" class="header d-flex align-items-center fixed-top">
+  <div class="container position-relative d-flex align-items-center justify-content-between">
+
+    <a href="{{ url('app_home') }}" class="logo d-flex align-items-center me-auto me-xl-0">
+      <h1 class="sitename">Medi<span>Nest</span></h1>
+    </a>
+
+    <nav id="navmenu" class="navmenu">
+      <ul>
+        <li><a href="{{ url('app_home') }}" class="{{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Home</a></li>
+        <li><a href="{{ url('app_about') }}" class="{{ app.request.get('_route') == 'app_about' ? 'active' : '' }}">About</a></li>
+        <li><a href="{{ url('app_calendrier') }}" class="{{ app.request.get('_route') == 'app_calendrier' ? 'active' : '' }}">Calendrier</a></li>
+        <li><a href="{{ url('app_services') }}" class="{{ app.request.get('_route') == 'app_services' ? 'active' : '' }}">Services</a></li>
+        <li><a href="{{ url('app_doctors') }}" class="{{ app.request.get('_route') == 'app_doctors' ? 'active' : '' }}">Doctors</a></li>
+        <li class="dropdown"><a href="#"><span>More Pages</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+          <ul>
+            <li><a href="{{ url('app_department_details') }}">Department Details</a></li>
+            <li><a href="{{ url('app_service_details') }}">Service Details</a></li>
+            <li><a href="{{ url('app_appointment') }}">Appointment</a></li>
+            <li><a href="{{ url('app_testimonials') }}">Testimonials</a></li>
+            <li><a href="{{ url('app_faq') }}">Frequently Asked Questions</a></li>
+            <li><a href="{{ url('app_gallery') }}">Gallery</a></li>
+            <li><a href="{{ url('app_terms') }}">Terms</a></li>
+            <li><a href="{{ url('app_privacy') }}">Privacy</a></li>
+          </ul>
+        </li>
+        <li class="dropdown"><a href="#"><span>Rapports Médicales</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+          <ul>
+            <li><a href="#">Rapport 1</a></li>
+            <li><a href="#">Rapport 2</a></li>
+            <li><a href="#">Rapport 3</a></li>
+          </ul>
+        </li>
+        <li class="dropdown"><a href="#"><span>Magazines</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+          <ul>
+            <li><a href="{{ url('front_magazine_index') }}">Tous les magazines</a></li>
+            <li><a href="{{ url('front_articles_search') }}">Rechercher des articles</a></li>
+          </ul>
+        </li>
+        <li><a href="{{ url('app_contact') }}" class="{{ app.request.get('_route') == 'app_contact' ? 'active' : '' }}">Contact</a></li>
+      </ul>
+      <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+    </nav>
+
+
+
+  </div>
+</header>
