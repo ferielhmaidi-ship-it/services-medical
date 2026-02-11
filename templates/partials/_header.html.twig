@@ -9,36 +9,42 @@
     <nav id="navmenu" class="navmenu">
       <ul>
         <!-- Accueil -->
-        <li><a href="{{ path('app_home') }}" class="{{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Accueil</a></li>
+        <li><a href="{{ path('app_home') }}" class="{{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}">Accueil</a></li>
         <!-- Add this to your navigation menu (both for logged in and non-logged in users) -->
-        <li><a href="{{ path('app_annuaire') }}" class="{{ app.request.get('_route') == 'app_annuaire' ? 'active' : '' }}"><i class="fas fa-book-medical me-1"></i>Annuaire Médical</a></li>
+        <li><a href="{{ path('app_annuaire') }}" class="{{ app.request.attributes.get('_route') == 'app_annuaire' ? 'active' : '' }}"><i class="fas fa-book-medical me-1"></i>Annuaire Médical</a></li>
 
         <!-- À propos -->
-        <li><a href="{{ path('app_about') }}" class="{{ app.request.get('_route') == 'app_about' ? 'active' : '' }}">À propos</a></li>
+        <li><a href="{{ path('app_about') }}" class="{{ app.request.attributes.get('_route') == 'app_about' ? 'active' : '' }}">À propos</a></li>
 
         {% if app.user %}
           <!-- Contenu spécifique à l'utilisateur -->
           {% if is_granted('ROLE_PATIENT') %}
             <!-- Trouver un médecin pour les patients -->
-            <li><a href="{{ path('app_doctors') }}" class="{{ app.request.get('_route') == 'app_doctors' ? 'active' : '' }}">Trouver un Médecin</a></li>
+            <li><a href="{{ path('app_doctors') }}" class="{{ app.request.attributes.get('_route') == 'app_doctors' ? 'active' : '' }}">Trouver un Médecin</a></li>
 
             <!-- Prendre rendez-vous pour les patients -->
-            <li><a href="{{ path('app_appointment') }}" class="{{ app.request.get('_route') == 'app_appointment' ? 'active' : '' }}">Prendre Rendez-vous</a></li>
+            <li><a href="{{ path('app_appointment') }}" class="{{ app.request.attributes.get('_route') == 'app_appointment' ? 'active' : '' }}">Prendre Rendez-vous</a></li>
           {% endif %}
 
           {% if is_granted('ROLE_ADMIN') %}
             <!-- Panneau d'administration -->
-            <li><a href="{{ path('admin_dashboard') }}" class="{{ app.request.get('_route') starts with 'admin_' ? 'active' : '' }}">Panneau Admin</a></li>
+            <li><a href="{{ path('admin_dashboard') }}" class="{{ app.request.attributes.get('_route') starts with 'admin' ? 'active' : '' }}">Panneau Admin</a></li>
+          {% endif %}
+
+           {% if is_granted('ROLE_MEDECIN') %}
+            <!-- Calendrier -->
+            <li><a href="{{ path('app_calendrier') }}" class="{{ app.request.attributes.get('_route') == 'app_calendrier' ? 'active' : '' }}">Calendrier</a></li>
+
           {% endif %}
 
         {% else %}
           <!-- Utilisateurs non authentifiés -->
           <!-- Trouver un médecin (pour tous) -->
-          <li><a href="{{ path('app_doctors') }}" class="{{ app.request.get('_route') == 'app_doctors' ? 'active' : '' }}">Trouver un Médecin</a></li>
+          <li><a href="{{ path('app_doctors') }}" class="{{ app.request.attributes.get('_route') == 'app_doctors' ? 'active' : '' }}">Trouver un Médecin</a></li>
         {% endif %}
 
         <!-- Toujours afficher Contact -->
-        <li><a href="{{ path('app_contact') }}" class="{{ app.request.get('_route') == 'app_contact' ? 'active' : '' }}">Contact</a></li>
+        <li><a href="{{ path('app_contact') }}" class="{{ app.request.attributes.get('_route') == 'app_contact' ? 'active' : '' }}">Contact</a></li>
 
         <!-- Menu déroulant utilisateur (seulement connecté) -->
         {% if app.user %}
@@ -84,7 +90,7 @@
         {% else %}
           <!-- Connexion seulement -->
           <li>
-            <a href="{{ path('app_login') }}" class="{{ app.request.get('_route') == 'app_login' ? 'active' : '' }}">
+            <a href="{{ path('app_login') }}" class="{{ app.request.attributes.get('_route') == 'app_login' ? 'active' : '' }}">
               <i class="fas fa-sign-in-alt me-1"></i>Connexion
             </a>
           </li>

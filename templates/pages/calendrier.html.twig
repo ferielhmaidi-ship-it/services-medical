@@ -6,7 +6,7 @@
 <style>
     .calendar-grid {
         display: grid;
-        grid-template-columns: 100px repeat(15, 1fr); /* 1 + 7 past + 1 today + 7 future */
+        grid-template-columns: 100px repeat(22, 1fr); /* 1 + 7 past + 1 today + 14 future = 23 columns */
         border: 1px solid #dee2e6;
         border-radius: 8px;
         overflow-x: auto;
@@ -22,10 +22,14 @@
         position: sticky;
         top: 0;
         z-index: 10;
-    }
-    .calendar-day-header {
-        border-right: 1px solid #dee2e6;
         min-width: 140px;
+    }
+    .calendar-time-col-header {
+        min-width: 100px !important;
+        position: sticky;
+        left: 0;
+        z-index: 11;
+        background: #f1f3f5;
     }
     .today-header {
         background: #e3f2fd !important;
@@ -41,71 +45,54 @@
         border-right: 1px solid #dee2e6;
         background: #fdfdfd;
         height: 60px;
+        position: sticky;
+        left: 0;
+        z-index: 9;
     }
     .calendar-slot-cell {
         border-bottom: 1px solid #eee;
         border-right: 1px solid #dee2e6;
         padding: 5px;
         position: relative;
-        height: 60px;
+        height: 80px; 
         overflow-y: auto;
+        min-width: 140px;
     }
-    .past-day { background-color: #fcfcfc; opacity: 0.9; }
+    .past-day { background-color: #f8f9fa; }
     
     .slot-item {
-        font-size: 0.75rem;
-        padding: 4px 8px;
+        font-size: 0.7rem;
+        padding: 2px 6px;
         border-radius: 4px;
         margin-bottom: 2px;
         cursor: pointer;
         transition: transform 0.1s;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column; gap: 1px;
     }
-    .slot-item:hover {
-        transform: scale(1.02);
-    }
-    .slot-available {
-        background-color: #e3f2fd;
-        border-left: 3px solid #007bff;
-        color: #0d47a1;
-    }
-    .slot-reserved {
-        background-color: #ffebee;
-        border-left: 3px solid #dc3545;
-        color: #b71c1c;
-        cursor: not-allowed;
-    }
-    .slot-pause {
-        background-color: #f1f3f4;
-        border-left: 3px solid #6c757d;
-        color: #495057;
-        opacity: 0.7;
-    }
-    .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        display: inline-block;
-    }
-    .dot-available { background: #007bff; }
-    .dot-reserved { background: #dc3545; }
+    .slot-item:hover { transform: scale(1.02); }
+    
+    .slot-available { background-color: #e3f2fd; border-left: 3px solid #007bff; color: #0d47a1; }
+    .slot-planned { background-color: #e8f5e9; border-left: 3px solid #4caf50; color: #1b5e20; }
+    .slot-pause { background-color: #f1f3f4; border-left: 3px solid #6c757d; color: #495057; opacity: 0.7; }
+    .slot-emergency { background-color: #343a40 !important; color: #fff !important; text-align: center; font-weight: bold; width: 100%; padding-top: 15px; }
+    
+    .appt-status { font-weight: bold; font-size: 0.65rem; text-transform: uppercase; }
+    .appt-scheduled { background-color: #fff3e0; border-left: 3px solid #ff9800; color: #e65100; }
+    .appt-completed { background-color: #e8f5e9; border-left: 3px solid #4caf50; color: #1b5e20; }
+    .appt-cancelled { background-color: #ffebee; border-left: 3px solid #f44336; color: #b71c1c; text-decoration: line-through; }
+    .appt-missed { background-color: #eceff1; border-left: 3px solid #607d8b; color: #263238; }
 
-    /* Modern scrollbar */
-    .calendar-grid::-webkit-scrollbar { height: 10px; }
-    .calendar-grid::-webkit-scrollbar-track { background: #f1f1f1; }
-    .calendar-grid::-webkit-scrollbar-thumb { background: #007bff; border-radius: 5px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 </style>
 
-    <!-- Page Title -->
     <div class="page-title" data-aos="fade">
       <div class="heading">
         <div class="container">
           <div class="row d-flex justify-content-center text-center">
             <div class="col-lg-8">
               <h1>Gestion du Calendrier</h1>
-              <p class="mb-0">Configurez vos disponibilités. Les modifications s'appliquent dès demain.</p>
+              <p class="mb-0">Configurez votre emploi du temps et suivez vos consultations.</p>
             </div>
           </div>
         </div>
@@ -120,67 +107,43 @@
       </nav>
     </div><!-- End Page Title -->
 
-    <section id="calendar-config" class="calendar-config section">
+    <section class="section">
       <div class="container-fluid px-lg-5">
-
         <div class="row gy-4">
             
           <div class="col-lg-3">
             <div class="card shadow-sm border-0 p-4 sticky-top" style="top: 100px;">
                 <h4 class="mb-4">Paramètres</h4>
-                <div class="alert alert-info py-2 small mb-4">
-                    <i class="bi bi-info-circle me-1"></i> S'applique à partir de demain.
+                
+                <div class="d-grid gap-2 mb-4">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nextWeekModal" onclick="populateNextWeekModal()">
+                        <i class="bi bi-calendar-plus me-2"></i>Semaine Prochaine
+                    </button>
+                    <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#emergencyModal">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Jour d'Urgence
+                    </button>
                 </div>
-                <form id="calendarSettings" class="php-email-form">
+
+                <hr>
+
+                <form id="calendarSettings">
                     <div class="mb-3">
-                        <label for="consultation_duration" class="form-label">Durée (minutes)</label>
-                        <input type="number" class="form-control" id="consultation_duration" value="30" min="10" max="120" required>
+                        <label class="form-label">Durée Slot (min)</label>
+                        <input type="number" class="form-control" id="consultation_duration" value="30" onchange="updateCalendar()">
+                        <div class="form-text small text-info"><i class="bi bi-info-circle me-1"></i>Aujourd'hui et le passé restent à 30 min par défaut.</div>
                     </div>
-
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="pause_start" class="form-label">Début Pause</label>
-                            <input type="time" class="form-control" id="pause_start" value="12:00">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Début Pause</label>
+                            <input type="time" class="form-control" id="pause_start" onchange="updateCalendar()">
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="pause_end" class="form-label">Fin Pause</label>
-                            <input type="time" class="form-control" id="pause_end" value="14:00">
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label d-block">Jours de travail</label>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="mon" checked data-day="1">
-                            <label class="form-check-label" for="mon">Lundi</label>
-                        </div>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="tue" checked data-day="2">
-                            <label class="form-check-label" for="tue">Mardi</label>
-                        </div>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="wed" checked data-day="3">
-                            <label class="form-check-label" for="wed">Mercredi</label>
-                        </div>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="thu" checked data-day="4">
-                            <label class="form-check-label" for="thu">Jeudi</label>
-                        </div>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="fri" checked data-day="5">
-                            <label class="form-check-label" for="fri">Vendredi</label>
-                        </div>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="sat" data-day="6">
-                            <label class="form-check-label" for="sat">Samedi</label>
-                        </div>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="sun" data-day="0">
-                            <label class="form-check-label" for="sun">Dimanche</label>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Fin Pause</label>
+                            <input type="time" class="form-control" id="pause_end" onchange="updateCalendar()">
                         </div>
                     </div>
-
-                    <button type="button" class="btn btn-primary w-100" onclick="updateCalendar()">Actualiser Preview</button>
+                    <button type="button" class="btn btn-success w-100 mb-2" onclick="saveGeneralSettings()">Enregistrer Paramètres</button>
+                    <button type="button" class="btn btn-outline-secondary w-100" onclick="updateCalendar()">Actualiser Aperçu</button>
                 </form>
             </div>
           </div>
@@ -188,172 +151,246 @@
           <div class="col-lg-9">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h5 class="mb-0 text-primary"><i class="bi bi-calendar3 me-2"></i>Aperçu Interactif (-7 / +7 Jours)</h5>
+                    <h5 class="mb-0 text-primary">Vue Calendrier (-7 / +14 Jours)</h5>
                     <div id="currentMonthYear" class="fw-bold text-muted"></div>
                 </div>
                 <div class="card-body p-0">
-                    <div id="calendar-container" class="calendar-grid">
-                        <!-- Slots will be injected here by JS -->
-                    </div>
+                    <div id="calendar-container" class="calendar-grid"></div>
                 </div>
-                <div class="card-footer bg-light d-flex gap-3 justify-content-center py-3">
-                    <small><span class="status-dot dot-available"></span> Disponible</small>
-                    <small><span class="status-dot dot-reserved"></span> Réservé</small>
-                    <small><span class="status-dot bg-secondary"></span> Pause</small>
-                    <small class="ms-3 text-muted"><i class="bi bi-info-circle"></i> Gris = Passé ou Pause</small>
+                <div class="card-footer bg-light d-flex flex-wrap gap-3 justify-content-center py-3">
+                    <small><span class="status-dot" style="background: #4caf50;"></span> Terminé</small>
+                    <small><span class="status-dot" style="background: #ff9800;"></span> Programmé</small>
+                    <small><span class="status-dot" style="background: #f44336;"></span> Annulé</small>
+                    <small><span class="status-dot" style="background: #607d8b;"></span> Absent</small>
                 </div>
             </div>
           </div>
 
         </div>
-
       </div>
     </section>
 
+<div class="modal fade" id="nextWeekModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Planning Semaine Prochaine</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="nextWeekDaysList" class="row"></div></div><div class="modal-footer"><button type="button" class="btn btn-primary" id="btnSaveNextWeek" onclick="saveNextWeekSchedule()">Sauvegarder</button></div></div></div></div>
+<div class="modal fade" id="emergencyModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Urgence</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="date" id="emergencyDate" class="form-control"></div><div class="modal-footer"><button type="button" class="btn btn-danger" onclick="saveEmergencyDay()">Bloquer</button></div></div></div></div>
+
 <script>
-    // Default config (for past and today)
-    const defaultConfig = {
-        duration: 30,
-        pauseStart: "12:00",
-        pauseEnd: "14:00",
-        workDays: [1, 2, 3, 4, 5]
-    };
-
-    function updateCalendar() {
-        const newConfig = {
-            duration: parseInt(document.getElementById('consultation_duration').value),
-            pauseStart: document.getElementById('pause_start').value,
-            pauseEnd: document.getElementById('pause_end').value,
-            workDays: Array.from(document.querySelectorAll('.form-check-input[data-day]'))
-                .filter(i => i.checked)
-                .map(i => parseInt(i.getAttribute('data-day')))
-        };
-
-        generateSlots(newConfig);
+    let dbConfig = { settings: { slotDuration: 30, pauseStart: "12:00", pauseEnd: "14:00" }, specifics: [], indisponibilities: [], appointments: [] };
+    
+    function formatDateToISO(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
     }
 
-    function generateSlots(newConfig) {
-        const container = document.getElementById('calendar-container');
-        container.innerHTML = '';
-
-        // Current Date
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        // Time Header
-        const timeHeaderCorner = document.createElement('div');
-        timeHeaderCorner.className = 'calendar-header';
-        timeHeaderCorner.textContent = 'Heure';
-        container.appendChild(timeHeaderCorner);
-
-        // Dates range: -7 to +7
-        const displayDates = [];
-        for (let i = -7; i <= 7; i++) {
-            const date = new Date();
-            date.setDate(date.getDate() + i);
-            displayDates.push(date);
-
-            const div = document.createElement('div');
-            const isToday = date.getTime() === today.getTime();
-            div.className = `calendar-header calendar-day-header ${isToday ? 'today-header' : ''}`;
-            div.innerHTML = `
-                <div>${date.toLocaleDateString('fr-FR', { weekday: 'short' })}</div>
-                <div class="small text-muted">${date.getDate()} ${date.toLocaleDateString('fr-FR', { month: 'short' })}</div>
-            `;
-            container.appendChild(div);
-
-            if (i === 0) {
-                document.getElementById('currentMonthYear').textContent = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    async function fetchConfig() {
+        try {
+            const res = await fetch('/api/calendar/config');
+            dbConfig = await res.json();
+            if (dbConfig.settings) {
+                document.getElementById('consultation_duration').value = dbConfig.settings.slotDuration;
+                document.getElementById('pause_start').value = dbConfig.settings.pauseStart;
+                document.getElementById('pause_end').value = dbConfig.settings.pauseEnd;
             }
+            updateCalendar();
+        } catch (e) { console.error(e); }
+    }
+
+    function timeToMins(timeStr) {
+        if (!timeStr) return 0;
+        const [h, m] = timeStr.split(':').map(Number);
+        return h * 60 + m;
+    }
+
+    function isSlotOverlappingPause(s, e, ps, pe) {
+        if (!ps || !pe) return false;
+        return s < timeToMins(pe) && e > timeToMins(ps);
+    }
+
+    function updateCalendar() {
+        const durationInput = document.getElementById('consultation_duration');
+        const s = {
+            slotDuration: parseInt(durationInput.value) || 30,
+            pauseStart: document.getElementById('pause_start').value,
+            pauseEnd: document.getElementById('pause_end').value
+        };
+        generateSlots(s);
+    }
+
+    function generateSlots(s) {
+        const container = document.getElementById('calendar-container');
+        if (!container) return; container.innerHTML = '';
+        
+        const now = new Date();
+        const todayAtMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+        const corner = document.createElement('div'); corner.className = 'calendar-header calendar-time-col-header'; corner.textContent = 'Heure';
+        container.appendChild(corner);
+
+        const displayDates = [];
+        for (let i = -7; i <= 14; i++) {
+            const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+            displayDates.push(d);
+            const div = document.createElement('div');
+            const isToday = d.getTime() === todayAtMidnight;
+            div.className = `calendar-header calendar-day-header ${isToday ? 'today-header' : ''} ${i < 0 ? 'past-day' : ''}`;
+            div.innerHTML = `<div>${d.toLocaleDateString('fr-FR', { weekday: 'short' })}</div><div class="small text-muted">${d.getDate()} ${d.toLocaleDateString('fr-FR', { month: 'short' })}</div>`;
+            container.appendChild(div);
         }
 
-        // Prepare Grid Cells (Pre-generate all cells for 9:00 to 17:00 rows)
-        const cellMap = {}; // hour-day -> cell
-        for (let hour = 9; hour < 17; hour++) {
-            const timeLabel = document.createElement('div');
-            timeLabel.className = 'calendar-time-label';
-            timeLabel.textContent = `${hour.toString().padStart(2, '0')}:00`;
-            container.appendChild(timeLabel);
-
+        const cellMap = {};
+        for (let hour = 8; hour < 19; hour++) {
+            const label = document.createElement('div'); label.className = 'calendar-time-label'; label.textContent = `${hour}:00`;
+            container.appendChild(label);
             for (let i = 0; i < displayDates.length; i++) {
-                const cell = document.createElement('div');
-                const date = displayDates[i];
-                cell.className = 'calendar-slot-cell';
-                if (date.getTime() <= today.getTime()) cell.classList.add('past-day');
-                
+                const cell = document.createElement('div'); cell.className = 'calendar-slot-cell';
+                if (displayDates[i].getTime() < todayAtMidnight) cell.classList.add('past-day');
                 container.appendChild(cell);
                 cellMap[`${hour}-${i}`] = cell;
             }
         }
 
-        // Fill cells with slots
-        for (let i = 0; i < displayDates.length; i++) {
-            const date = displayDates[i];
-            const isPastOrToday = date.getTime() <= today.getTime();
-            const config = isPastOrToday ? defaultConfig : newConfig;
-            const dayOfWeek = date.getDay();
+        displayDates.forEach((date, i) => {
+            const dateStr = formatDateToISO(date);
+            const dateTimestamp = date.getTime();
+            
+            const isEmergency = dbConfig.indisponibilities.some(ind => ind.date === dateStr);
+            if (isEmergency) {
+                const cell = cellMap[`12-${i}`]; if (cell) cell.innerHTML = '<div class="slot-item slot-emergency">BLOQUÉ</div>';
+                return;
+            }
 
-            if (config.workDays.includes(dayOfWeek)) {
-                let currentTotalMinutes = 9 * 60; // Start at 9:00
-                const endTotalMinutes = 17 * 60; // End at 17:00
-
-                while (currentTotalMinutes + config.duration <= endTotalMinutes) {
-                    const startHour = Math.floor(currentTotalMinutes / 60);
-                    const startMin = currentTotalMinutes % 60;
-                    const endTotalMin = currentTotalMinutes + config.duration;
-                    
-                    const timeStr = `${startHour.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`;
-                    const cell = cellMap[`${startHour}-${i}`];
-
-                    if (cell) {
-                        // Strict Overlap Check
-                        if (isSlotOverlappingPause(currentTotalMinutes, endTotalMin, config.pauseStart, config.pauseEnd)) {
-                            const pauseItem = document.createElement('div');
-                            pauseItem.className = 'slot-item slot-pause';
-                            pauseItem.innerHTML = `<span>${timeStr}</span> <span>Pause</span>`;
-                            cell.appendChild(pauseItem);
-                        } else {
-                            const isReserved = Math.random() < 0.2; 
-                            const slot = document.createElement('div');
-                            slot.className = `slot-item ${isReserved ? 'slot-reserved' : 'slot-available'}`;
-                            slot.innerHTML = `
-                                <span>${timeStr}</span>
-                                <span>${isReserved ? 'RESERVÉ' : 'LIBRE'}</span>
-                            `;
-                            cell.appendChild(slot);
-                        }
-                    }
-
-                    currentTotalMinutes += config.duration;
-                }
+            const specific = dbConfig.specifics.find(sp => sp.specificDate === dateStr);
+            const dayAppts = dbConfig.appointments.filter(a => a.date === dateStr);
+            
+            // STRICT PERSISTENCE LOGIC (as per user "snapshot" request):
+            let activeDuration;
+            if (dayAppts.length > 0) {
+                // If there are appointments, always use their duration
+                activeDuration = parseInt(dayAppts[0].duration) || 30;
+            } else if (dateTimestamp <= todayAtMidnight) {
+                // TODAY AND PAST: Strictly stay at 30 min (The requested historical default)
+                // This ensures that even if you SAVE 60 as the new global, history remains 30.
+                activeDuration = 30; 
             } else {
-                // If it's a day off, show "Repos" in the row center (or all cells)
-                // For simplicity, we just leave it with the "Repos" text mapped to the 12:00 row cell maybe?
-                // Or let's just mark the first cell of that day.
-                const middleCell = cellMap[`12-${i}`];
-                if (middleCell) {
-                    middleCell.innerHTML = '<div class="text-center text-muted fw-bold small mt-2">Repos</div>';
+                // ONLY NEXT DAYS (Future): Follow the current UI slider
+                activeDuration = s.slotDuration;
+            }
+
+            if (specific) {
+                renderWorkSlots(date, i, timeToMins(specific.startTime), timeToMins(specific.endTime), s, dayAppts, cellMap, activeDuration);
+            } else if ([1,2,3,4,5].includes(date.getDay())) {
+                renderWorkSlots(date, i, 9*60, 17*60, s, dayAppts, cellMap, activeDuration);
+            } else {
+                const mid = cellMap[`12-${i}`]; if (mid) mid.innerHTML = '<div class="text-center text-muted small mt-2">Repos</div>';
+            }
+        });
+    }
+
+    function renderWorkSlots(date, colIdx, startMins, endMins, s, dayAppts, cellMap, activeDuration) {
+        let curr = startMins;
+        while (curr + activeDuration <= endMins) {
+            const h = Math.floor(curr / 60); const m = curr % 60;
+            const timeStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+            const cell = cellMap[`${h}-${colIdx}`];
+            
+            if (cell) {
+                const appt = dayAppts.find(a => timeToMins(a.startTime) === curr);
+                if (appt) {
+                    const div = document.createElement('div');
+                    div.className = `slot-item appt-${appt.status}`;
+                    div.innerHTML = `<span>${timeStr}</span><span class="appt-status">${appt.status}</span><span class="small">P-ID: ${appt.patientId}</span>`;
+                    cell.appendChild(div);
+                } else if (isSlotOverlappingPause(curr, curr + activeDuration, s.pauseStart, s.pauseEnd)) {
+                    const p = document.createElement('div'); p.className = 'slot-item slot-pause'; p.innerHTML = `<span>${timeStr}</span><span>Pause</span>`;
+                    cell.appendChild(p);
+                } else {
+                    const av = document.createElement('div'); av.className = 'slot-item slot-available'; av.innerHTML = `<span>${timeStr}</span><span>LIBRE</span>`;
+                    cell.appendChild(av);
                 }
             }
+            curr += activeDuration;
         }
     }
 
-    function isSlotOverlappingPause(slotStart, slotEnd, pauseStartStr, pauseEndStr) {
-        if (!pauseStartStr || !pauseEndStr) return false;
+    function populateNextWeekModal() {
+        const list = document.getElementById('nextWeekDaysList'); if (!list) return;
+        list.innerHTML = '<div class="col-12 text-center py-4"><div class="spinner-border text-primary"></div></div>';
+        const now = new Date(); 
+        const nextMon = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const daysToMon = (1 - now.getDay() + 7) % 7 || 7;
+        nextMon.setDate(nextMon.getDate() + daysToMon);
         
-        const [sh, sm] = pauseStartStr.split(':').map(Number);
-        const [eh, em] = pauseEndStr.split(':').map(Number);
-        
-        const pStart = sh * 60 + sm;
-        const pEnd = eh * 60 + em;
-        
-        // Strict Overlap Condition: (Slot starts before pause ends) AND (Slot ends after pause starts)
-        return slotStart < pEnd && slotEnd > pStart;
+        setTimeout(() => {
+            list.innerHTML = '';
+            for(let i=0; i<7; i++) {
+                const d = new Date(nextMon.getFullYear(), nextMon.getMonth(), nextMon.getDate() + i);
+                const dIso = formatDateToISO(d);
+                const existing = dbConfig.specifics.find(s => s.specificDate === dIso);
+                const col = document.createElement('div'); col.className = 'col-md-6 mb-3';
+                col.innerHTML = `
+                    <div class="card shadow-sm p-3 h-100 ${existing ? 'border-primary bg-light' : ''}">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input nw-check" type="checkbox" id="nw-${i}" ${existing ? 'checked' : ''} data-date="${dIso}">
+                            <label class="form-check-label fw-bold text-capitalize" for="nw-${i}">${d.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric'})}</label>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6"><input type="time" class="form-control form-control-sm nw-start" value="${existing ? existing.startTime : '09:00'}"></div>
+                            <div class="col-6"><input type="time" class="form-control form-control-sm nw-end" value="${existing ? existing.endTime : '17:00'}"></div>
+                        </div>
+                    </div>`;
+                list.appendChild(col);
+            }
+        }, 100);
     }
 
-    window.addEventListener('load', () => {
-        updateCalendar();
-        if (typeof AOS !== 'undefined') AOS.refresh();
-    });
+    async function saveNextWeekSchedule() {
+        const checks = Array.from(document.querySelectorAll('.nw-check'));
+        const days = checks.filter(c => c.checked).map(c => {
+            const p = c.closest('.card');
+            return { date: c.getAttribute('data-date'), startTime: p.querySelector('.nw-start').value, endTime: p.querySelector('.nw-end').value };
+        });
+        const weekDates = checks.map(c => c.getAttribute('data-date'));
+        const res = await fetch('/calendar/next-week', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ days, weekDates }) });
+        if (res.ok) { bootstrap.Modal.getInstance(document.getElementById('nextWeekModal')).hide(); fetchConfig(); alert("Succès"); }
+    }
+
+    async function saveGeneralSettings() {
+        const data = { slotDuration: document.getElementById('consultation_duration').value, pauseStart: document.getElementById('pause_start').value, pauseEnd: document.getElementById('pause_end').value };
+        const res = await fetch('/api/calendar/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        if (res.ok) { await fetchConfig(); alert("Enregistré"); }
+    }
+
+    async function saveEmergencyDay() {
+        const date = document.getElementById('emergencyDate').value;
+        if (!date) return alert('Sélectionnez une date.');
+        
+        const btn = document.querySelector('#emergencyModal .btn-danger');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>...'; }
+
+        try {
+            const res = await fetch('/calendar/emergency', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ date }) 
+            });
+            if (res.ok) { 
+                const modalEl = document.getElementById('emergencyModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                await fetchConfig(); 
+                alert("Journée bloquée avec succès !");
+            } else {
+                alert("Erreur lors du blocage de la journée.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Erreur de connexion.");
+        } finally {
+            if (btn) { btn.disabled = false; btn.innerHTML = 'Bloquer'; }
+        }
+    }
+
+    window.addEventListener('load', fetchConfig);
 </script>
 {% endblock %}

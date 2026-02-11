@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}TempsTravail{% endblock %}
+
+{% block body %}
+    <h1>TempsTravail</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ temps_travail.id }}</td>
+            </tr>
+            <tr>
+                <th>DayOfWeek</th>
+                <td>{{ temps_travail.dayOfWeek }}</td>
+            </tr>
+            <tr>
+                <th>StartTime</th>
+                <td>{{ temps_travail.startTime ? temps_travail.startTime|date('H:i') : '' }}</td>
+            </tr>
+            <tr>
+                <th>EndTime</th>
+                <td>{{ temps_travail.endTime ? temps_travail.endTime|date('H:i') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DoctorId</th>
+                <td>{{ temps_travail.doctorId }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_temps_travail_index') }}">back to list</a>
+
+    <a href="{{ path('app_temps_travail_edit', {'id': temps_travail.id}) }}">edit</a>
+
+    {{ include('temps_travail/_delete_form.html.twig') }}
+{% endblock %}

@@ -13,7 +13,6 @@ use App\Repository\PatientRepository;
 use App\Constants\Specialty;
 use App\Constants\Governorate;
 
-
 class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
@@ -68,13 +67,46 @@ class HomeController extends AbstractController
         return $this->render('pages/appointment.html.twig');
     }
 
-    // Removed: doctors, departments, services, etc.
-    // Keep only essential pages for now
+    #[Route('/departments', name: 'app_departments')]
+    public function departments(): Response
+    {
+        return $this->render('pages/departments.html.twig');
+    }
+
+    #[Route('/department-details', name: 'app_department_details')]
+    public function departmentDetails(): Response
+    {
+        return $this->render('pages/department-details.html.twig');
+    }
+
+    #[Route('/services', name: 'app_services')]
+    public function services(): Response
+    {
+        return $this->render('pages/services.html.twig');
+    }
+
+    #[Route('/service-details', name: 'app_service_details')]
+    public function serviceDetails(): Response
+    {
+        return $this->render('pages/service-details.html.twig');
+    }
+
+    #[Route('/gallery', name: 'app_gallery')]
+    public function gallery(): Response
+    {
+        return $this->render('pages/gallery.html.twig');
+    }
 
     #[Route('/faq', name: 'app_faq')]
     public function faq(): Response
     {
         return $this->render('pages/faq.html.twig');
+    }
+
+    #[Route('/testimonials', name: 'app_testimonials')]
+    public function testimonials(): Response
+    {
+        return $this->render('pages/testimonials.html.twig');
     }
 
     #[Route('/privacy', name: 'app_privacy')]

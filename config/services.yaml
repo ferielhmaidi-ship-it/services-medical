@@ -21,7 +21,6 @@ services:
     App\Service\DoctorVerificationService:
         arguments:
             $flaskApiUrl: '%env(FLASK_API_URL)%'
-
     App\:
         resource: '../src/'
         exclude:
