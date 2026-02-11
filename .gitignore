@@ -9,6 +9,7 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
+<<<<<<< HEAD
 
 
 <<<<<<< HEAD
@@ -19,8 +20,13 @@
 
 =======
 >>>>>>> team-origin/dev-badiss
+=======
+>>>>>>> origin/yassin
 ###> symfony/asset-mapper ###
 
 /assets/vendor/
 ###< symfony/asset-mapper ###
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/yassin

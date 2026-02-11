@@ -1,0 +1,299 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Détails du Médecin - {{ medecin.getFullName() }}{% endblock %}
+
+{% block body %}
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user-md text-primary"></i> Détails du Médecin
+        </h1>
+        <div>
+            <a href="{{ path('admin_medecin_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+            <a href="{{ path('admin_medecin_edit', {'id': medecin.id}) }}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Informations Personnelles -->
+        <div class="col-xl-8 col-lg-7">
+            <!-- Informations de Base Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-id-card"></i> Informations Personnelles
+                    </h6>
+                    <div>
+                        {% if medecin.isActive %}
+                            <span class="badge badge-success">Actif</span>
+                        {% else %}
+                            <span class="badge badge-danger">Inactif</span>
+                        {% endif %}
+                        {% if medecin.isVerified %}
+                            <span class="badge badge-success">Vérifié</span>
+                        {% else %}
+                            <span class="badge badge-warning">Non vérifié</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Nom complet:</th>
+                                    <td><strong>{{ medecin.getFullName() }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Email:</th>
+                                    <td>
+                                        <a href="mailto:{{ medecin.email }}">{{ medecin.email }}</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>CIN:</th>
+                                    <td>{{ medecin.cin }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Spécialité:</th>
+                                    <td>
+                                        <span class="badge badge-info">{{ medecin.specialty }}</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Âge:</th>
+                                    <td>{{ medecin.age ? medecin.age ~ ' ans' : 'Non spécifié' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Genre:</th>
+                                    <td>{{ medecin.gender ? medecin.gender|trans : 'Non spécifié' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Téléphone:</th>
+                                    <td>
+                                        {% if medecin.phoneNumber %}
+                                            <a href="tel:{{ medecin.phoneNumber }}" class="text-primary">
+                                                <i class="fas fa-phone"></i> {{ medecin.phoneNumber }}
+                                            </a>
+                                        {% else %}
+                                            Non renseigné
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Gouvernorat:</th>
+                                    <td>{{ medecin.governorate ?? 'Non spécifié' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adresse -->
+            {% if medecin.address %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-map-marker-alt"></i> Adresse
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p>{{ medecin.address }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Formation -->
+            {% if medecin.education %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-graduation-cap"></i> Formation
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p>{{ medecin.education|nl2br }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Expérience -->
+            {% if medecin.experience %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-briefcase"></i> Expérience Professionnelle
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p>{{ medecin.experience|nl2br }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar Widgets Column -->
+        <div class="col-xl-4 col-lg-5">
+            <!-- Statut Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar"></i> Statut
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-user-md fa-4x text-primary"></i>
+                    </div>
+                    <h5 class="font-weight-bold">{{ medecin.getFullName() }}</h5>
+                    <p class="text-muted">{{ medecin.specialty }}</p>
+
+                    <div class="row mt-4">
+                        <div class="col-6">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Statut
+                                    </div>
+                                    <div class="h5 mb-0">
+                                        {% if medecin.isActive %}
+                                            <span class="text-success">Actif</span>
+                                        {% else %}
+                                            <span class="text-danger">Inactif</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Vérification
+                                    </div>
+                                    <div class="h5 mb-0">
+                                        {% if medecin.isVerified %}
+                                            <span class="text-success">Vérifié</span>
+                                        {% else %}
+                                            <span class="text-warning">En attente</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Rapides Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt"></i> Actions Rapides
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <a href="{{ path('admin_medecin_edit', {'id': medecin.id}) }}" class="btn btn-warning btn-block mb-3">
+                        <i class="fas fa-edit"></i> Modifier le profil
+                    </a>
+
+                    {% if medecin.isActive %}
+                        <form method="post" action="{{ path('admin_medecin_toggle_status', {'id': medecin.id}) }}" class="mb-3">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle_status' ~ medecin.id) }}">
+                            <button type="submit" class="btn btn-secondary btn-block">
+                                <i class="fas fa-ban"></i> Désactiver le compte
+                            </button>
+                        </form>
+                    {% else %}
+                        <form method="post" action="{{ path('admin_medecin_toggle_status', {'id': medecin.id}) }}" class="mb-3">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle_status' ~ medecin.id) }}">
+                            <button type="submit" class="btn btn-success btn-block">
+                                <i class="fas fa-check"></i> Activer le compte
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#deleteModal">
+                        <i class="fas fa-trash"></i> Supprimer le compte
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== NOUVEAU : Vérification officielle avec l'annuaire ===== -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-check-double"></i> Vérification officielle
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert {{ medecin.isVerified ? 'alert-success' : 'alert-secondary' }} mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas {{ medecin.isVerified ? 'fa-check-circle' : 'fa-hourglass-half' }} fa-2x me-3"></i>
+                            <div>
+                                <strong>Statut actuel :</strong>
+                                {% if medecin.isVerified %}
+                                    Vérifié
+                                {% else %}
+                                    Non vérifié
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" action="{{ path('admin_medecin_verify_official', {'id': medecin.id}) }}"
+                          onsubmit="return confirm('Voulez-vous vérifier ce médecin dans l\'annuaire officiel ?\n\nCette action peut modifier le statut de vérification si une correspondance est trouvée.');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('verify_official' ~ medecin.id) }}">
+                        <button type="submit" class="btn btn-info btn-block">
+                            <i class="fas fa-search"></i> Vérifier avec l’annuaire officiel
+                        </button>
+                    </form>
+                    <small class="form-text text-muted mt-2">
+                        <i class="fas fa-info-circle"></i> La recherche utilise le nom, la spécialité et le gouvernorat.<br>
+                        Une correspondance floue (seuil 90%) est appliquée sur le nom.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmer la suppression</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer définitivement le compte du médecin <strong>{{ medecin.getFullName() }}</strong> ?</p>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Attention:</strong> Cette action supprimera toutes les données associées et est irréversible !
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <form method="post" action="{{ path('admin_medecin_delete', {'id': medecin.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ medecin.id) }}">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Supprimer définitivement
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

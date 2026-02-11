@@ -1,4 +1,8 @@
 when@dev:
     _errors:
+<<<<<<< HEAD
         resource: '@FrameworkBundle/Resources/config/routing/errors.xml'
+=======
+        resource: '@FrameworkBundle/Resources/config/routing/errors.php'
+>>>>>>> origin/yassin
         prefix: /_error

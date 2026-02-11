@@ -1,5 +1,8 @@
 {
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/yassin
     "doctrine/deprecations": {
         "version": "1.1",
         "recipe": {
@@ -16,8 +19,11 @@
             "branch": "main",
             "version": "2.13",
             "ref": "620b57f496f2e599a6015a9fa222c2ee0a32adcb"
+<<<<<<< HEAD
             "version": "2.10",
             "ref": "d1778a69711a9b06bb4e202977ca6c4a0d16933d"
+=======
+>>>>>>> origin/yassin
         },
         "files": [
             "./config/packages/doctrine.yaml",
@@ -38,6 +44,7 @@
             "./migrations/.gitignore"
         ]
     },
+<<<<<<< HEAD
     "phpunit/phpunit": {
         "version": "11.5",
         "recipe": {
@@ -55,6 +62,10 @@
     },
     "symfony/asset-mapper": {
         "version": "6.4",
+=======
+    "symfony/asset-mapper": {
+        "version": "7.4",
+>>>>>>> origin/yassin
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -69,7 +80,11 @@
         ]
     },
     "symfony/console": {
+<<<<<<< HEAD
         "version": "6.4",
+=======
+        "version": "7.4",
+>>>>>>> origin/yassin
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -80,6 +95,7 @@
             "./bin/console"
         ]
     },
+<<<<<<< HEAD
     "symfony/debug-bundle": {
         "version": "7.4",
         "recipe": {
@@ -92,6 +108,8 @@
             "./config/packages/debug.yaml"
         ]
     },
+=======
+>>>>>>> origin/yassin
     "symfony/flex": {
         "version": "2.10",
         "recipe": {
@@ -118,12 +136,21 @@
         ]
     },
     "symfony/framework-bundle": {
+<<<<<<< HEAD
         "version": "6.4",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "6.4",
             "ref": "32126346f25e1cee607cc4aa6783d46034920554"
+=======
+        "version": "7.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "7.4",
+            "ref": "09f6e081c763a206802674ce0cb34a022f0ffc6d"
+>>>>>>> origin/yassin
         },
         "files": [
             "./config/packages/cache.yaml",
@@ -133,6 +160,7 @@
             "./config/services.yaml",
             "./public/index.php",
             "./src/Controller/.gitignore",
+<<<<<<< HEAD
             "./src/Kernel.php"
         ]
     },
@@ -146,12 +174,19 @@
         },
         "files": [
             "./config/packages/mailer.yaml"
+=======
+            "./src/Kernel.php",
+            "./.editorconfig"
+>>>>>>> origin/yassin
         ]
     },
     "symfony/maker-bundle": {
         "version": "1.65",
+<<<<<<< HEAD
     "symfony/maker-bundle": {
         "version": "1.66",
+=======
+>>>>>>> origin/yassin
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -159,6 +194,7 @@
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
     },
+<<<<<<< HEAD
     "symfony/messenger": {
         "version": "7.4",
         "recipe": {
@@ -171,6 +207,8 @@
             "./config/packages/messenger.yaml"
         ]
     },
+=======
+>>>>>>> origin/yassin
     "symfony/monolog-bundle": {
         "version": "4.0",
         "recipe": {
@@ -183,6 +221,7 @@
             "./config/packages/monolog.yaml"
         ]
     },
+<<<<<<< HEAD
     "symfony/notifier": {
         "version": "7.4",
         "recipe": {
@@ -195,6 +234,8 @@
             "./config/packages/notifier.yaml"
         ]
     },
+=======
+>>>>>>> origin/yassin
     "symfony/property-info": {
         "version": "7.4",
         "recipe": {
@@ -208,12 +249,21 @@
         ]
     },
     "symfony/routing": {
+<<<<<<< HEAD
         "version": "6.4",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "6.2",
             "ref": "e0a11b4ccb8c9e70b574ff5ad3dfdcd41dec5aa6"
+=======
+        "version": "7.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "7.4",
+            "ref": "bc94c4fd86f393f3ab3947c18b830ea343e51ded"
+>>>>>>> origin/yassin
         },
         "files": [
             "./config/packages/routing.yaml",
@@ -233,6 +283,7 @@
             "./config/routes/security.yaml"
         ]
     },
+<<<<<<< HEAD
     "symfony/stimulus-bundle": {
         "version": "2.32",
         "recipe": {
@@ -263,6 +314,10 @@
     },
     "symfony/twig-bundle": {
         "version": "6.4",
+=======
+    "symfony/twig-bundle": {
+        "version": "7.4",
+>>>>>>> origin/yassin
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -274,6 +329,7 @@
             "./templates/base.html.twig"
         ]
     },
+<<<<<<< HEAD
     "symfony/ux-turbo": {
         "version": "2.32",
         "recipe": {
@@ -286,6 +342,8 @@
             "./config/packages/ux_turbo.yaml"
         ]
     },
+=======
+>>>>>>> origin/yassin
     "symfony/validator": {
         "version": "7.4",
         "recipe": {
@@ -293,6 +351,7 @@
             "branch": "main",
             "version": "7.0",
             "ref": "8c1c4e28d26a124b0bb273f537ca8ce443472bfd"
+<<<<<<< HEAD
     },
     "symfony/validator": {
         "version": "6.4",
@@ -301,10 +360,13 @@
             "branch": "main",
             "version": "5.3",
             "ref": "c32cfd98f714894c4f128bb99aa2530c1227603c"
+=======
+>>>>>>> origin/yassin
         },
         "files": [
             "./config/packages/validator.yaml"
         ]
+<<<<<<< HEAD
     },
     "symfony/web-profiler-bundle": {
         "version": "7.4",
@@ -333,5 +395,7 @@
     },
     "twig/extra-bundle": {
         "version": "v3.23.0"
+=======
+>>>>>>> origin/yassin
     }
 }

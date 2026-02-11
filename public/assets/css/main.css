@@ -20,7 +20,11 @@
 }
 
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
+<<<<<<< HEAD
 :root { 
+=======
+:root {
+>>>>>>> origin/yassin
   --background-color: #ffffff; /* Background color for the entire website, including individual sections */
   --default-color: #363f40; /* Default color used for the majority of the text content across the entire website */
   --heading-color: #1f2f31; /* Color for headings, subheadings and title throughout the website */
@@ -6405,4 +6409,86 @@ section,
   padding-top: 60px;
   padding-bottom: 60px;
   /* Add your styles here */
+<<<<<<< HEAD
 }
+=======
+}
+
+
+/***************new new */
+/* Enhanced button styling */
+.btn-getstarted {
+    background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+    color: white;
+    padding: 10px 25px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+}
+
+.btn-getstarted:hover {
+    background: linear-gradient(45deg, #0b5ed7, #0baed9);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+}
+
+.btn-getstarted i {
+    transition: transform 0.3s ease;
+}
+
+.btn-getstarted:hover i {
+    transform: translateX(3px);
+}
+
+/* Active menu item styling */
+.navmenu ul li a.active {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.navmenu ul li a.active:after {
+    width: 100%;
+    background: #0d6efd;
+}
+
+/* Simplified homepage hero */
+.hero {
+    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('../img/medical-bg.jpg') center center no-repeat;
+    background-size: cover;
+}
+
+.btn-get-started {
+    background: #0d6efd;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-get-started:hover {
+    background: #0b5ed7;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+}
+
+.btn-watch-video {
+    color: #0d6efd;
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+    border: 2px solid #0d6efd;
+    transition: all 0.3s ease;
+}
+
+.btn-watch-video:hover {
+    background: #0d6efd;
+    color: white;
+}
+
+
+>>>>>>> origin/yassin

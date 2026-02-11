@@ -1,6 +1,7 @@
 # see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
     secret: '%env(APP_SECRET)%'
+<<<<<<< HEAD
     annotations: false
     http_method_override: false
     handle_all_throwables: true
@@ -17,6 +18,14 @@ framework:
     #fragments: true
     php_errors:
         log: true
+=======
+
+    # Note that the session will be started ONLY if you read or write from it.
+    session: true
+
+    #esi: true
+    #fragments: true
+>>>>>>> origin/yassin
 
 when@test:
     framework:

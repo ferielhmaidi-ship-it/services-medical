@@ -1,0 +1,297 @@
+{# templates/patient_dashboard/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de Bord Patient - TabibNet{% endblock %}
+
+{% block body_class %}patient-dashboard{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h1 class="h3 mb-1">Bonjour, {{ patient.firstName }} 👋</h1>
+                            <p class="text-muted mb-0">Bienvenue sur votre tableau de bord personnel</p>
+                        </div>
+                        <div class="avatar-circle bg-primary-gradient text-white d-flex align-items-center justify-content-center" style="width: 70px; height: 70px; font-size: 1.8rem;">
+                            {{ patient.fullName|split(' ')|map(word => word|first)|join('')|upper }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">Actions Rapides</h4>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <a href="{{ path('app_doctors') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100 hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-primary mb-3 mx-auto">
+                                <i class="fas fa-search text-white"></i>
+                            </div>
+                            <h5 class="card-title mb-2">Trouver un Médecin</h5>
+                            <p class="card-text small text-muted">Rechercher et consulter des spécialistes</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ path('app_appointment') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100 hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-success mb-3 mx-auto">
+                                <i class="fas fa-calendar-check text-white"></i>
+                            </div>
+                            <h5 class="card-title mb-2">Prendre RDV</h5>
+                            <p class="card-text small text-muted">Réserver une consultation en ligne</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ path('patient_profile') }}" class="card border-0 shadow-sm text-decoration-none text-dark h-100 hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-info mb-3 mx-auto">
+                                <i class="fas fa-user-edit text-white"></i>
+                            </div>
+                            <h5 class="card-title mb-2">Mon Profil</h5>
+                            <p class="card-text small text-muted">Gérer vos informations personnelles</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="#" class="card border-0 shadow-sm text-decoration-none text-dark h-100 hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-warning mb-3 mx-auto">
+                                <i class="fas fa-file-medical text-white"></i>
+                            </div>
+                            <h5 class="card-title mb-2">Mes Documents</h5>
+                            <p class="card-text small text-muted">Accéder à vos dossiers médicaux</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Summary -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-id-card me-2 text-primary"></i>Résumé de votre Profil</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Nom complet</span>
+                                <p class="info-value fw-bold">{{ patient.fullName }}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Email</span>
+                                <p class="info-value">{{ patient.email }}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Téléphone</span>
+                                <p class="info-value">{{ patient.phoneNumber ?? 'Non renseigné' }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Âge / Genre</span>
+                                <p class="info-value">
+                                    {% if patient.age %}{{ patient.age }} ans{% endif %}
+                                    {% if patient.gender %} / {{ patient.gender }}{% endif %}
+                                </p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Date de naissance</span>
+                                <p class="info-value">{{ patient.dateOfBirth ? patient.dateOfBirth|date('d/m/Y') : 'Non renseignée' }}</p>
+                            </div>
+                            <div class="info-item mb-3">
+                                <span class="info-label text-muted">Assurance</span>
+                                <p class="info-value">
+                                    {% if patient.hasInsurance %}
+                                        <span class="badge bg-success">Oui</span>
+                                        {% if patient.insuranceNumber %}
+                                            <small class="ms-2">{{ patient.insuranceNumber }}</small>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge bg-secondary">Non</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if patient.address %}
+                    <div class="info-item">
+                        <span class="info-label text-muted">Adresse</span>
+                        <p class="info-value">{{ patient.address }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <a href="{{ path('patient_profile') }}" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Modifier mon profil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Upcoming Appointments -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2 text-success"></i>Prochains RDV</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-plus text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <p class="text-muted">Aucun rendez-vous à venir</p>
+                        <a href="{{ path('app_appointment') }}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-plus me-1"></i>Prendre un RDV
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-history me-2 text-info"></i>Activité Récente</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <small class="text-muted">Aujourd'hui</small>
+                                <p class="mb-0">Connexion à votre compte</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <small class="text-muted">Hier</small>
+                                <p class="mb-0">Mise à jour du profil</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-content">
+                                <small class="text-muted">Il y a 3 jours</small>
+                                <p class="mb-0">Consultation du catalogue de médecins</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+.patient-dashboard {
+    background-color: #f8f9fa;
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.info-item .info-label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.info-item .info-value {
+    margin-bottom: 0;
+    font-size: 1rem;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 20px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -20px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.timeline-content {
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.timeline-item:last-child .timeline-content {
+    border-bottom: none;
+}
+
+.bg-primary-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .icon-circle {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+}
+</style>
+{% endblock %}

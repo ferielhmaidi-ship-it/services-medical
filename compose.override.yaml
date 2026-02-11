@@ -5,6 +5,7 @@ services:
     ports:
       - "5432"
 ###< doctrine/doctrine-bundle ###
+<<<<<<< HEAD
 
 ###> symfony/mailer ###
   mailer:
@@ -17,3 +18,5 @@ services:
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
 ###< symfony/mailer ###
 
+=======
+>>>>>>> origin/yassin

@@ -1,7 +1,10 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import './stimulus_bootstrap.js';
 =======
 >>>>>>> team-origin/dev-badiss
+=======
+>>>>>>> origin/yassin
 /*
  * Welcome to your app's main JavaScript file!
  *

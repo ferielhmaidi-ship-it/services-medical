@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # This file is the entry point to configure your own services.
 # Files in the packages/ subdirectory configure your dependencies.
 
@@ -15,6 +16,32 @@ services:
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
+=======
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\Twig\SpecialtyExtension:
+        tags: ['twig.extension']
+
+    App\Twig\GovernorateExtension:
+        tags: ['twig.extension']
+
+    App\Twig\AppExtension:
+        tags: ['twig.extension']
+
+    App\Service\AnnuaireService:
+        arguments:
+            $flaskApiUrl: '%env(FLASK_API_URL)%'
+
+    App\Service\DoctorVerificationService:
+        arguments:
+            $flaskApiUrl: '%env(FLASK_API_URL)%'
+
+>>>>>>> origin/yassin
     App\:
         resource: '../src/'
         exclude:
@@ -22,12 +49,16 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+<<<<<<< HEAD
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+=======
+>>>>>>> origin/yassin
     App\Controller\:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
         public: true
+<<<<<<< HEAD
 
     App\Service\ChatbotService:
         arguments:
@@ -37,3 +68,5 @@ services:
             $targetDirectory: '%uploads_directory%'
 
 
+=======
+>>>>>>> origin/yassin
