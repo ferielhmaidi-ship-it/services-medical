@@ -1,8 +1,9 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
-{% block title %}Détails du Rapport{% endblock %}
+{% block title %}DÃ©tails du Rendez-Vous{% endblock %}
 
 {% block body %}
+{% set rendezVous = rapport.rendezVous ?? null %}
 <style>
 .page {
     display: flex;
@@ -53,63 +54,56 @@ h2 {
 <div class="page">
     <div class="box">
 
-        <h2>👁 Détails du Rapport</h2>
+        <h2>ðŸ‘ Détails du Rendez-Vous</h2>
 
         <div class="row">
             <span class="label">ID :</span>
-            <span class="value">#{{ rapport.idrapport }}</span>
+            <span class="value">{{ rendezVous ? ('#' ~ rendezVous.id) : '-' }}</span>
         </div>
 
         <div class="row">
-            <span class="label">Motif :</span>
-            <span class="value">{{ rapport.consultationReason }}</span>
+            <span class="label">Message :</span>
+            <span class="value">{{ rendezVous ? (rendezVous.message ?: '-') : '-' }}</span>
         </div>
 
         <div class="row">
-            <span class="label">Diagnostic :</span>
-            <span class="value">{{ rapport.diagnosis }}</span>
+            <span class="label">Statut :</span>
+            <span class="value">{{ rendezVous ? (rendezVous.statut ?: '-') : '-' }}</span>
         </div>
 
         <div class="row">
-            <span class="label">Observations :</span>
-            <span class="value">{{ rapport.observations }}</span>
-        </div>
-
-        <div class="row">
-            <span class="label">Recommandations :</span>
-            <span class="value">{{ rapport.recommendations }}</span>
-        </div>
-
-        <div class="row">
-            <span class="label">Traitements :</span>
-            <span class="value">{{ rapport.treatments }}</span>
-        </div>
-
-        <div class="row">
-            <span class="label">Date :</span>
+            <span class="label">Date du Rendez-Vous :</span>
             <span class="value">
-                {{ rapport.createdAt|date('Y-m-d H:i') }}
+                {{ rendezVous and rendezVous.appointmentDate ? rendezVous.appointmentDate|date('Y-m-d H:i') : '-' }}
+            </span>
+        </div>
+
+        <div class="row">
+            <span class="label">CrÃ©Ã© le :</span>
+            <span class="value">
+                {{ rendezVous and rendezVous.createdAt ? rendezVous.createdAt|date('Y-m-d H:i') : '-' }}
             </span>
         </div>
 
         <div class="row">
             <span class="label">Patient :</span>
             <span class="value">
-                {{ rapport.idpatient.nom }} {{ rapport.idpatient.prenom }}
+                {{ rendezVous and rendezVous.patient ? (rendezVous.patient.firstName ~ ' ' ~ rendezVous.patient.lastName) : '-' }}
             </span>
         </div>
 
         <div class="row">
-            <span class="label">Médecin :</span>
+            <span class="label">MÃ©decin :</span>
             <span class="value">
-                {{ rapport.idmedecin.nom }}
+                {{ rendezVous and rendezVous.doctor ? (rendezVous.doctor.firstName ~ ' ' ~ rendezVous.doctor.lastName) : '-' }}
             </span>
         </div>
 
         <a href="javascript:history.back()" class="btn-back">
-            ⬅ Retour
+            â¬… Retour
         </a>
 
     </div>
 </div>
 {% endblock %}
+

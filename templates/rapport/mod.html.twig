@@ -8,7 +8,7 @@
     align-items: flex-start;
     min-height: 100vh;
     padding-top: 80px;
-    padding-bottom: 120px; /* ⬅ ESPACE AVANT LE FOOTER */
+    padding-bottom: 120px;
 }
 
 .box {
@@ -37,32 +37,35 @@ button {
 <div class="page">
     <div class="box">
         {{ form_start(form) }}
+
         {{ form_row(form.consultation_reason) }}
         {{ form_row(form.diagnosis) }}
         {{ form_row(form.observations) }}
         {{ form_row(form.recommendations) }}
         {{ form_row(form.treatments) }}
-        {{ form_row(form.idrendezvous) }}
-        {{ form_row(form.idmedecin) }}
-        {{ form_row(form.idpatient) }}
+        {{ form_row(form.rendezVous) }} {# anciennement idrendezvous #}
+        {{ form_row(form.doctor) }}        {# anciennement idmedecin #}
+        {{ form_row(form.patient) }}       {# anciennement idpatient #}
+
         <button>Modifier</button>
         {{ form_end(form) }}
 
+        {# Datalist pour suggestion rapide si tu veux #}
         <datalist id="rendezvous_list">
             {% for r in rendezvous %}
-                <option value="{{ r.date|date('Y-m-d H:i') }}">
+                <option value="{{ r.appointmentDate|date('Y-m-d H:i') }}">
             {% endfor %}
         </datalist>
 
         <datalist id="medecin_list">
             {% for m in medecins %}
-                <option value="{{ m.nom }}">
+                <option value="{{ m.firstName ~ ' ' ~ m.lastName }}">
             {% endfor %}
         </datalist>
 
         <datalist id="patient_list">
             {% for p in patients %}
-                <option value="{{ p.nom }} {{ p.prenom }}">
+                <option value="{{ p.firstName ~ ' ' ~ p.lastName }}">
             {% endfor %}
         </datalist>
 
@@ -70,6 +73,5 @@ button {
             ⬅ Retour
         </a>
     </div>
-    
 </div>
 {% endblock %}

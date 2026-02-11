@@ -8,6 +8,8 @@ use App\Entity\Document;
 use App\Entity\Patient;
 use App\Entity\Medecin;
 use App\Form\DocumentType;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,18 +33,18 @@ class DossierMedicalController extends AbstractController
         }
 
         $rapports = $em->getRepository(Rapport::class)->findBy([
-            'idpatient' => $patient,
-            'idmedecin' => $medecin
+            'patient' => $patient,
+            'medecin' => $medecin
         ]);
 
         $ordonnances = $em->getRepository(Ordonnance::class)->findBy([
-            'idpatient' => $patient,
-            'idmedecin' => $medecin
+            'patient' => $patient,
+            'medecin' => $medecin
         ]);
 
         $document = $em->getRepository(Document::class)->findOneBy([
-            'idpatient' => $patient,
-            'idmedecin' => $medecin
+            'patient' => $patient,
+            'medecin' => $medecin
         ]);
 
         // ===================== CAS 1 : DOCUMENT EXISTE =====================
@@ -50,15 +52,15 @@ class DossierMedicalController extends AbstractController
             $updated = false;
 
             foreach ($rapports as $r) {
-                if ($r->getIddocument() === null) {
-                    $r->setIddocument($document);
+                if ($r->getDocument() === null) {
+                    $r->setDocument($document);
                     $updated = true;
                 }
             }
 
             foreach ($ordonnances as $o) {
-                if ($o->getIddocument() === null) {
-                    $o->setIddocument($document);
+                if ($o->getDocument() === null) {
+                    $o->setDocument($document);
                     $updated = true;
                 }
             }
@@ -84,8 +86,12 @@ class DossierMedicalController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $document->setIdpatient($patient);
-            $document->setIdmedecin($medecin);
+            $document->setPatient($patient);
+            $document->setMedecin($medecin);
+            // Le champ fichier peut être masqué dans l'UI ; on garde une valeur non nulle pour la BDD.
+            if (!$document->getChemin()) {
+                $document->setChemin('sans_fichier');
+            }
             $document->setCreatedAt(new \DateTime());
             $document->setUpdatedAt(new \DateTime());
 
@@ -93,14 +99,14 @@ class DossierMedicalController extends AbstractController
             $em->flush();
 
             foreach ($rapports as $r) {
-                if ($r->getIddocument() === null) {
-                    $r->setIddocument($document);
+                if ($r->getDocument() === null) {
+                    $r->setDocument($document);
                 }
             }
 
             foreach ($ordonnances as $o) {
-                if ($o->getIddocument() === null) {
-                    $o->setIddocument($document);
+                if ($o->getDocument() === null) {
+                    $o->setDocument($document);
                 }
             }
 
@@ -198,8 +204,8 @@ public function showDocument(int $iddocument, EntityManagerInterface $em): Respo
     }
 
     // On récupère les ids du patient et médecin pour le bouton "Retour"
-    $idpatient = $document->getIdpatient()->getIdpatient();
-    $idmedecin = $document->getIdmedecin()->getIdmedecin();
+    $idpatient = $document->getPatient()?->getId();
+    $idmedecin = $document->getMedecin()?->getId();
 
     return $this->render('dossier_medical/show_document.html.twig', [
         'document' => $document,
@@ -208,6 +214,46 @@ public function showDocument(int $iddocument, EntityManagerInterface $em): Respo
     ]);
 }
 
+    #[Route('/dossiermedical/pdf/{iddocument}', name: 'document_pdf')]
+    public function documentPdf(int $iddocument, EntityManagerInterface $em): Response
+    {
+        $document = $em->getRepository(Document::class)->find($iddocument);
+
+        if (!$document) {
+            throw $this->createNotFoundException('Document introuvable');
+        }
+
+        $rapports = $em->getRepository(Rapport::class)->findBy(['document' => $document]);
+        $ordonnances = $em->getRepository(Ordonnance::class)->findBy(['document' => $document]);
+
+        $html = $this->renderView('dossier_medical/document_pdf.html.twig', [
+            'document' => $document,
+            'rapports' => $rapports,
+            'ordonnances' => $ordonnances,
+        ]);
+
+        $options = new Options();
+        $options->set('isRemoteEnabled', false);
+        $options->setDefaultFont('DejaVu Sans');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', (string) $document->getNom());
+        $filename = sprintf('document_%d_%s.pdf', $document->getId(), $safeName ?: 'medical');
+
+        return new Response(
+            $dompdf->output(),
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => sprintf('attachment; filename="%s"', $filename),
+            ]
+        );
+    }
+
     #[Route('/dossier_medical', name: 'pages_dossier_medical')]
     public function tableauDossierMedical(EntityManagerInterface $em): Response
     {
@@ -215,8 +261,8 @@ public function showDocument(int $iddocument, EntityManagerInterface $em): Respo
 
         $data = [];
         foreach ($documents as $doc) {
-            $rapports = $em->getRepository(Rapport::class)->findBy(['iddocument' => $doc]);
-            $ordonnances = $em->getRepository(Ordonnance::class)->findBy(['iddocument' => $doc]);
+            $rapports = $em->getRepository(Rapport::class)->findBy(['document' => $doc]);
+            $ordonnances = $em->getRepository(Ordonnance::class)->findBy(['document' => $doc]);
 
             $data[] = [
                 'document' => $doc,

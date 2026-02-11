@@ -1,39 +1,38 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Afficher Ordonnance{% endblock %}
+{% block title %}Détails de l'Ordonnance{% endblock %}
 
 {% block body %}
 <style>
-/* ===== PAGE (FAIT DESCENDRE LE CONTENU + BACKGROUND) ===== */
+/* ===== PAGE BACKGROUND ET ESPACEMENT ===== */
 .page {
     background: #f0f2f5;
-
-    padding-top: 140px;   /* 🔽 DESCEND LA PAGE */
-    padding-right: 20px;
-    padding-left: 20px;
-    padding-bottom: 40px; /* espace bas réduit */
-
-    min-height: auto;     /* évite grand espace inutile */
+    min-height: 100vh;       /* prend toute la hauteur de l'écran */
+    padding: 140px 20px 40px; /* top / sides / bottom */
+    display: flex;
+    justify-content: center; /* centre horizontalement */
+    align-items: flex-start; /* commence depuis le top */
 }
 
 /* ===== CARD ===== */
 .card {
-    max-width: 650px;
-    margin: auto;
     background: #fff;
+    max-width: 650px;
+    width: 100%;
     padding: 30px;
     border-radius: 14px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.15);
 }
 
 /* ===== TITRE ===== */
-h2 {
+.card h2 {
     text-align: center;
     color: #198754;
     margin-bottom: 25px;
+    font-size: 24px;
 }
 
-/* ===== CONTENT ===== */
+/* ===== ITEMS ===== */
 .item {
     margin-bottom: 14px;
     font-size: 15px;
@@ -44,14 +43,20 @@ h2 {
     color: #555;
 }
 
-/* ===== ACTIONS ===== */
-.actions {
+/* ===== BOUTON RETOUR ===== */
+.btn-back {
+    display: inline-block;
     margin-top: 30px;
-    text-align: center;
+    text-decoration: none;
+    background-color: #198754;
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 8px;
+    transition: 0.3s;
 }
 
-.actions a {
-    margin: 0 8px;
+.btn-back:hover {
+    background-color: #146c43;
 }
 </style>
 
@@ -61,7 +66,7 @@ h2 {
 
         <div class="item">
             <span class="label">ID :</span>
-            {{ ordonnance.idordonnance }}
+            {{ ordonnance.id }}
         </div>
 
         <div class="item">

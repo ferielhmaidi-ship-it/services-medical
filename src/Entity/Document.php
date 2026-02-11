@@ -3,172 +3,83 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Medecin;
+use App\Entity\Patient;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'document')]
+#[ORM\Table(name: 'documents')]
 class Document
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'iddocument', type: 'integer')]
-    private ?int $iddocument = null;
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'nom', type: 'string', length: 255)]
+    #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[ORM\Column(name: 'type', type: 'string', length: 50)]
+    #[ORM\Column(length: 50)]
     private ?string $type = null;
 
-    #[ORM\Column(name: 'chemin', type: 'string', length: 255)]
+    #[ORM\Column(length: 255)]
     private ?string $chemin = null;
 
-    #[ORM\Column(name: 'taille', type: 'integer')]
+    #[ORM\Column(type: 'integer')]
     private ?int $taille = null;
 
-    #[ORM\Column(name: 'description', type: 'text')]
+    #[ORM\Column(type: 'text')]
     private ?string $description = null;
 
-    #[ORM\Column(name: 'createdAt', type: 'datetime')]
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(name: 'updatedAt', type: 'datetime')]
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $updatedAt = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(name: 'idmedecin', referencedColumnName: 'idmedecin', nullable: false)]
-    private ?Medecin $idmedecin = null;
+    // الربط مع Medecin
+    #[ORM\ManyToOne(targetEntity: Medecin::class)]
+    #[ORM\JoinColumn(name: 'medecin_id', referencedColumnName: 'id', nullable: false)]
+    private ?Medecin $medecin = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(name: 'idpatient', referencedColumnName: 'idpatient', nullable: false)]
-    private ?Patient $idpatient = null;
+    // الربط مع Patient
+    #[ORM\ManyToOne(targetEntity: Patient::class)]
+    #[ORM\JoinColumn(name: 'patient_id', referencedColumnName: 'id', nullable: false)]
+    private ?Patient $patient = null;
 
-    // ===================== GETTERS & SETTERS =====================
-
-    public function getIddocument(): ?int
+    public function __construct()
     {
-        return $this->iddocument;
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
-    public function getNom(): ?string
-    {
-        return $this->nom;
-    }
+    // ================= GETTERS & SETTERS =================
 
-    public function setNom(string $nom): self
-    {
-        $this->nom = $nom;
-        return $this;
-    }
+    public function getId(): ?int { return $this->id; }
 
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
+    public function getNom(): ?string { return $this->nom; }
+    public function setNom(string $nom): self { $this->nom = $nom; return $this; }
 
-    public function setType(string $type): self
-    {
-        $this->type = $type;
-        return $this;
-    }
+    public function getType(): ?string { return $this->type; }
+    public function setType(string $type): self { $this->type = $type; return $this; }
 
-    public function getChemin(): ?string
-    {
-        return $this->chemin;
-    }
+    public function getChemin(): ?string { return $this->chemin; }
+    public function setChemin(string $chemin): self { $this->chemin = $chemin; return $this; }
 
-    public function setChemin(string $chemin): self
-    {
-        $this->chemin = $chemin;
-        return $this;
-    }
+    public function getTaille(): ?int { return $this->taille; }
+    public function setTaille(int $taille): self { $this->taille = $taille; return $this; }
 
-    public function getTaille(): ?int
-    {
-        return $this->taille;
-    }
+    public function getDescription(): ?string { return $this->description; }
+    public function setDescription(string $description): self { $this->description = $description; return $this; }
 
-    public function setTaille(int $taille): self
-    {
-        $this->taille = $taille;
-        return $this;
-    }
+    public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
+    public function setCreatedAt(\DateTimeInterface $createdAt): self { $this->createdAt = $createdAt; return $this; }
 
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
+    public function getUpdatedAt(): ?\DateTimeInterface { return $this->updatedAt; }
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): self { $this->updatedAt = $updatedAt; return $this; }
 
-    public function setDescription(string $description): self
-    {
-        $this->description = $description;
-        return $this;
-    }
+    public function getMedecin(): ?Medecin { return $this->medecin; }
+    public function setMedecin(?Medecin $medecin): self { $this->medecin = $medecin; return $this; }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
-    public function setCreatedAtFromString(string $date): self
-    {
-        $dateTime = \DateTime::createFromFormat('Y-m-d H:i', $date);
-        if ($dateTime === false) {
-            throw new \InvalidArgumentException(
-                "Format de date invalide. Format attendu : YYYY-MM-DD HH:MM"
-            );
-        }
-        $this->createdAt = $dateTime;
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
-    {
-        $this->updatedAt = $updatedAt;
-        return $this;
-    }
-
-    public function setUpdatedAtFromString(string $date): self
-    {
-        $dateTime = \DateTime::createFromFormat('Y-m-d H:i', $date);
-        if ($dateTime === false) {
-            throw new \InvalidArgumentException(
-                "Format de date invalide. Format attendu : YYYY-MM-DD HH:MM"
-            );
-        }
-        $this->updatedAt = $dateTime;
-        return $this;
-    }
-
-    public function getIdmedecin(): ?Medecin
-    {
-        return $this->idmedecin;
-    }
-
-    public function setIdmedecin(?Medecin $idmedecin): self
-    {
-        $this->idmedecin = $idmedecin;
-        return $this;
-    }
-
-    public function getIdpatient(): ?Patient
-    {
-        return $this->idpatient;
-    }
-
-    public function setIdpatient(?Patient $idpatient): self
-    {
-        $this->idpatient = $idpatient;
-        return $this;
-    }
+    public function getPatient(): ?Patient { return $this->patient; }
+    public function setPatient(?Patient $patient): self { $this->patient = $patient; return $this; }
 }

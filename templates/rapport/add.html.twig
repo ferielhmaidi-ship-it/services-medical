@@ -46,33 +46,39 @@ button {
         {{ form_row(form.recommendations) }}
         {{ form_row(form.treatments) }}
 
-        {{ form_row(form.idrendezvous) }}
-        {{ form_row(form.idmedecin) }}
-        {{ form_row(form.idpatient) }}
+        {# remplacer idrendezvous par appointmentDate #}
+        {{ form_row(form.rendezVous) }}
+
+        {# remplacer idmedecin par doctor #}
+        {{ form_row(form.doctor) }}
+
+        {# remplacer idpatient par patient #}
+        {{ form_row(form.patient) }}
 
         <button>Enregistrer</button>
 
         {{ form_end(form) }}
 
+        {# datalist pour autocomplete si besoin (optionnel) #}
         <datalist id="rendezvous_list">
-    {% for r in rendezvous %}
-        <option value="{{ r.date|date('Y-m-d H:i') }}">
-    {% endfor %}
-</datalist>
+        {% for r in rendezvous %}
+            <option value="{{ r.appointmentDate|date('Y-m-d H:i') }}">
+        {% endfor %}
+        </datalist>
 
-<datalist id="medecin_list">
-    {% for m in medecins %}
-        <option value="{{ m.nom }}">
-    {% endfor %}
-</datalist>
+        <datalist id="medecin_list">
+        {% for m in medecins %}
+            <option value="{{ m.getFullName() }}"> {# si Medecin a firstName + lastName #} </option>
+        {% endfor %}
+        </datalist>
 
-<datalist id="patient_list">
-    {% for p in patients %}
-        <option value="{{ p.nom }} {{ p.prenom }}">
-    {% endfor %}
-</datalist>
+        <datalist id="patient_list">
+        {% for p in patients %}
+            <option value="{{ p.getFullName() }}">
+        {% endfor %}
+        </datalist>
 
-<a href="javascript:history.back()" class="btn-back">
+        <a href="javascript:history.back()" class="btn-back">
             ⬅ Retour
         </a>
 

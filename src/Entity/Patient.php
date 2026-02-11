@@ -3,46 +3,95 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'patient')]
-class Patient
+#[ORM\Table(name: 'patients')]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+class Patient extends BaseUser
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'idpatient', type: 'integer')]
-    private ?int $idpatient = null;
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $phoneNumber = null;
 
-    #[ORM\Column(name: 'nom', type: 'string', length: 100)]
-    private ?string $nom = null;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $address = null;
 
-    #[ORM\Column(name: 'prenom', type: 'string', length: 100)]
-    private ?string $prenom = null;
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dateOfBirth = null;
 
-    public function getIdpatient(): ?int
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $hasInsurance = false;
+
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $insuranceNumber = null;
+
+    public function __construct()
     {
-        return $this->idpatient;
+        $this->roles = ['ROLE_PATIENT'];
     }
 
-    public function getNom(): ?string
+    public function getPhoneNumber(): ?string
     {
-        return $this->nom;
+        return $this->phoneNumber;
     }
 
-    public function setNom(string $nom): self
+    public function setPhoneNumber(?string $phoneNumber): self
     {
-        $this->nom = $nom;
+        $this->phoneNumber = $phoneNumber;
         return $this;
     }
 
-    public function getPrenom(): ?string
+    public function getAddress(): ?string
     {
-        return $this->prenom;
+        return $this->address;
     }
 
-    public function setPrenom(string $prenom): self
+    public function setAddress(?string $address): self
     {
-        $this->prenom = $prenom;
+        $this->address = $address;
         return $this;
+    }
+
+    public function getDateOfBirth(): ?\DateTimeInterface
+    {
+        return $this->dateOfBirth;
+    }
+
+    public function setDateOfBirth(?\DateTimeInterface $dateOfBirth): self
+    {
+        $this->dateOfBirth = $dateOfBirth;
+        return $this;
+    }
+
+    public function getHasInsurance(): bool
+    {
+        return $this->hasInsurance;
+    }
+
+    public function setHasInsurance(bool $hasInsurance): self
+    {
+        $this->hasInsurance = $hasInsurance;
+        return $this;
+    }
+
+    public function getInsuranceNumber(): ?string
+    {
+        return $this->insuranceNumber;
+    }
+
+    public function setInsuranceNumber(?string $insuranceNumber): self
+    {
+        $this->insuranceNumber = $insuranceNumber;
+        return $this;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = parent::getRoles();
+        if (!in_array('ROLE_PATIENT', $roles)) {
+            $roles[] = 'ROLE_PATIENT';
+        }
+        return array_unique($roles);
     }
 }

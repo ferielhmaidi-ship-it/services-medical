@@ -1,8 +1,10 @@
-<?php
+﻿<?php
 
 namespace App\Form;
 
 use App\Entity\Ordonnance;
+use App\Entity\RendezVous;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -28,38 +30,14 @@ class OrdonnanceType extends AbstractType
             ->add('notes', TextareaType::class)
             ->add('instructions', TextareaType::class)
 
-            ->add('idrendezvous', TextType::class, [
-                'mapped' => false,
-                'label' => 'Date rendez-vous',
-                'data' => $options['is_mod'] && $ordonnance && $ordonnance->getIdrendezvous()
-                    ? $ordonnance->getIdrendezvous()->getDate()->format('Y-m-d\TH:i')
-                    : null,
-                'attr' => [
-                    'list' => 'rendezvous_list',
-                    'type' => 'datetime-local',
-                ],
-            ])
-
-            ->add('idmedecin', TextType::class, [
-                'mapped' => false,
-                'label' => 'Médecin',
-                'data' => $options['is_mod'] && $ordonnance && $ordonnance->getIdmedecin()
-                    ? $ordonnance->getIdmedecin()->getNom()
-                    : null,
-                'attr' => [
-                    'list' => 'medecin_list',
-                ],
-            ])
-
-            ->add('idpatient', TextType::class, [
-                'mapped' => false,
-                'label' => 'Patient',
-                'data' => $options['is_mod'] && $ordonnance && $ordonnance->getIdpatient()
-                    ? $ordonnance->getIdpatient()->getNom().' '.$ordonnance->getIdpatient()->getPrenom()
-                    : null,
-                'attr' => [
-                    'list' => 'patient_list',
-                ],
+            // Ø±Ø¨Ø· Ù…Ø¨Ø§Ø´Ø±Ø© Ù…Ø¹ RendezVous Ø¨Ø¯Ù„ idrendezvous
+            ->add('rendezVous', EntityType::class, [
+                'class' => RendezVous::class,
+                'choice_label' => function(RendezVous $rv) {
+                    return $rv->getPatient()->getFullName() . ' - ' . $rv->getAppointmentDate()->format('Y-m-d H:i');
+                },
+                'label' => 'Rendez-vous',
+                'placeholder' => 'Choisir un rendez-vous',
             ]);
     }
 
@@ -71,3 +49,4 @@ class OrdonnanceType extends AbstractType
         ]);
     }
 }
+

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Entity\Patient;
@@ -33,50 +34,46 @@ class IaController extends AbstractController
         $question = $request->request->get('prompt', '');
         $answer = '';
         $pdfContent = '';
-        $mode = 'db'; // 'db', 'pdf', ou 'google'
+        $mode = 'db';
         $searchResults = '';
 
         if ($request->isMethod('POST') && $question !== '') {
             $uploadedFile = $request->files->get('pdf_file');
 
+            // ================= MODE PDF =================
             if ($uploadedFile && $uploadedFile->isValid()) {
-                // ====== MODE PDF ======
                 $mode = 'pdf';
                 $extension = strtolower($uploadedFile->getClientOriginalExtension());
-                
+
                 if ($extension !== 'pdf') {
-                    $this->addFlash('error', 'Le fichier doit être au format PDF.');
+                    $this->addFlash('error', 'Le fichier doit être un PDF.');
                     return $this->redirectToRoute('ia_db');
                 }
 
                 $pdfPath = $uploadedFile->getRealPath();
                 $rawPdfContent = $pdfReader->extractText($pdfPath);
                 $pdfContent = $this->cleanText($rawPdfContent);
-                
+
                 if (empty($pdfContent)) {
                     $answer = "Impossible d'extraire le contenu du PDF.";
                 } else {
-                    $pdfContentLimited = substr($pdfContent, 0, 6000);
-                    $prompt = $this->buildPdfPrompt($pdfContentLimited, $question);
+                    $prompt = $this->buildPdfPrompt(substr($pdfContent, 0, 6000), $question);
                     $answer = $ollama->ask($prompt);
                 }
-                
-            } else {
-                // ====== MODE BASE DE DONNÉES ======
+            }
+
+            // ================= MODE BASE DE DONNÉES =================
+            else {
                 $mode = 'db';
                 $dbText = $this->buildDatabaseContext($em);
                 $dbPrompt = $this->buildDbPrompt($dbText, $question);
-                
-                // Première requête à Ollama avec la base de données
+
                 $dbAnswer = $ollama->ask($dbPrompt);
-                
-                // Vérifier si l'information n'est pas disponible
+
                 if ($this->isInformationNotAvailable($dbAnswer)) {
-                    // ====== MODE GOOGLE ======
+                    // ================= MODE GOOGLE =================
                     $mode = 'google';
                     $searchResults = $googleSearch->search($question);
-                    
-                    // Deuxième requête avec les résultats Google
                     $googlePrompt = $this->buildGooglePrompt($searchResults, $question);
                     $answer = $ollama->ask($googlePrompt);
                 } else {
@@ -90,52 +87,47 @@ class IaController extends AbstractController
             'answer' => $answer,
             'pdf_content' => $pdfContent,
             'mode' => $mode,
-            'search_results' => $searchResults
+            'search_results' => $searchResults,
         ]);
     }
 
-    /**
-     * Vérifie si la réponse indique que l'info n'est pas disponible
-     */
+    // =========================================================
+    // ===================== UTILITAIRES ======================
+    // =========================================================
+
     private function isInformationNotAvailable(string $answer): bool
     {
         $phrases = [
             'information non disponible',
             'non disponible dans la base',
-            'non disponible dans ce dossier',
             'je ne trouve pas',
             'aucune information',
             'pas trouvé',
-            'pas dans la base',
             'ne figure pas',
-            'inexistant',
-            'aucun résultat'
+            'aucun résultat',
         ];
-        
-        $answerLower = strtolower($answer);
+
+        $answer = strtolower($answer);
         foreach ($phrases as $phrase) {
-            if (str_contains($answerLower, $phrase)) {
+            if (str_contains($answer, $phrase)) {
                 return true;
             }
         }
         return false;
     }
 
-    /**
-     * Nettoie le texte pour enlever les caractères non-UTF8
-     */
     private function cleanText(string $text): string
     {
         $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
-        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $text);
-        $text = preg_replace('/[^\x{0000}-\x{FFFF}]/u', '', $text);
+        $text = preg_replace('/[\x00-\x1F\x7F]/u', '', $text);
         $text = preg_replace('/\s+/', ' ', $text);
         return trim($text);
     }
 
-    /**
-     * Construit le contexte de la base de données
-     */
+    // =========================================================
+    // ================= BASE DE DONNÉES =======================
+    // =========================================================
+
     private function buildDatabaseContext(EntityManagerInterface $em): string
     {
         $patients = $em->getRepository(Patient::class)->findAll();
@@ -147,96 +139,145 @@ class IaController extends AbstractController
 
         $dbText = "BASE DE DONNÉES MÉDICALE\n\n";
 
+        // ---------------- PATIENTS ----------------
         $dbText .= "PATIENTS:\n";
         foreach ($patients as $p) {
-            $dbText .= "- {$p->getNom()} {$p->getPrenom()}\n";
+            $dbText .= "- ID: {$p->getId()} | Nom: {$p->getFullName()} | Email: {$p->getEmail()}\n";
         }
 
+        // ---------------- MEDECINS ----------------
         $dbText .= "\nMEDECINS:\n";
         foreach ($medecins as $m) {
-            $dbText .= "- Dr {$m->getNom()}\n";
+            $dbText .= "- ID: {$m->getId()} | Dr {$m->getFullName()} | Spécialité: {$m->getSpecialty()}\n";
         }
 
+        // ---------------- RAPPORTS ----------------
         $dbText .= "\nRAPPORTS:\n";
         foreach ($rapports as $r) {
-            $dbText .= "- Rapport #{$r->getIdrapport()} : {$r->getDiagnosis()}\n";
+            $date = $r->getCreatedAt()?->format('Y-m-d');
+            $patient = $r->getPatient()?->getFullName();
+            $medecin = $r->getMedecin()?->getFullName();
+            $docId = $r->getDocument()?->getId() ?? 'NULL';
+
+            $dbText .= "- Rapport #{$r->getId()}\n";
+            $dbText .= "  Date: {$date}\n";
+            $dbText .= "  Diagnostic: {$r->getDiagnosis()}\n";
+            $dbText .= "  Patient: {$patient}\n";
+            $dbText .= "  Médecin: Dr {$medecin}\n";
+            $dbText .= "  idDocument: {$docId}\n\n";
         }
 
+        // ---------------- ORDONNANCES ----------------
         $dbText .= "\nORDONNANCES:\n";
         foreach ($ordonnances as $o) {
-            $dbText .= "- Ordonnance #{$o->getIdordonnance()} : {$o->getMedicament()}\n";
+            $date = $o->getDateOrdonnance()?->format('Y-m-d');
+            $patient = $o->getPatient()?->getFullName();
+            $medecin = $o->getMedecin()?->getFullName();
+            $docId = $o->getDocument()?->getId() ?? 'NULL';
+
+            $dbText .= "- Ordonnance #{$o->getId()}\n";
+            $dbText .= "  Date: {$date}\n";
+            $dbText .= "  Médicament: {$o->getMedicament()}\n";
+            $dbText .= "  Patient: {$patient}\n";
+            $dbText .= "  Médecin: Dr {$medecin}\n";
+            $dbText .= "  idDocument: {$docId}\n\n";
         }
 
+        // ---------------- DOCUMENTS ----------------
         $dbText .= "\nDOCUMENTS:\n";
         foreach ($documents as $d) {
-            $dbText .= "- {$d->getNom()} ({$d->getType()})\n";
+            $dbText .= "- ID: {$d->getId()} | Nom: {$d->getNom()} | Type: {$d->getType()}\n";
         }
 
+        // ---------------- RENDEZ-VOUS ----------------
         $dbText .= "\nRENDEZ-VOUS:\n";
         foreach ($rdvs as $r) {
-            $dbText .= "- RDV #{$r->getIdrendezvous()}\n";
+            $date = $r->getAppointmentDate()?->format('Y-m-d H:i');
+            $dbText .= "- RDV #{$r->getId()} | Date: {$date}\n";
+            $dbText .= "  Patient: {$r->getPatient()->getFullName()}\n";
+            $dbText .= "  Médecin: Dr {$r->getDoctor()->getFullName()}\n";
+            $dbText .= "  Statut: {$r->getStatut()}\n\n";
         }
 
         return $dbText;
     }
 
-    /**
-     * Prompt pour analyse PDF
-     */
+    // =========================================================
+    // ======================= PROMPTS =========================
+    // =========================================================
+
     private function buildPdfPrompt(string $pdfContent, string $question): string
     {
-        return "Tu es un assistant medical specialise dans l'analyse de dossiers medicaux PDF.
+        return <<<PROMPT
+Tu es un assistant médical spécialisé.
+Réponds UNIQUEMENT avec les informations du PDF.
+Si l'information n'existe pas, dis exactement :
+"Information non disponible dans ce dossier médical."
 
-Tu as recu le contenu d'un dossier medical. Reponds UNIQUEMENT selon ces donnees.
-Si l'information n'existe pas, dis : 'Information non disponible dans ce dossier medical.'
-
-Contenu :
+CONTENU PDF :
 ---
 $pdfContent
 ---
 
-Question : $question
-
-Reponds de maniere professionnelle et concise.";
+QUESTION :
+$question
+PROMPT;
     }
 
-    /**
-     * Prompt pour questions base de données
-     */
     private function buildDbPrompt(string $dbText, string $question): string
     {
-        return "Tu es un assistant medical. Tu as acces a une base de donnees medicale.
+        return <<<PROMPT
+Tu es un assistant expert en base de données médicale.
 
-IMPORTANT : Si la reponse n'est pas dans les donnees ci-dessous, dis EXACTEMENT : 
-'Information non disponible dans la base de donnees.'
+STRUCTURE IMPORTANTE :
 
-Donnees :
+TABLE ORDONNANCE :
+- id
+- dateOrdonnance
+- medicament
+- idPatient
+- idMedecin
+- idDocument (peut être NULL)
+
+TABLE RAPPORT :
+- id
+- dateRapport
+- diagnosis
+- idPatient
+- idMedecin
+- idDocument (peut être NULL)
+
+RÈGLE :
+- Si idDocument = NULL → NON inclus dans un document.
+- Si idDocument contient un nombre → inclus dans un document.
+
+Si la réponse n'existe pas, dis EXACTEMENT :
+"Information non disponible dans la base de données."
+
+DONNÉES :
 $dbText
 
-Question : $question
-
-Reponds de maniere professionnelle. Si tu ne trouves pas l'information, utilise la phrase exacte demandee ci-dessus.";
+QUESTION :
+$question
+PROMPT;
     }
 
-    /**
-     * Prompt pour recherche Google
-     */
     private function buildGooglePrompt(string $searchResults, string $question): string
     {
-        return "Tu es un assistant medical intelligent. 
+        return <<<PROMPT
+Tu es un assistant médical intelligent.
 
-La question de l'utilisateur n'a pas trouve de reponse dans la base de donnees interne.
-J'ai effectue une recherche sur Google pour trouver des informations complementaires.
+La réponse n'a pas été trouvée dans la base interne.
+Voici des résultats de recherche Google :
 
-Resultats de recherche :
 ---
 $searchResults
 ---
 
-Question originale : $question
+QUESTION :
+$question
 
-Base-toi sur les resultats de recherche ci-dessus pour repondre a la question.
-Si les resultats ne permettent pas de repondre completement, indique les sources trouvees et ce que tu as pu en deduire.
-Reponds de maniere professionnelle, claire et utile.";
+Réponds clairement et professionnellement.
+PROMPT;
     }
 }

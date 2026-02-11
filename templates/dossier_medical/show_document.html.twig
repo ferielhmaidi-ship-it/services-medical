@@ -1,39 +1,73 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Document{% endblock %}
+{% block title %}Détails du Document{% endblock %}
 
 {% block body %}
 <style>
+/* Page globale */
 .page {
-    padding: 100px 30px;
+    padding: 100px 20px;
     background-color: #f0f2f5;
     min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Card du contenu */
 .container-box {
     background: #ffffff;
-    padding: 35px;
+    padding: 35px 30px;
     border-radius: 12px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.12);
     max-width: 700px;
     margin: auto;
 }
 
+/* Titre */
 h1 {
     text-align: center;
     color: #007BFF;
     margin-bottom: 30px;
+    font-size: 28px;
 }
 
+/* Ligne de document */
 .document-line {
     margin-bottom: 15px;
     font-size: 16px;
 }
 
+/* Label des champs */
 .document-label {
     font-weight: bold;
     width: 150px;
     display: inline-block;
+    color: #333;
+}
+
+/* Lien retour */
+a.back-link {
+    display: inline-block;
+    margin-top: 25px;
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.2s;
+}
+a.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Responsive pour petits écrans */
+@media (max-width: 500px) {
+    .container-box {
+        padding: 25px 15px;
+    }
+    .document-label {
+        width: 120px;
+    }
+    h1 {
+        font-size: 24px;
+    }
 }
 </style>
 
@@ -42,7 +76,7 @@ h1 {
         <h1>📄 Détails du Document</h1>
 
         <div class="document-line">
-            <span class="document-label">ID :</span> {{ document.iddocument }}
+            <span class="document-label">ID :</span> {{ document.id }}
         </div>
         <div class="document-line">
             <span class="document-label">Nom :</span> {{ document.nom }}
@@ -66,9 +100,9 @@ h1 {
             <span class="document-label">Modifié le :</span> {{ document.updatedAt ? document.updatedAt|date('d/m/Y H:i') : '-' }}
         </div>
 
-        <a href="{{ path('pages_dossier_medical', {'idpatient': idpatient, 'idmedecin': idmedecin}) }}">
-    ← Retour au Dossier Médical
-</a>
+        <a href="{{ path('pages_dossier_medical', {'idpatient': idpatient, 'idmedecin': idmedecin}) }}" class="back-link">
+            ← Retour au Dossier Médical
+        </a>
     </div>
 </div>
 {% endblock %}

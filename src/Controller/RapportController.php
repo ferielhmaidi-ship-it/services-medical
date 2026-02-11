@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Rapport;
-use App\Entity\Rendezvous;
+use App\Entity\RendezVous;
 use App\Entity\Medecin;
 use App\Entity\Patient;
 use App\Form\RapportType;
@@ -26,9 +26,9 @@ class RapportController extends AbstractController
         $form->handleRequest($request);
 
         // Derniers rendez-vous
-        $rendezvous = $em->getRepository(Rendezvous::class)
+        $rendezvousList = $em->getRepository(RendezVous::class)
             ->createQueryBuilder('r')
-            ->orderBy('r.date', 'DESC')
+            ->orderBy('r.appointmentDate', 'DESC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult();
@@ -38,54 +38,38 @@ class RapportController extends AbstractController
         $patients = $em->getRepository(Patient::class)->findAll();
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            // Récupérer idrendezvous depuis le champ texte
-            $dateRdv = $form->get('idrendezvous')->getData();
-            $rdv = $em->getRepository(Rendezvous::class)
-                      ->findOneBy(['date' => new \DateTime($dateRdv)]);
+            $rdv = $form->get('rendezVous')->getData();
             if ($rdv) {
-                $rapport->setIdrendezvous($rdv);
+                $rapport->setRendezVous($rdv);
             }
 
-            // Récupérer idmedecin depuis le texte
-            $nomMedecin = $form->get('idmedecin')->getData();
-            $medecin = $em->getRepository(Medecin::class)
-                           ->findOneBy(['nom' => $nomMedecin]);
+            $medecin = $form->get('doctor')->getData();
             if ($medecin) {
-                $rapport->setIdmedecin($medecin);
+                $rapport->setMedecin($medecin);
             }
 
-            // Récupérer idpatient depuis le texte
-            $nomPatient = $form->get('idpatient')->getData();
-            $prenomPatient = ''; // optionnel si tu veux filtrer par nom+prenom
-            if (strpos($nomPatient, ' ') !== false) {
-                [$nom, $prenom] = explode(' ', $nomPatient, 2);
-                $prenomPatient = $prenom;
-                $patient = $em->getRepository(Patient::class)
-                              ->findOneBy(['nom' => $nom, 'prenom' => $prenomPatient]);
-            } else {
-                $patient = $em->getRepository(Patient::class)
-                              ->findOneBy(['nom' => $nomPatient]);
-            }
+            $patient = $form->get('patient')->getData();
             if ($patient) {
-                $rapport->setIdpatient($patient);
+                $rapport->setPatient($patient);
             }
 
             $em->persist($rapport);
             $em->flush();
+
+            $this->addFlash('success', 'Rapport ajouté avec succès.');
 
             return $this->redirectToRoute('rapport_add');
         }
 
         return $this->render('rapport/add.html.twig', [
             'form' => $form->createView(),
-            'rendezvous' => $rendezvous,
+            'rendezvous' => $rendezvousList,
             'medecins' => $medecins,
             'patients' => $patients,
         ]);
     }
 
-    #[Route('/rapport/mod/{idrendezvous}/{idmedecin}/{idpatient}/{idrapport}', name: 'rapport_mod')]
+    #[Route('/rapport/mod/{idrapport}', name: 'rapport_mod')]
     public function mod(Request $request, EntityManagerInterface $em, int $idrapport): Response
     {
         $rapport = $em->getRepository(Rapport::class)->find($idrapport);
@@ -96,9 +80,9 @@ class RapportController extends AbstractController
         $form = $this->createForm(RapportType::class, $rapport, ['is_mod' => true]);
         $form->handleRequest($request);
 
-        $rendezvous = $em->getRepository(Rendezvous::class)
+        $rendezvousList = $em->getRepository(RendezVous::class)
             ->createQueryBuilder('r')
-            ->orderBy('r.date', 'DESC')
+            ->orderBy('r.appointmentDate', 'DESC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult();
@@ -107,100 +91,65 @@ class RapportController extends AbstractController
         $patients = $em->getRepository(Patient::class)->findAll();
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $rdv = $form->get('rendezVous')->getData();
+            if ($rdv) {
+                $rapport->setRendezVous($rdv);
+            }
 
-            $dateRdv = $form->get('idrendezvous')->getData();
-            $rdv = $em->getRepository(Rendezvous::class)->findOneBy(['date' => new \DateTime($dateRdv)]);
-            if (!$rdv) {
-                $rdv = new Rendezvous();
-                $rdv->setDate(new \DateTime($dateRdv));
-                $rdv->setSpecialite('');
-                $em->persist($rdv);
+            $medecin = $form->get('doctor')->getData();
+            if ($medecin) {
+                $rapport->setMedecin($medecin);
             }
-            $rapport->setIdrendezvous($rdv);
 
-            $nomMedecin = $form->get('idmedecin')->getData();
-            $medecin = $em->getRepository(Medecin::class)->findOneBy(['nom' => $nomMedecin]);
-            if (!$medecin) {
-                $medecin = new Medecin();
-                $medecin->setNom($nomMedecin);
-                $medecin->setSpecialite('');
-                $em->persist($medecin);
+            $patient = $form->get('patient')->getData();
+            if ($patient) {
+                $rapport->setPatient($patient);
             }
-            $rapport->setIdmedecin($medecin);
-
-            $nomPatient = $form->get('idpatient')->getData();
-            $patient = null;
-            if (strpos($nomPatient, ' ') !== false) {
-                [$nom, $prenom] = explode(' ', $nomPatient, 2);
-                $patient = $em->getRepository(Patient::class)->findOneBy(['nom' => $nom, 'prenom' => $prenom]);
-            } else {
-                $patient = $em->getRepository(Patient::class)->findOneBy(['nom' => $nomPatient]);
-            }
-            if (!$patient) {
-                $patient = new Patient();
-                if (strpos($nomPatient, ' ') !== false) {
-                    [$nom, $prenom] = explode(' ', $nomPatient, 2);
-                    $patient->setNom($nom);
-                    $patient->setPrenom($prenom);
-                } else {
-                    $patient->setNom($nomPatient);
-                    $patient->setPrenom('');
-                }
-                $em->persist($patient);
-            }
-            $rapport->setIdpatient($patient);
 
             $rapport->setUpdatedAt(new \DateTime());
             $em->flush();
 
+            $this->addFlash('success', 'Rapport modifié avec succès.');
+
             return $this->redirectToRoute('rapport_mod', [
-                'idrendezvous' => $rapport->getIdrendezvous()->getIdrendezvous(),
-                'idmedecin' => $rapport->getIdmedecin()->getIdmedecin(),
-                'idpatient' => $rapport->getIdpatient()->getIdpatient(),
-                'idrapport' => $rapport->getIdrapport(),
+                'idrapport' => $rapport->getId(),
             ]);
         }
 
         return $this->render('rapport/mod.html.twig', [
             'form' => $form->createView(),
-            'rendezvous' => $rendezvous,
+            'rendezvous' => $rendezvousList,
             'medecins' => $medecins,
             'patients' => $patients,
         ]);
     }
 
-    #[Route('/rapport/delete/{idrendezvous}/{idmedecin}/{idpatient}/{idrapport}', name: 'rapport_delete')]
-public function delete(Request $request, EntityManagerInterface $em, int $idrapport): Response
-{
-    $rapport = $em->getRepository(Rapport::class)->find($idrapport);
+    #[Route('/rapport/delete/{idrapport}', name: 'rapport_delete')]
+    public function delete(Request $request, EntityManagerInterface $em, int $idrapport): Response
+    {
+        $rapport = $em->getRepository(Rapport::class)->find($idrapport);
+        if (!$rapport) {
+            throw $this->createNotFoundException('Rapport introuvable.');
+        }
 
-    if (!$rapport) {
-        throw $this->createNotFoundException('Rapport introuvable.');
+        $em->remove($rapport);
+        $em->flush();
+
+        $this->addFlash('success', 'Rapport supprimé avec succès.');
+
+        return $this->redirect($request->headers->get('referer'));
     }
-
-    $em->remove($rapport);
-    $em->flush();
-
-    $this->addFlash('success', 'Rapport supprimé avec succès.');
-
-    // ✅ RESTER SUR LA MÊME PAGE
-    return $this->redirect($request->headers->get('referer'));
-}
-
 
     #[Route('/rapport/show/{idrapport}', name: 'rapport_show')]
-public function show(EntityManagerInterface $em, int $idrapport): Response
-{
-    $rapport = $em->getRepository(Rapport::class)->find($idrapport);
+    public function show(EntityManagerInterface $em, int $idrapport): Response
+    {
+        $rapport = $em->getRepository(Rapport::class)->find($idrapport);
+        if (!$rapport) {
+            throw $this->createNotFoundException('Rapport introuvable.');
+        }
 
-    if (!$rapport) {
-        throw $this->createNotFoundException('Rapport introuvable');
+        return $this->render('rapport/show.html.twig', [
+            'rapport' => $rapport,
+        ]);
     }
-
-    return $this->render('rapport/show.html.twig', [
-        'rapport' => $rapport,
-    ]);
-}
-
-
 }

@@ -1,171 +1,541 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}Dossier Médical{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #059669;
+            --success-dark: #047857;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --info: #0891b2;
+            --dark: #1e293b;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+
+        .page {
+            /* Translation vers le bas comme demandé */
+            margin-top: 120px;
+            padding-bottom: 4rem;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gray-50);
+            min-height: 100vh;
+        }
+
+        .container-box {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header */
+        .page-header {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-title-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .doc-count {
+            background: var(--gray-100);
+            color: var(--gray-600);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        /* Table Container */
+        .table-wrapper {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.875rem;
+        }
+
+        thead {
+            background: var(--gray-50);
+        }
+
+        th {
+            padding: 1rem 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--gray-200);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 1.25rem 0.75rem;
+            border-bottom: 1px solid var(--gray-200);
+            color: var(--gray-700);
+            vertical-align: top;
+        }
+
+        tbody tr:hover {
+            background: var(--gray-50);
+            transition: background 0.15s ease;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Cell Styles */
+        .cell-id {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.875rem;
+        }
+
+        .cell-text {
+            color: var(--gray-600);
+            line-height: 1.5;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cell-date {
+            white-space: nowrap;
+            color: var(--gray-500);
+            font-size: 0.8125rem;
+        }
+
+        .cell-path {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.75rem;
+            color: var(--gray-400);
+            background: var(--gray-100);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius);
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Item Cards (for Rapports/Ordonnances) */
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .item-card {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 200px;
+        }
+
+        .item-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            font-size: 0.875rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .item-id {
+            background: var(--primary);
+            color: white;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-family: monospace;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-micro {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-micro-view {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .btn-micro-view:hover {
+            background: #bae6fd;
+        }
+
+        .btn-micro-edit {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .btn-micro-edit:hover {
+            background: #fde68a;
+        }
+
+        .btn-micro-delete {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-micro-delete:hover {
+            background: #fecaca;
+        }
+
+        .empty-cell {
+            color: var(--gray-400);
+            font-style: italic;
+            font-size: 0.875rem;
+        }
+
+        /* Document Actions */
+        .doc-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.8125rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-view {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: var(--success-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-edit {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-pdf {
+            background: var(--dark);
+            color: white;
+        }
+
+        .btn-pdf:hover {
+            background: #0f172a;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: var(--gray-400);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .item-card {
+                min-width: 180px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page {
+                margin-top: 80px;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            th, td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.8125rem;
+            }
+            
+            .cell-text {
+                max-width: 100px;
+            }
+            
+            .item-card {
+                min-width: 160px;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-<style>
-/* ===== PAGE (FAIT DESCENDRE TOUTE LA PAGE) ===== */
-.page {
-    padding-top: 140px;
-    padding-right: 20px;
-    padding-left: 20px;
-    padding-bottom: 80px;
-    background-color: #f0f2f5;
-    min-height: 10vh;
-}
-
-/* ===== CONTAINER ===== */
-.container-box {
-    background: #fff;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-}
-
-/* ===== TITRE ===== */
-h1 {
-    text-align: center;
-    color: #007BFF;
-    margin-bottom: 20px;
-}
-
-/* ===== TABLE ===== */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-.table th,
-.table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    vertical-align: middle;
-    text-align: center;
-}
-
-.table th {
-    background-color: #007BFF;
-    color: white;
-}
-
-.table tbody tr:hover {
-    background-color: #f8f9fa;
-}
-
-/* ===== ACTIONS ===== */
-.actions a {
-    margin: 2px 2px 2px 0;
-    display: inline-block;
-}
-
-/* ===== BOUTONS ===== */
-.btn-sm {
-    padding: 4px 8px;
-    font-size: 12px;
-}
-</style>
-
 <div class="page">
     <div class="container-box">
-        <h1>📁 Dossier Médical</h1>
+        
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <div class="page-title-icon">📁</div>
+                Dossier Médical
+            </h1>
+            <div class="doc-count">
+                {{ data|length }} document{{ data|length > 1 ? 's' : '' }}
+            </div>
+        </div>
 
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>ID Document</th>
-                        <th>Nom</th>
-                        <th>Type</th>
-                        <th>Chemin</th>
-                        <th>Taille</th>
-                        <th>Description</th>
-                        <th>Créé le</th>
-                        <th>Modifié le</th>
-                        <th>Rapports</th>
-                        <th>Ordonnances</th>
-                        <th>Actions</th>
-                        <th>PDF</th> {# ✅ NOUVELLE COLONNE #}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in data %}
-                        {% set doc = row.document %}
+        <!-- Table -->
+        <div class="table-wrapper">
+            <div class="table-responsive">
+                <table>
+                    <thead>
                         <tr>
-                            <td>{{ doc.iddocument }}</td>
-                            <td>{{ doc.nom }}</td>
-                            <td>{{ doc.type }}</td>
-                            <td>{{ doc.chemin }}</td>
-                            <td>{{ doc.taille }}</td>
-                            <td>{{ doc.description }}</td>
-                            <td>{{ doc.createdAt ? doc.createdAt|date('d/m/Y H:i') : '-' }}</td>
-                            <td>{{ doc.updatedAt ? doc.updatedAt|date('d/m/Y H:i') : '-' }}</td>
-
-                            <td>
-                                {% if row.rapports is not empty %}
-                                    {% for r in row.rapports %}
-                                        #{{ r.idrapport }}
-                                        <a class="btn btn-sm btn-primary" href="{{ path('rapport_show', {'idrapport': r.idrapport}) }}">Voir</a>
-                                        <a class="btn btn-sm btn-warning" href="{{ path('rapport_mod', {
-                                            idrendezvous: r.idrendezvous.idrendezvous,
-                                            idpatient: r.idpatient.idpatient,
-                                            idmedecin: r.idmedecin.idmedecin,
-                                            idrapport: r.idrapport
-                                        }) }}">Modifier</a>
-                                        <a class="btn btn-sm btn-danger" href="{{ path('rapport_delete', {
-                                            idrendezvous: r.idrendezvous.idrendezvous,
-                                            idpatient: r.idpatient.idpatient,
-                                            idmedecin: r.idmedecin.idmedecin,
-                                            idrapport: r.idrapport
-                                        }) }}" onclick="return confirm('Supprimer ce rapport ?');">Supprimer</a>
-                                        <br>
-                                    {% endfor %}
-                                {% else %}-{% endif %}
-                            </td>
-
-                            <td>
-                                {% if row.ordonnances is not empty %}
-                                    {% for o in row.ordonnances %}
-                                        #{{ o.idordonnance }}
-                                        <a class="btn btn-sm btn-primary" href="{{ path('ordonnance_show', {'idordonnance': o.idordonnance}) }}">Voir</a>
-                                        <a class="btn btn-sm btn-warning" href="{{ path('ordonnance_mod', {
-                                            idrendezvous: o.idrendezvous.idrendezvous,
-                                            idpatient: o.idpatient.idpatient,
-                                            idmedecin: o.idmedecin.idmedecin,
-                                            idordonnance: o.idordonnance
-                                        }) }}">Modifier</a>
-                                        <a class="btn btn-sm btn-danger" href="{{ path('ordonnance_del', {
-                                            idrendezvous: o.idrendezvous.idrendezvous,
-                                            idpatient: o.idpatient.idpatient,
-                                            idmedecin: o.idmedecin.idmedecin,
-                                            idordonnance: o.idordonnance
-                                        }) }}" onclick="return confirm('Supprimer cette ordonnance ?');">Supprimer</a>
-                                        <br>
-                                    {% endfor %}
-                                {% else %}-{% endif %}
-                            </td>
-
-                            <td>
-                                <a class="btn btn-sm btn-success" href="{{ path('document_show', {iddocument: doc.iddocument}) }}">Voir</a>
-                                <a class="btn btn-sm btn-primary" href="{{ path('edit_document', {iddocument: doc.iddocument}) }}">Modifier</a>
-                                <a class="btn btn-sm btn-danger" href="{{ path('delete_document', {iddocument: doc.iddocument}) }}" onclick="return confirm('Supprimer ce document ?');">Supprimer</a>
-                            </td>
-
-                            {# ✅ BOUTON PDF #}
-                            <td>
-                                <a class="btn btn-sm btn-dark"
-                                   href="{{ path('document_pdf', {iddocument: doc.iddocument}) }}">
-                                    📄 PDF
-                                </a>
-                            </td>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Type</th>
+                            <th>Chemin</th>
+                            <th>Taille</th>
+                            <th>Description</th>
+                            <th>Créé le</th>
+                            <th>Modifié le</th>
+                            <th>Rapports associés</th>
+                            <th>Ordonnances associées</th>
+                            <th>Actions</th>
+                            <th>Export</th>
                         </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="12" class="text-center">Aucun document trouvé.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
+                            {% set doc = row.document %}
+                            <tr>
+                                <td><span class="cell-id">#{{ doc.id }}</span></td>
+                                <td><div class="cell-text"><strong>{{ doc.nom }}</strong></div></td>
+                                <td><span class="badge" style="background: var(--gray-100); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; color: var(--gray-600);">{{ doc.type }}</span></td>
+                                <td><div class="cell-path" title="{{ doc.chemin }}">{{ doc.chemin }}</div></td>
+                                <td><div class="cell-text">{{ doc.taille }}</div></td>
+                                <td><div class="cell-text">{{ doc.description|default('-') }}</div></td>
+                                <td class="cell-date">{{ doc.createdAt ? doc.createdAt|date('d/m/Y H:i') : '-' }}</td>
+                                <td class="cell-date">{{ doc.updatedAt ? doc.updatedAt|date('d/m/Y H:i') : '-' }}</td>
+
+                                <!-- Rapports -->
+                                <td>
+                                    {% if row.rapports is not empty %}
+                                        <div class="item-list">
+                                            {% for r in row.rapports %}
+                                                <div class="item-card">
+                                                    <div class="item-header">
+                                                        <span class="item-id">#{{ r.id }}</span>
+                                                        <span>Rapport</span>
+                                                    </div>
+                                                    <div class="item-actions">
+                                                        <a class="btn-micro btn-micro-view" href="{{ path('rapport_show', {'idrapport': r.id}) }}">
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                            Voir
+                                                        </a>
+                                                        <a class="btn-micro btn-micro-edit" href="{{ path('rapport_mod', {'idrapport': r.id}) }}">
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                                            Mod.
+                                                        </a>
+                                                        <a class="btn-micro btn-micro-delete" href="{{ path('rapport_delete', {'idrapport': r.id}) }}" onclick="return confirm('Supprimer ce rapport ?');">
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                                            Sup.
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <span class="empty-cell">Aucun rapport</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Ordonnances -->
+                                <td>
+                                    {% if row.ordonnances is not empty %}
+                                        <div class="item-list">
+                                            {% for o in row.ordonnances %}
+                                                <div class="item-card">
+                                                    <div class="item-header">
+                                                        <span class="item-id">#{{ o.id }}</span>
+                                                        <span>Ordonnance</span>
+                                                    </div>
+                                                    <div class="item-actions">
+                                                        <a class="btn-micro btn-micro-view" href="{{ path('ordonnance_show', {'id': o.id}) }}">
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                            Voir
+                                                        </a>
+                                                        <a class="btn-micro btn-micro-edit" href="{{ path('ordonnance_mod', {'id': o.id}) }}">
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                                            Mod.
+                                                        </a>
+                                                        <a class="btn-micro btn-micro-delete" href="{{ path('ordonnance_del', {'id': o.id}) }}" onclick="return confirm('Supprimer cette ordonnance ?');">
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                                            Sup.
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <span class="empty-cell">Aucune ordonnance</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Actions Document -->
+                                <td>
+                                    <div class="doc-actions">
+                                        <a class="btn btn-view" href="{{ path('document_show', {'iddocument': doc.id}) }}">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                            Voir
+                                        </a>
+                                        <a class="btn btn-edit" href="{{ path('edit_document', {'iddocument': doc.id}) }}">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                            Modifier
+                                        </a>
+                                        <a class="btn btn-delete" href="{{ path('delete_document', {'iddocument': doc.id}) }}" onclick="return confirm('Supprimer ce document ?');">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                            Supprimer
+                                        </a>
+                                    </div>
+                                </td>
+
+                                <!-- PDF -->
+                                <td>
+                                    <a class="btn btn-pdf" href="{{ path('document_pdf', {'iddocument': doc.id}) }}">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                        PDF
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="12">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">📂</div>
+                                        <div>Aucun document trouvé</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

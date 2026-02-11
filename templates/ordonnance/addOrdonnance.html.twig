@@ -8,7 +8,7 @@
     align-items: flex-start;
     min-height: 100vh;
     padding-top: 80px;
-    padding-bottom: 120px; /* ⬅ ESPACE AVANT LE FOOTER */
+    padding-bottom: 120px; /* espace avant le footer */
 }
 
 .box {
@@ -32,9 +32,15 @@ button {
     width: 100%;
     padding: 12px;
 }
+
+.btn-back {
+    display: inline-block;
+    margin-top: 15px;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
 </style>
-
-
 
 <div class="page">
     <div class="box">
@@ -45,32 +51,13 @@ button {
         {{ form_row(form.posologie) }}
         {{ form_row(form.notes) }}
         {{ form_row(form.instructions) }}
-        {{ form_row(form.idrendezvous) }}
-        {{ form_row(form.idmedecin) }}
-        {{ form_row(form.idpatient) }}
+        {{ form_row(form.rendezVous) }}
+
         <button>Enregistrer</button>
         {{ form_end(form) }}
 
-        <datalist id="rendezvous_list">
-            {% for r in rendezvous %}
-                <option value="{{ r.date|date('Y-m-d\TH:i') }}">
-            {% endfor %}
-        </datalist>
-
-        <datalist id="medecin_list">
-            {% for m in medecins %}
-                <option value="{{ m.nom }}">
-            {% endfor %}
-        </datalist>
-
-        <datalist id="patient_list">
-            {% for p in patients %}
-                <option value="{{ p.nom }} {{ p.prenom }}">
-            {% endfor %}
-        </datalist>
-
         <a href="javascript:history.back()" class="btn-back">
-            ⬅ Retour
+            <- Retour
         </a>
     </div>
 </div>

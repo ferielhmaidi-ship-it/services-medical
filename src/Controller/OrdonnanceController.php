@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Ordonnance;
-use App\Entity\Rendezvous;
+use App\Entity\RendezVous;
 use App\Entity\Medecin;
 use App\Entity\Patient;
 use App\Form\OrdonnanceType;
@@ -19,16 +19,16 @@ class OrdonnanceController extends AbstractController
     public function add(Request $request, EntityManagerInterface $em): Response
     {
         $ordonnance = new Ordonnance();
-        $ordonnance->setCreatedAt(new \DateTime());
-        $ordonnance->setUpdatedAt(new \DateTime());
+        $ordonnance->setCreatedAt(new \DateTimeImmutable());
+        $ordonnance->setUpdatedAt(new \DateTimeImmutable());
         $ordonnance->setDateordonnance(new \DateTime());
 
         $form = $this->createForm(OrdonnanceType::class, $ordonnance);
         $form->handleRequest($request);
 
-        $rendezvous = $em->getRepository(Rendezvous::class)
+        $rendezvous = $em->getRepository(RendezVous::class)
             ->createQueryBuilder('r')
-            ->orderBy('r.date', 'DESC')
+            ->orderBy('r.appointmentDate', 'DESC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult();
@@ -37,51 +37,21 @@ class OrdonnanceController extends AbstractController
         $patients = $em->getRepository(Patient::class)->findAll();
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            // Gestion Rendez-vous
-            $dateRdv = $form->get('idrendezvous')->getData();
-            $rdv = $em->getRepository(Rendezvous::class)->findOneBy(['date' => new \DateTime($dateRdv)]);
+            $rdv = $form->get('rendezVous')->getData();
             if (!$rdv) {
-                $rdv = new Rendezvous();
-                $rdv->setDate(new \DateTime($dateRdv));
-                $rdv->setSpecialite('');
-                $em->persist($rdv);
-            }
-            $ordonnance->setIdrendezvous($rdv);
+                $this->addFlash('error', 'Veuillez selectionner un rendez-vous.');
 
-            // Gestion Médecin
-            $nomMedecin = $form->get('idmedecin')->getData();
-            $medecin = $em->getRepository(Medecin::class)->findOneBy(['nom' => $nomMedecin]);
-            if (!$medecin) {
-                $medecin = new Medecin();
-                $medecin->setNom($nomMedecin);
-                $medecin->setSpecialite('');
-                $em->persist($medecin);
+                return $this->render('ordonnance/addOrdonnance.html.twig', [
+                    'form' => $form->createView(),
+                    'rendezvous' => $rendezvous,
+                    'medecins' => $medecins,
+                    'patients' => $patients,
+                ]);
             }
-            $ordonnance->setIdmedecin($medecin);
 
-            // Gestion Patient
-            $nomPatient = $form->get('idpatient')->getData();
-            $patient = null;
-            if (strpos($nomPatient, ' ') !== false) {
-                [$nom, $prenom] = explode(' ', $nomPatient, 2);
-                $patient = $em->getRepository(Patient::class)->findOneBy(['nom' => $nom, 'prenom' => $prenom]);
-            } else {
-                $patient = $em->getRepository(Patient::class)->findOneBy(['nom' => $nomPatient]);
-            }
-            if (!$patient) {
-                $patient = new Patient();
-                if (strpos($nomPatient, ' ') !== false) {
-                    [$nom, $prenom] = explode(' ', $nomPatient, 2);
-                    $patient->setNom($nom);
-                    $patient->setPrenom($prenom);
-                } else {
-                    $patient->setNom($nomPatient);
-                    $patient->setPrenom('');
-                }
-                $em->persist($patient);
-            }
-            $ordonnance->setIdpatient($patient);
+            $ordonnance->setRendezVous($rdv);
+            $ordonnance->setMedecin($rdv->getDoctor());
+            $ordonnance->setPatient($rdv->getPatient());
 
             $em->persist($ordonnance);
             $em->flush();
@@ -97,128 +67,74 @@ class OrdonnanceController extends AbstractController
         ]);
     }
 
-    
-    
-    #[Route(
-    '/ordonnance/mod/{idrendezvous}/{idmedecin}/{idpatient}/{idordonnance}',
-    name: 'ordonnance_mod'
-)]
-public function mod(
-    Request $request,
-    EntityManagerInterface $em,
-    int $idordonnance
-): Response
-{
-    $ordonnance = $em->getRepository(Ordonnance::class)->find($idordonnance);
+    #[Route('/ordonnance/mod/{id}', name: 'ordonnance_mod')]
+    public function mod(Request $request, EntityManagerInterface $em, int $id): Response
+    {
+        $ordonnance = $em->getRepository(Ordonnance::class)->find($id);
 
-    if (!$ordonnance) {
-        throw $this->createNotFoundException('Ordonnance introuvable');
-    }
+        if (!$ordonnance) {
+            throw $this->createNotFoundException('Ordonnance introuvable');
+        }
 
-    // IMPORTANT : on passe is_mod = true
-    $form = $this->createForm(OrdonnanceType::class, $ordonnance, [
-        'is_mod' => true,
-    ]);
-    $form->handleRequest($request);
+        $form = $this->createForm(OrdonnanceType::class, $ordonnance, [
+            'is_mod' => true,
+        ]);
+        $form->handleRequest($request);
 
-    $rendezvous = $em->getRepository(Rendezvous::class)
-        ->createQueryBuilder('r')
-        ->orderBy('r.date', 'DESC')
-        ->setMaxResults(10)
-        ->getQuery()
-        ->getResult();
+        $rendezvous = $em->getRepository(RendezVous::class)
+            ->createQueryBuilder('r')
+            ->orderBy('r.appointmentDate', 'DESC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult();
 
-    $medecins = $em->getRepository(Medecin::class)->findAll();
-    $patients = $em->getRepository(Patient::class)->findAll();
+        $medecins = $em->getRepository(Medecin::class)->findAll();
+        $patients = $em->getRepository(Patient::class)->findAll();
 
-    if ($form->isSubmitted() && $form->isValid()) {
-
-        /* ================= RENDEZ-VOUS ================= */
-        $dateRdv = $form->get('idrendezvous')->getData();
-        if ($dateRdv) {
-            $rdv = $em->getRepository(Rendezvous::class)
-                ->findOneBy(['date' => new \DateTime($dateRdv)]);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $rdv = $form->get('rendezVous')->getData();
             if ($rdv) {
-                $ordonnance->setIdrendezvous($rdv);
+                $ordonnance->setRendezVous($rdv);
+                $ordonnance->setMedecin($rdv->getDoctor());
+                $ordonnance->setPatient($rdv->getPatient());
             }
+
+            $ordonnance->setUpdatedAt(new \DateTimeImmutable());
+            $em->flush();
+
+            return $this->redirectToRoute('ordonnance_mod', ['id' => $ordonnance->getId()]);
         }
 
-        /* ================= MEDECIN ================= */
-        $nomMedecin = $form->get('idmedecin')->getData();
-        if ($nomMedecin) {
-            $medecin = $em->getRepository(Medecin::class)
-                ->findOneBy(['nom' => $nomMedecin]);
-            if ($medecin) {
-                $ordonnance->setIdmedecin($medecin);
-            }
-        }
-
-        /* ================= PATIENT ================= */
-        $nomPatient = $form->get('idpatient')->getData();
-        if ($nomPatient) {
-            if (strpos($nomPatient, ' ') !== false) {
-                [$nom, $prenom] = explode(' ', $nomPatient, 2);
-                $patient = $em->getRepository(Patient::class)
-                    ->findOneBy(['nom' => $nom, 'prenom' => $prenom]);
-            } else {
-                $patient = $em->getRepository(Patient::class)
-                    ->findOneBy(['nom' => $nomPatient]);
-            }
-            if ($patient) {
-                $ordonnance->setIdpatient($patient);
-            }
-        }
-
-        $ordonnance->setUpdatedAt(new \DateTime());
-        $em->flush();
-
-        return $this->redirectToRoute('ordonnance_mod', [
-            'idrendezvous' => $ordonnance->getIdrendezvous()->getIdrendezvous(),
-            'idmedecin'    => $ordonnance->getIdmedecin()->getIdmedecin(),
-            'idpatient'    => $ordonnance->getIdpatient()->getIdpatient(),
-            'idordonnance' => $ordonnance->getIdordonnance(),
+        return $this->render('ordonnance/modOrdonnance.html.twig', [
+            'form' => $form->createView(),
+            'rendezvous' => $rendezvous,
+            'medecins' => $medecins,
+            'patients' => $patients,
         ]);
     }
 
-    return $this->render('ordonnance/modOrdonnance.html.twig', [
-        'form' => $form->createView(),
-        'rendezvous' => $rendezvous,
-        'medecins' => $medecins,
-        'patients' => $patients,
-    ]);
-}
-    #[Route('/ordonnance/del/{idrendezvous}/{idmedecin}/{idpatient}/{idordonnance}', name: 'ordonnance_del')]
-public function deleteOrdonnance(
-    Request $request,                 // ✅ ضروري
-    EntityManagerInterface $em,
-    int $idrendezvous,
-    int $idmedecin,
-    int $idpatient,
-    int $idordonnance
-): Response {
-    $ordonnance = $em->getRepository(Ordonnance::class)->find($idordonnance);
+    #[Route('/ordonnance/del/{id}', name: 'ordonnance_del')]
+    public function deleteOrdonnance(Request $request, EntityManagerInterface $em, int $id): Response
+    {
+        $ordonnance = $em->getRepository(Ordonnance::class)->find($id);
 
-    if (!$ordonnance) {
-        $this->addFlash('error', 'Ordonnance introuvable.');
+        if (!$ordonnance) {
+            $this->addFlash('error', 'Ordonnance introuvable.');
+            return $this->redirect($request->headers->get('referer'));
+        }
+
+        $em->remove($ordonnance);
+        $em->flush();
+
+        $this->addFlash('success', 'Ordonnance supprimee avec succes.');
         return $this->redirect($request->headers->get('referer'));
     }
 
-    $em->remove($ordonnance);
-    $em->flush();
-
-    $this->addFlash('success', 'Ordonnance supprimée avec succès.');
-
-    // ✅ الرجوع لنفس الصفحة
-    return $this->redirect($request->headers->get('referer'));
-}
-
-
-    #[Route('/ordonnance/show/{idordonnance}', name: 'ordonnance_show')]
-public function show(Ordonnance $ordonnance): Response
-{
-    return $this->render('ordonnance/afficher.html.twig', [
-        'ordonnance' => $ordonnance
-    ]);
-}
-
+    #[Route('/ordonnance/show/{id}', name: 'ordonnance_show')]
+    public function show(Ordonnance $ordonnance): Response
+    {
+        return $this->render('ordonnance/afficher.html.twig', [
+            'ordonnance' => $ordonnance,
+        ]);
+    }
 }

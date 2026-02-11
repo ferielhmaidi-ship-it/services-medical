@@ -85,19 +85,19 @@ h1 {
                             {% if row.rapports is not empty %}
                                 {% for r in row.rapports %}
                                     <div>
-                                        #{{ r.idrapport }}
-                                        <a class="btn btn-sm btn-primary" href="{{ path('rapport_show', {'idrapport': r.idrapport}) }}">Voir</a>
+                                        #{{ r.id }}
+                                        <a class="btn btn-sm btn-primary" href="{{ path('rapport_show', {'idrapport': r.id}) }}">Voir</a>
                                         <a class="btn btn-sm btn-warning" href="{{ path('rapport_mod', {
-                                            idrendezvous: r.idrendezvous.idrendezvous,
-                                            idmedecin: r.idmedecin.idmedecin,
-                                            idpatient: r.idpatient.idpatient,
-                                            idrapport: r.idrapport
+                                            idrendezvous: r.rendezVous.id,
+                                            idmedecin: r.doctor.id,
+                                            idpatient: r.patient.id,
+                                            idrapport: r.id
                                         }) }}">Modifier</a>
                                         <a class="btn btn-sm btn-danger" href="{{ path('rapport_delete', {
-                                            idrendezvous: r.idrendezvous.idrendezvous,
-                                            idmedecin: r.idmedecin.idmedecin,
-                                            idpatient: r.idpatient.idpatient,
-                                            idrapport: r.idrapport
+                                            idrendezvous: r.rendezVous.id,
+                                            idmedecin: r.doctor.id,
+                                            idpatient: r.patient.id,
+                                            idrapport: r.id
                                         }) }}" onclick="return confirm('Supprimer ce rapport ?');">Supprimer</a>
                                     </div>
                                 {% endfor %}
@@ -110,19 +110,19 @@ h1 {
                             {% if row.ordonnances is not empty %}
                                 {% for o in row.ordonnances %}
                                     <div>
-                                        #{{ o.idordonnance }}
-                                        <a class="btn btn-sm btn-primary" href="{{ path('ordonnance_show', {'idordonnance': o.idordonnance}) }}">Voir</a>
+                                        #{{ o.id }}
+                                        <a class="btn btn-sm btn-primary" href="{{ path('ordonnance_show', {'idordonnance': o.id}) }}">Voir</a>
                                         <a class="btn btn-sm btn-warning" href="{{ path('ordonnance_mod', {
-                                            idrendezvous: o.idrendezvous.idrendezvous,
-                                            idmedecin: o.idmedecin.idmedecin,
-                                            idpatient: o.idpatient.idpatient,
-                                            idordonnance: o.idordonnance
+                                            idrendezvous: o.rendezVous.id,
+                                            idmedecin: o.doctor.id,
+                                            idpatient: o.patient.id,
+                                            idordonnance: o.id
                                         }) }}">Modifier</a>
                                         <a class="btn btn-sm btn-danger" href="{{ path('ordonnance_del', {
-                                            idrendezvous: o.idrendezvous.idrendezvous,
-                                            idmedecin: o.idmedecin.idmedecin,
-                                            idpatient: o.idpatient.idpatient,
-                                            idordonnance: o.idordonnance
+                                            idrendezvous: o.rendezVous.id,
+                                            idmedecin: o.doctor.id,
+                                            idpatient: o.patient.id,
+                                            idordonnance: o.id
                                         }) }}" onclick="return confirm('Supprimer cette ordonnance ?');">Supprimer</a>
                                     </div>
                                 {% endfor %}
