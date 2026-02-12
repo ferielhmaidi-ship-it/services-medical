@@ -32,6 +32,9 @@ class Appointment
     #[ORM\Column]
     private ?int $doctorId = 1;
 
+    #[ORM\Column(options: ["default" => false])]
+    private ?bool $reminderSent = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +108,18 @@ class Appointment
     public function setDoctorId(int $doctorId): static
     {
         $this->doctorId = $doctorId;
+
+        return $this;
+    }
+
+    public function isReminderSent(): ?bool
+    {
+        return $this->reminderSent;
+    }
+
+    public function setReminderSent(bool $reminderSent): static
+    {
+        $this->reminderSent = $reminderSent;
 
         return $this;
     }

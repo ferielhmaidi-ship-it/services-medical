@@ -1,0 +1,141 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Doctor Schedule - MediNest{% endblock %}
+
+{% block body %}
+<div class="page-title">
+  <div class="heading">
+    <div class="container">
+      <div class="row d-flex justify-content-center text-center">
+        <div class="col-lg-8">
+          <h1 class="heading-title">Doctor Schedule</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Select a Doctor</h5>
+          </div>
+          <div class="card-body">
+            <div class="list-group">
+              {% for medecin in medecins %}
+                <a href="{{ path('app_doctor_appointments', {doctor_id: medecin.id}) }}" 
+                   class="list-group-item list-group-item-action {% if selectedMedecin and selectedMedecin.id == medecin.id %}active{% endif %}">
+                  <strong>Dr. {{ medecin.firstName }} {{ medecin.lastName }}</strong><br>
+                  <small>{{ medecin.specialite }}</small>
+                </a>
+              {% else %}
+                <p class="text-muted">No doctors available</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        {% if selectedMedecin %}
+          <div class="card">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Appointments for Dr. {{ selectedMedecin.firstName }} {{ selectedMedecin.lastName }}</h5>
+              <a href="{{ path('app_doctor_feedbacks', {id: selectedMedecin.id}) }}" class="btn btn-light btn-sm">
+                <i class="bi bi-chat-dots"></i> View Patient Feedback
+              </a>
+            </div>
+            <div class="card-body">
+              {# Search and filter form #}
+              <form method="get" action="{{ path('app_doctor_appointments') }}" class="row g-2 mb-3">
+                <input type="hidden" name="doctor_id" value="{{ selectedMedecin.id }}">
+                <div class="col-auto">
+                  <input type="search" name="search" class="form-control" placeholder="Search patient or message" value="{{ search|default('') }}">
+                </div>
+                <div class="col-auto">
+                  <select name="statut" class="form-select">
+                    <option value="">All statuses</option>
+                    <option value="en_attente" {% if statut == 'en_attente' %}selected{% endif %}>Pending</option>
+                    <option value="termine" {% if statut == 'termine' %}selected{% endif %}>Completed</option>
+                    <option value="annule" {% if statut == 'annule' %}selected{% endif %}>Cancelled</option>
+                  </select>
+                </div>
+                <div class="col-auto">
+                  <button type="submit" class="btn btn-primary">Search</button>
+                  <a href="{{ path('app_doctor_appointments', {doctor_id: selectedMedecin.id}) }}" class="btn btn-outline-secondary">Reset</a>
+                </div>
+              </form>
+
+              {% if appointments is not empty %}
+                <div class="table-responsive">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Patient</th>
+                        <th>Status</th>
+                        <th>Message</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for appt in appointments %}
+                        <tr>
+                          <td>{{ appt.appointmentDate ? appt.appointmentDate|date('d/m/Y H:i') : '-' }}</td>
+                          <td>{{ appt.patient.firstName }} {{ appt.patient.lastName }}<br><small>{{ appt.patient.email }}</small></td>
+                          <td class="text-muted small">ID: {{ appt.patient.id }}</td>
+                          <td>
+                            {% if appt.statut == 'en_attente' %}
+                              <span class="badge bg-warning text-dark">Pending</span>
+                            {% elseif appt.statut == 'termine' %}
+                              <span class="badge bg-success">Completed</span>
+                            {% else %}
+                              <span class="badge bg-danger">Cancelled</span>
+                            {% endif %}
+                          </td>
+                          <td>{{ appt.message }}</td>
+                          <td>
+                            {% if appt.statut == 'en_attente' %}
+                              <div class="btn-group btn-group-sm" role="group">
+                                <form method="post" action="{{ path('app_appointment_doctor_complete', {id: appt.id}) }}" style="display:inline;">
+                                  <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ appt.id) }}">
+                                  <button type="submit" class="btn btn-success" title="Mark as completed">
+                                    <i class="bi bi-check-circle"></i> Complete
+                                  </button>
+                                </form>
+                                <form method="post" action="{{ path('app_appointment_doctor_cancel', {id: appt.id}) }}" style="display:inline;" onsubmit="return confirm('Cancel this appointment?');">
+                                  <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ appt.id) }}">
+                                  <button type="submit" class="btn btn-danger" title="Cancel appointment">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                  </button>
+                                </form>
+                              </div>
+                            {% elseif appt.statut == 'termine' %}
+                              <span class="badge bg-success">Completed</span>
+                            {% else %}
+                              <span class="badge bg-danger">Cancelled</span>
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="text-muted">No appointments found for this doctor.</p>
+              {% endif %}
+            </div>
+          </div>
+        {% else %}
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>Select a doctor from the list to view their appointments.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

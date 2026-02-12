@@ -1,0 +1,170 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Mes Rendez-vous{% endblock %}
+
+{% block body %}
+<div class="page-title" data-aos="fade">
+    <div class="heading">
+        <div class="container">
+            <div class="row d-flex justify-content-center text-center">
+                <div class="col-lg-8">
+                    <h1>Mes Rendez-vous</h1>
+                    <p class="mb-0">Liste complète de vos consultations et gestion des statuts.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <nav class="breadcrumbs">
+        <div class="container">
+            <ol>
+                <li><a href="{{ url('app_home') }}">Home</a></li>
+                <li class="current">Mes Rendez-vous</li>
+            </ol>
+        </div>
+    </nav>
+</div>
+
+<section class="section">
+    <div class="container">
+        
+        <!-- Search and Filter Bar -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-uppercase text-muted">Rechercher un patient</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                            <input type="text" name="search" class="form-control bg-light border-start-0" placeholder="Nom du patient..." value="{{ currentSearch }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-uppercase text-muted">Date spécifique</label>
+                        <input type="date" name="date" class="form-control bg-light" value="{{ currentDate }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-uppercase text-muted">Trier par</label>
+                        <select name="sortBy" class="form-select bg-light">
+                            <option value="date" {{ currentSortBy == 'date' ? 'selected' : '' }}>Date & Heure</option>
+                            <option value="status" {{ currentSortBy == 'status' ? 'selected' : '' }}>Statut</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-filter me-2"></i>Filtrer
+                        </button>
+                    </div>
+                    <input type="hidden" name="order" value="{{ currentOrder == 'DESC' ? 'DESC' : 'ASC' }}">
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Patient</th>
+                                <th>
+                                    <a href="{{ path('app_doctor_appointments', app.request.query.all|merge({'sortBy': 'date', 'order': currentOrder == 'DESC' ? 'ASC' : 'DESC'})) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                        Date & Heure
+                                        <i class="bi bi-arrow-{{ currentSortBy == 'date' ? (currentOrder == 'DESC' ? 'down' : 'up') : 'down-up' }} ms-2 small text-muted"></i>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="{{ path('app_doctor_appointments', app.request.query.all|merge({'sortBy': 'status', 'order': currentOrder == 'DESC' ? 'ASC' : 'DESC'})) }}" class="text-decoration-none text-dark d-flex align-items-center">
+                                        Statut
+                                        <i class="bi bi-arrow-{{ currentSortBy == 'status' ? (currentOrder == 'DESC' ? 'down' : 'up') : 'down-up' }} ms-2 small text-muted"></i>
+                                    </a>
+                                </th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in appointments %}
+                                {% set a = item.appointment %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-bold text-dark">{{ item.patientName }}</div>
+                                        <small class="text-muted">ID Patient: {{ a.patientId }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="text-primary fw-bold"><i class="bi bi-calendar-event me-2"></i>{{ a.date|date('d/m/Y') }}</div>
+                                        <div class="small text-muted"><i class="bi bi-clock me-2"></i>{{ a.startTime|date('H:i') }} ({{ a.duration }} min)</div>
+                                    </td>
+                                    <td>
+                                        {% if a.status == 'scheduled' %}
+                                            <span class="badge bg-warning text-dark">PROGRAMMÉ</span>
+                                        {% elseif a.status == 'completed' %}
+                                            <span class="badge bg-success">TERMINÉ</span>
+                                        {% elseif a.status == 'cancelled' %}
+                                            <span class="badge bg-danger">ANNULÉ</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ a.status|upper }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        {% if a.status == 'scheduled' %}
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="button" class="btn btn-outline-danger" onclick="updateStatus({{ a.id }}, 'cancelled', this)">
+                                                    <i class="bi bi-x-circle me-1"></i>Annuler
+                                                </button>
+                                                <button type="button" class="btn btn-success" onclick="updateStatus({{ a.id }}, 'completed', this)">
+                                                    <i class="bi bi-check-circle me-1"></i>Terminer
+                                                </button>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        <i class="bi bi-calendar-x h1 d-block mb-3"></i>
+                                        {% if currentSearch or currentDate %}
+                                            Aucun résultat pour ces filtres. <a href="{{ path('app_doctor_appointments') }}" class="text-primary">Réinitialiser</a>
+                                        {% else %}
+                                            Aucun rendez-vous trouvé.
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+async function updateStatus(id, newStatus, btn) {
+    if (!confirm('Voulez-vous vraiment changer le statut de ce rendez-vous ?')) return;
+
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+    try {
+        const res = await fetch(`/api/calendar/appointment/${id}/status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (res.ok) {
+            window.location.reload();
+        } else {
+            alert('Erreur lors de la mise à jour.');
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Erreur de connexion.');
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+    }
+}
+</script>
+{% endblock %}

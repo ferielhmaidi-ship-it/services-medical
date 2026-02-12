@@ -22,8 +22,8 @@
             <!-- Trouver un médecin pour les patients -->
             <li><a href="{{ path('app_doctors') }}" class="{{ app.request.attributes.get('_route') == 'app_doctors' ? 'active' : '' }}">Trouver un Médecin</a></li>
 
-            <!-- Prendre rendez-vous pour les patients -->
-            <li><a href="{{ path('app_appointment') }}" class="{{ app.request.attributes.get('_route') == 'app_appointment' ? 'active' : '' }}">Prendre Rendez-vous</a></li>
+            <!-- Mes rendez-vous pour les patients -->
+            <li><a href="{{ path('app_patient_appointment_list') }}" class="{{ app.request.attributes.get('_route') == 'app_patient_appointment_list' ? 'active' : '' }}">Mes Rendez-vous</a></li>
           {% endif %}
 
           {% if is_granted('ROLE_ADMIN') %}
@@ -34,7 +34,8 @@
            {% if is_granted('ROLE_MEDECIN') %}
             <!-- Calendrier -->
             <li><a href="{{ path('app_calendrier') }}" class="{{ app.request.attributes.get('_route') == 'app_calendrier' ? 'active' : '' }}">Calendrier</a></li>
-
+            <!-- Mes rendez-vous pour les médecins -->
+            <li><a href="{{ path('app_doctor_appointments') }}" class="{{ app.request.attributes.get('_route') == 'app_doctor_appointments' ? 'active' : '' }}">Mes Rendez-vous</a></li>
           {% endif %}
 
         {% else %}
@@ -72,7 +73,7 @@
                 </li>
               {% elseif is_granted('ROLE_PATIENT') %}
                 <li>
-                  <a href="{{ path('patient_dashboard') }}">
+                   <a href="{{ path('patient_dashboard') }}">
                     <i class="fas fa-user-injured me-2"></i>Mon Espace
                   </a>
                 </li>

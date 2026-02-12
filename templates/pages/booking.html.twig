@@ -1,0 +1,348 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Prendre Rendez-vous avec Dr. {{ medecin.fullName }} - TabibNet{% endblock %}
+
+{% block body %}
+<style>
+    .booking-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+    }
+    .doctor-mini-card {
+        background: white;
+        border-radius: 15px;
+        margin-top: -40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .calendar-wrapper {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+    .day-pill {
+        cursor: pointer;
+        padding: 15px;
+        border-radius: 12px;
+        border: 2px solid #f1f3f5;
+        transition: all 0.2s;
+        text-align: center;
+        min-width: 100px;
+        background: #f8f9fa;
+    }
+    .day-pill.active {
+        border-color: #007bff;
+        background: #e3f2fd;
+        color: #0056b3;
+    }
+    .day-pill.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #eee;
+    }
+    .slot-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .slot-btn {
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        background: white;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .slot-btn:hover:not(.disabled) {
+        border-color: #007bff;
+        color: #007bff;
+        background: #f0f7ff;
+    }
+    .slot-btn.active {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+    .slot-btn.disabled {
+        background: #f8f9fa;
+        color: #adb5bd;
+        cursor: not-allowed;
+        text-decoration: line-through;
+    }
+    .slot-btn.pause {
+        background: #fff3e0;
+        color: #e65100;
+        cursor: not-allowed;
+    }
+    .avatar-large {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="booking-header">
+    <div class="container text-center">
+        <h1>Prendre Rendez-vous</h1>
+        <p class="lead">Choisissez le créneau qui vous convient le mieux.</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <!-- Doctor Info -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="doctor-mini-card p-4 mb-4" data-aos="fade-up">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-large bg-primary text-white d-flex align-items-center justify-content-center me-4">
+                        {{ medecin.fullName|split(' ')|map(word => word|first)|join('')|upper }}
+                    </div>
+                    <div>
+                        <h2 class="mb-1">Dr. {{ medecin.fullName }}</h2>
+                        <span class="badge bg-primary rounded-pill mb-2">{{ medecin.specialty }}</span>
+                        <p class="text-muted mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ medecin.address ?? medecin.governorate }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Interface -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="calendar-wrapper" data-aos="fade-up" data-aos-delay="100">
+                <h4 class="mb-4">1. Sélectionnez une date</h4>
+                <div id="days-container" class="d-flex gap-3 overflow-auto pb-3 mb-4">
+                    <!-- Days will be loaded here -->
+                    <div class="text-center w-100 py-3">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                </div>
+
+                <div id="slots-section" style="display: none;">
+                    <h4 class="mb-4">2. Choisissez un horaire</h4>
+                    <div id="slots-container" class="slot-grid">
+                        <!-- Slots will be loaded here -->
+                    </div>
+                </div>
+
+                <div id="confirmation-section" class="mt-5 text-center" style="display: none;">
+                    <div class="alert alert-info py-3">
+                        <i class="fas fa-info-circle me-2"></i> Vous avez sélectionné le <strong><span id="label-date"></span></strong> à <strong><span id="label-time"></span></strong>.
+                    </div>
+                    <button id="btn-confirm" class="btn btn-primary btn-lg px-5">
+                        <i class="fas fa-check-circle me-2"></i> Confirmer le rendez-vous
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4">
+            <div class="mb-3">
+                <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+            </div>
+            <h3>Rendez-vous Confirmé !</h3>
+            <p class="text-muted">Votre rendez-vous avec le Dr. {{ medecin.fullName }} a été enregistré. Un email de confirmation vous a été envoyé.</p>
+            <div class="d-grid mt-4">
+                <a href="{{ path('app_home') }}" class="btn btn-primary">Retour à l'accueil</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    let availabilityData = null;
+    let selectedDate = null;
+    let selectedTime = null;
+    const doctorId = {{ medecin.id }};
+
+    async function fetchAvailability() {
+        try {
+            const res = await fetch(`/api/booking/availability/${doctorId}`);
+            availabilityData = await res.json();
+            renderDays();
+        } catch (e) {
+            console.error(e);
+            document.getElementById('days-container').innerHTML = '<div class="alert alert-danger w-100">Erreur lors du chargement des disponibilités.</div>';
+        }
+    }
+
+    function formatDateToISO(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function renderDays() {
+        const container = document.getElementById('days-container');
+        container.innerHTML = '';
+        
+        const now = new Date();
+        // Show next 14 days
+        for (let i = 0; i < 14; i++) {
+            const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+            const dateStr = formatDateToISO(d);
+            const isWeekend = d.getDay() === 0 || d.getDay() === 6; // simplified check
+            
+            const pill = document.createElement('div');
+            pill.className = 'day-pill';
+            if (isWeekend) pill.classList.add('disabled');
+            
+            pill.innerHTML = `
+                <div class="small text-uppercase">${d.toLocaleDateString('fr-FR', { weekday: 'short' })}</div>
+                <div class="h5 mb-0">${d.getDate()}</div>
+                <div class="small">${d.toLocaleDateString('fr-FR', { month: 'short' })}</div>
+            `;
+            
+            pill.onclick = () => {
+                if (pill.classList.contains('disabled')) return;
+                document.querySelectorAll('.day-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                selectDate(dateStr, d);
+            };
+            
+            container.appendChild(pill);
+        }
+    }
+
+    function selectDate(dateStr, dateObj) {
+        selectedDate = dateStr;
+        selectedTime = null;
+        document.getElementById('confirmation-section').style.display = 'none';
+        document.getElementById('slots-section').style.display = 'block';
+        renderSlots(dateStr, dateObj);
+    }
+
+    function timeToMins(timeStr) {
+        if (!timeStr) return 0;
+        const [h, m] = timeStr.split(':').map(Number);
+        return h * 60 + m;
+    }
+
+    function renderSlots(dateStr, dateObj) {
+        const container = document.getElementById('slots-container');
+        container.innerHTML = '';
+        
+        const specifics = availabilityData.specifics.find(s => s.specificDate === dateStr);
+        const indisps = availabilityData.indisponibilities.find(i => i.date === dateStr);
+        
+        if (indisps && indisps.isEmergency) {
+            container.innerHTML = '<div class="col-12 alert alert-warning">Le docteur est exceptionnellement indisponible à cette date.</div>';
+            return;
+        }
+
+        let startMins = 9 * 60; // Default 09:00
+        let endMins = 17 * 60;  // Default 17:00
+        
+        if (specifics) {
+            startMins = timeToMins(specifics.startTime);
+            endMins = timeToMins(specifics.endTime);
+        }
+
+        const duration = availabilityData.settings.slotDuration || 30;
+        const pauseStart = timeToMins(availabilityData.settings.pauseStart);
+        const pauseEnd = timeToMins(availabilityData.settings.pauseEnd);
+        
+        const appts = availabilityData.appointments.filter(a => a.date === dateStr);
+        
+        let curr = startMins;
+        let count = 0;
+        
+        while (curr + duration <= endMins) {
+            const h = Math.floor(curr / 60);
+            const m = curr % 60;
+            const timeStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+            
+            const btn = document.createElement('div');
+            btn.className = 'slot-btn';
+            btn.textContent = timeStr;
+            
+            const isPause = curr < pauseEnd && (curr + duration) > pauseStart;
+            const isBooked = appts.some(a => timeToMins(a.startTime) === curr);
+            
+            if (isPause) {
+                btn.classList.add('pause');
+                btn.title = 'Pause déjeuner';
+            } else if (isBooked) {
+                btn.classList.add('disabled');
+                btn.title = 'Déjà réservé';
+            } else {
+                btn.onclick = () => {
+                    document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    selectTime(timeStr);
+                };
+            }
+            
+            container.appendChild(btn);
+            curr += duration;
+            count++;
+        }
+        
+        if (count === 0) {
+            container.innerHTML = '<div class="col-12 alert alert-info">Aucun créneau disponible pour cette journée.</div>';
+        }
+    }
+
+    function selectTime(timeStr) {
+        selectedTime = timeStr;
+        document.getElementById('label-date').textContent = new Date(selectedDate).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById('label-time').textContent = timeStr;
+        document.getElementById('confirmation-section').style.display = 'block';
+        document.getElementById('confirmation-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.getElementById('btn-confirm').onclick = async function() {
+        if (!selectedDate || !selectedTime) return;
+        
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Confirmation...';
+        
+        try {
+            const res = await fetch('/api/booking/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    doctorId: doctorId,
+                    date: selectedDate,
+                    startTime: selectedTime,
+                    duration: availabilityData.settings.slotDuration
+                })
+            });
+            
+            const result = await res.json();
+            if (res.ok) {
+                const modal = new bootstrap.Modal(document.getElementById('successModal'));
+                modal.show();
+            } else {
+                alert(result.error || "Une erreur est survenue lors de la réservation.");
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Confirmer le rendez-vous';
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Erreur de connexion au serveur.");
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Confirmer le rendez-vous';
+        }
+    };
+
+    window.addEventListener('load', fetchAvailability);
+</script>
+{% endblock %}

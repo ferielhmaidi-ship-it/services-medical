@@ -10,6 +10,7 @@ use App\Repository\TempsTravailRepository;
 use App\Repository\IndisponibiliteRepository;
 use App\Repository\CalendarSettingRepository;
 use App\Repository\AppointmentRepository;
+use App\Repository\PatientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,10 +22,70 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_MEDECIN')]
 class CalendarController extends AbstractController
 {
+    private PatientRepository $patientRepo;
+
+    public function __construct(PatientRepository $patientRepo)
+    {
+        $this->patientRepo = $patientRepo;
+    }
+
     #[Route('/calendrier', name: 'app_calendrier')]
     public function index(): Response
     {
         return $this->render('pages/calendrier.html.twig');
+    }
+
+    #[Route('/doctor/appointments', name: 'app_doctor_appointments')]
+    public function appointmentsList(Request $request, AppointmentRepository $apptRepo): Response
+    {
+        $doctorId = $this->getUser()->getId();
+        
+        $search = $request->query->get('search');
+        $date = $request->query->get('date');
+        $sortBy = $request->query->get('sortBy', 'date'); // Default sort by date
+        $order = $request->query->get('order', 'DESC'); // Default order DESC
+        
+        $qb = $apptRepo->createQueryBuilder('a')
+            ->where('a.doctorId = :doctorId')
+            ->setParameter('doctorId', $doctorId);
+
+        if ($date) {
+            $qb->andWhere('a.date = :date')
+               ->setParameter('date', $date);
+        }
+
+        if ($sortBy === 'status') {
+            $qb->orderBy('a.status', $order);
+        } else {
+            $qb->orderBy('a.date', $order)
+               ->addOrderBy('a.startTime', $order);
+        }
+
+        $appts = $qb->getQuery()->getResult();
+        
+        $enrichedAppointments = [];
+        foreach ($appts as $a) {
+            $patient = $this->patientRepo->find($a->getPatientId());
+            $patientName = $patient ? $patient->getFirstName() . ' ' . $patient->getLastName() : 'Inconnu';
+
+            // Filter by patient name if search is provided
+            if ($search && stripos($patientName, $search) === false) {
+                continue;
+            }
+
+            $enrichedAppointments[] = [
+                'appointment' => $a,
+                'patientName' => $patientName
+            ];
+        }
+
+        return $this->render('pages/mes_rendezvous.html.twig', [
+            'appointments' => $enrichedAppointments,
+            'currentSearch' => $search,
+            'currentDate' => $date,
+            'currentSortBy' => $sortBy,
+            'currentOrder' => $order
+        ]);
     }
 
     #[Route('/api/calendar/config', name: 'app_api_calendar_config', methods: ['GET'])]
@@ -46,7 +107,7 @@ class CalendarController extends AbstractController
             
         $indisps = $indispRepo->findBy(['doctorId' => $doctorId]);
         
-        $appts = $apptRepo->findBy(['doctorId' => $doctorId]); // Appointment uses doctorId column
+        $appts = $apptRepo->findBy(['doctorId' => $doctorId]);
 
         $settings = $settingsRepo->findOneBy(['doctorId' => $doctorId]);
         if (!$settings) {
@@ -84,9 +145,11 @@ class CalendarController extends AbstractController
                 ];
             }, $indisps),
             'appointments' => array_map(function ($a) {
+                $patient = $this->patientRepo->find($a->getPatientId());
                 return [
                     'id' => $a->getId(),
                     'patientId' => $a->getPatientId(),
+                    'patientName' => $patient ? $patient->getFirstName() . ' ' . $patient->getLastName() : 'Inconnu',
                     'date' => $a->getDate()->format('Y-m-d'),
                     'startTime' => $a->getStartTime()->format('H:i'),
                     'duration' => $a->getDuration(),
@@ -94,6 +157,30 @@ class CalendarController extends AbstractController
                 ];
             }, $appts),
         ]);
+    }
+
+    #[Route('/api/calendar/appointment/{id}/status', name: 'app_api_calendar_appointment_status', methods: ['POST'])]
+    public function updateStatus(int $id, Request $request, AppointmentRepository $apptRepo, EntityManagerInterface $em): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        if (!$data || !isset($data['status'])) {
+            return new JsonResponse(['error' => 'Données invalides'], 400);
+        }
+
+        $appointment = $apptRepo->find($id);
+        if (!$appointment || $appointment->getDoctorId() !== $this->getUser()->getId()) {
+            return new JsonResponse(['error' => 'Rendez-vous non trouvé'], 404);
+        }
+
+        $allowedStatuses = ['scheduled', 'completed', 'cancelled', 'missed'];
+        if (!in_array($data['status'], $allowedStatuses)) {
+            return new JsonResponse(['error' => 'Statut invalide'], 400);
+        }
+
+        $appointment->setStatus($data['status']);
+        $em->flush();
+
+        return new JsonResponse(['success' => true]);
     }
 
     #[Route('/api/calendar/settings', name: 'app_api_calendar_settings_save', methods: ['POST'])]

@@ -35,7 +35,6 @@
   /* Contrast color for text, ensuring readability against backgrounds of accent, heading, or default colors. */
 }
 
-/* Nav Menu Colors - The following color variables are used specifically for the navigation menu. They are separate from the global colors to allow for more customization options */
 :root {
   --nav-color: #363f40;
   /* The default color of the main navmenu links */
@@ -6417,6 +6416,7 @@ section,
   padding-top: 60px;
   padding-bottom: 60px;
   /* Add your styles here */
+  <<<<<<< HEAD
 }
 
 /***************new new */
@@ -6487,9 +6487,4 @@ section,
   font-weight: 600;
   border: 2px solid #0d6efd;
   transition: all 0.3s ease;
-}
-
-.btn-watch-video:hover {
-  background: #0d6efd;
-  color: white;
 }

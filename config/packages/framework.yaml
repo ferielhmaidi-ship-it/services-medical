@@ -5,6 +5,13 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
+    # Package "theme" : fichiers statiques dans public/assets/ (sans versioning)
+    assets:
+        packages:
+            theme:
+                base_path: '/assets'
+                version: null
+
     #esi: true
     #fragments: true
 

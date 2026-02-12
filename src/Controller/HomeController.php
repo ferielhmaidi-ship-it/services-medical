@@ -12,6 +12,10 @@ use App\Entity\Medecin;
 use App\Repository\PatientRepository;
 use App\Constants\Specialty;
 use App\Constants\Governorate;
+use App\Entity\RendezVous;
+use App\Form\RendezVousType;
+use App\Service\AvailabilityService;
+use Doctrine\ORM\EntityManagerInterface;
 
 class HomeController extends AbstractController
 {
@@ -22,7 +26,11 @@ class HomeController extends AbstractController
     }
 
     #[Route('/doctors', name: 'app_doctors')]
-    public function doctors(Request $request, MedecinRepository $medecinRepository): Response
+    public function doctors(
+        Request $request, 
+        MedecinRepository $medecinRepository,
+        AvailabilityService $availabilityService
+    ): Response
     {
         $name = $request->query->get('name', '');
         $specialty = $request->query->get('specialty', '');
@@ -31,20 +39,33 @@ class HomeController extends AbstractController
         // Use repository method for filtering
         $medecins = $medecinRepository->searchDoctors($name, $specialty, $governorate);
 
+        // Enrich doctors with availability data
+        $now = new \DateTime();
+        $nextMonday = (clone $now)->modify('next monday');
+        $nextMonday->setTime(0, 0, 0);
+        
+        $enrichedMedecins = [];
+        foreach ($medecins as $medecin) {
+            $workingDays = $availabilityService->getWeeklyWorkingDays($medecin, $nextMonday);
+            $nextSlot = $availabilityService->getNextAvailableSlot($medecin, $now);
+            
+            $enrichedMedecins[] = [
+                'entity' => $medecin,
+                'workingDays' => $workingDays,
+                'nextSlot' => $nextSlot
+            ];
+        }
+
         // Get filter options
         $filterOptions = $medecinRepository->getFilterOptions();
 
         return $this->render('pages/doctors.html.twig', [
-            'medecins' => $medecins,
+            'medecins' => $enrichedMedecins,
             'name' => $name,
-            'currentSpecialty' => $specialty, // Renamed to avoid conflict with loop variable
-            'currentGovernorate' => $governorate, // Renamed to avoid conflict
-
-            // Serve filters directly from Constants
+            'currentSpecialty' => $specialty,
+            'currentGovernorate' => $governorate,
             'governorates' => Governorate::getChoices(),
-            // We pass groups for a better dropdown experience
             'specialtyGroups' => Specialty::getGroups(),
-            // We also pass the static class name to use helper methods in Twig if needed
             'specialtyClass' => Specialty::class
         ]);
     }
@@ -61,10 +82,31 @@ class HomeController extends AbstractController
         return $this->render('pages/contact.html.twig');
     }
 
-    #[Route('/appointment', name: 'app_appointment')]
-    public function appointment(): Response
+    #[Route('/appointment', name: 'app_appointment', methods: ['GET', 'POST'])]
+    public function appointment(Request $request, EntityManagerInterface $em): Response
     {
-        return $this->render('pages/appointment.html.twig');
+        $rendezVous = new RendezVous();
+
+        // Pre-fill patient if the logged-in user is a Patient
+        $user = $this->getUser();
+        if ($user instanceof \App\Entity\Patient) {
+            $rendezVous->setPatient($user);
+        }
+
+        $form = $this->createForm(RendezVousType::class, $rendezVous);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($rendezVous);
+            $em->flush();
+
+            $this->addFlash('success', 'Votre rendez-vous a ete enregistre avec succes !');
+            return $this->redirectToRoute('app_appointment');
+        }
+
+        return $this->render('pages/appointment.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
     #[Route('/departments', name: 'app_departments')]

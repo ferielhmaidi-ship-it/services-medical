@@ -105,7 +105,8 @@
 
             <!-- Horizontal Cards Layout -->
             <div class="row g-4">
-                {% for medecin in medecins %}
+                {% for item in medecins %}
+                {% set medecin = item.entity %}
                 <div class="col-12">
                     <div class="card border-0 shadow-sm doctor-card-horizontal h-100">
                         <div class="card-body p-0">
@@ -136,25 +137,19 @@
 
                                         <!-- Doctor Details -->
                                         <div class="flex-grow-1">
-                                            <!-- Availability - Mock data (you can replace with real data) -->
+                                            <!-- Availability - Real data -->
                                             <div class="mb-3">
-                                                <h6 class="text-muted mb-2">Disponibilités cette semaine</h6>
+                                                <h6 class="text-muted mb-2">Disponibilités semaine prochaine</h6>
                                                 <div class="availability-days d-flex flex-wrap gap-2">
-                                                    <span class="badge bg-light text-dark border">
-                                                        <i class="fas fa-calendar-day me-1 text-primary"></i>Lun : 10 févr.
-                                                    </span>
-                                                    <span class="badge bg-light text-dark border">
-                                                        <i class="fas fa-calendar-day me-1 text-primary"></i>Mar : 11 févr.
-                                                    </span>
-                                                    <span class="badge bg-light text-dark border">
-                                                        <i class="fas fa-calendar-day me-1 text-primary"></i>Mer : 12 févr.
-                                                    </span>
-                                                    <span class="badge bg-light text-dark border">
-                                                        <i class="fas fa-calendar-day me-1 text-primary"></i>Jeu : 13 févr.
-                                                    </span>
-                                                    <span class="badge bg-light text-dark border">
-                                                        <i class="fas fa-calendar-day me-1 text-primary"></i>Ven : 14 févr.
-                                                    </span>
+                                                    {% if item.workingDays|length > 0 %}
+                                                        {% for day in item.workingDays %}
+                                                            <span class="badge bg-light text-dark border">
+                                                                <i class="fas fa-calendar-day me-1 text-primary"></i>{{ day }}
+                                                            </span>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                         <span class="text-muted small">Aucune disponibilité la semaine prochaine</span>
+                                                    {% endif %}
                                                 </div>
                                             </div>
 
@@ -194,8 +189,12 @@
                                         <div class="text-center mb-4">
                                             <div class="text-muted small mb-2">Prochain RDV disponible</div>
                                             <div class="next-appointment bg-light rounded p-3 border">
-                                                <div class="fw-bold text-primary" style="font-size: 1.1rem;">5 mars 2026</div>
-                                                <div class="small text-muted">À partir de 09:00</div>
+                                                {% if item.nextSlot %}
+                                                    <div class="fw-bold text-primary" style="font-size: 1.1rem;">{{ item.nextSlot.date }}</div>
+                                                    <div class="small text-muted">À partir de {{ item.nextSlot.time }}</div>
+                                                {% else %}
+                                                    <div class="text-muted">Aucun créneau disponible</div>
+                                                {% endif %}
                                             </div>
                                         </div>
 
@@ -204,7 +203,7 @@
                                             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewDoctor{{ medecin.id }}">
                                                 <i class="fas fa-eye me-1"></i> Voir Profil Complet
                                             </button>
-                                            <a href="{{ path('app_appointment') }}" class="btn btn-primary">
+                                            <a href="{{ path('app_booking_doctor', {id: medecin.id}) }}" class="btn btn-primary">
                                                 <i class="fas fa-calendar-check me-1"></i> Prendre RDV en ligne
                                             </a>
                                         </div>
@@ -271,7 +270,7 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                    <a href="{{ path('app_appointment') }}" class="btn btn-primary">Prendre Rendez-vous</a>
+                                    <a href="{{ path('app_booking_doctor', {id: medecin.id}) }}" class="btn btn-primary">Prendre Rendez-vous</a>
                                 </div>
                             </div>
                         </div>
