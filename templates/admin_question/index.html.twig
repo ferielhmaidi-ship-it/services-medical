@@ -1,0 +1,105 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Gestion des Questions{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% include 'magazine-admin/magazine/_styles.html.twig' %}
+{% endblock %}
+
+{% block body %}
+    <section class="mag-shell">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="mag-header">
+                <div>
+                    <h1 class="mag-title">Gestion des Questions</h1>
+                    <p class="mag-subtitle">Consultez et gérez les questions posées par les patients.</p>
+                </div>
+            </div>
+
+            <!-- Main Listing -->
+            <div class="mag-card pb-0">
+                <div class="table-responsive">
+                    <table class="table mag-table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th class="border-0 ps-3">ID</th>
+                                <th class="border-0">Titre</th>
+                                <th class="border-0">Spécialité</th>
+                                <th class="border-0">Patient</th>
+                                <th class="border-0">Date</th>
+                                <th class="border-0 text-end pe-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for q in questions %}
+                            <tr>
+                                <td class="ps-3 align-middle text-muted">#{{ q.id }}</td>
+                                <td class="align-middle">
+                                    <span class="fw-bold" style="color: var(--mag-ink);">{{ q.titre }}</span>
+                                </td>
+                                <td class="align-middle">
+                                    <span class="badge bg-soft-primary text-primary rounded-pill px-3">
+                                        {{ q.specialite ? q.specialite.nom : 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="align-middle">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-2">
+                                            <span class="avatar-title rounded-circle bg-soft-info text-info">
+                                                {{ q.patient ? q.patient.firstName|slice(0,1)|upper : '?' }}
+                                            </span>
+                                        </div>
+                                        <span>{{ q.patient ? q.patient.getFullName() : 'Anonyme' }}</span>
+                                    </div>
+                                </td>
+                                <td class="align-middle text-muted">
+                                    {{ q.createdAt|date('d/m/Y H:i') }}
+                                </td>
+                                <td class="align-middle text-end pe-3">
+                                    <div class="mag-actions justify-content-end">
+                                        <a href="{{ path('admin_question_delete', {'id': q.id}) }}" 
+                                           class="btn btn-outline-danger btn-sm rounded-pill" 
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette question ?')" 
+                                           title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="fas fa-info-circle me-1"></i> Aucune question trouvée
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .bg-soft-primary { background-color: rgba(99, 102, 241, 0.1); }
+        .bg-soft-info { background-color: rgba(6, 182, 212, 0.1); }
+        .avatar-sm {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .avatar-title {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+    </style>
+{% endblock %}

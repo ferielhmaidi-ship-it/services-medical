@@ -25,6 +25,42 @@ class AdminPatientController extends AbstractController
         $this->passwordHasher = $passwordHasher;
     }
 
+    #[Route('/new', name: 'admin_patient_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $patient = new Patient();
+        $form = $this->createForm(PatientEditType::class, $patient, [
+            'is_new' => true,
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('plainPassword')->getData();
+            if ($plainPassword) {
+                $patient->setPassword(
+                    $this->passwordHasher->hashPassword($patient, $plainPassword)
+                );
+            } else {
+                $this->addFlash('error', 'Un mot de passe est requis pour un nouveau patient.');
+                return $this->render('admin_patient/new.html.twig', [
+                    'patient' => $patient,
+                    'form' => $form->createView(),
+                ]);
+            }
+
+            $entityManager->persist($patient);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Patient créé avec succès!');
+            return $this->redirectToRoute('admin_patient_index');
+        }
+
+        return $this->render('admin_patient/new.html.twig', [
+            'patient' => $patient,
+            'form' => $form->createView(),
+        ]);
+    }
+
     #[Route('/', name: 'admin_patient_index', methods: ['GET'])]
     public function index(PatientRepository $patientRepository): Response
     {

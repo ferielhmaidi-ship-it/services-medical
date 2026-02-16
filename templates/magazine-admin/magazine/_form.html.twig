@@ -1,24 +1,644 @@
 {% form_theme form 'bootstrap_5_layout.html.twig' %}
 
+
 {{ form_start(form, {'attr': {'class': 'mag-form'}}) }}
-    <div class="row g-3">
-        <div class="col-lg-6">
-            {{ form_row(form.title) }}
+<style>
+    :root {
+        --mag-primary: #6366f1;
+        --mag-primary-dark: #4f46e5;
+        --mag-primary-light: #818cf8;
+        --mag-secondary: #ec4899;
+        --mag-accent: #f59e0b;
+        --mag-dark: #1e1b4b;
+        --mag-light: #f5f3ff;
+        --mag-gray: #64748b;
+        --mag-border: #e2e8f0;
+        --mag-radius: 16px;
+        --mag-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.2);
+        --mag-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mag-form-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px;
+        background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+        border-radius: 24px;
+        box-shadow: var(--mag-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .mag-form-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--mag-primary), var(--mag-secondary), var(--mag-accent));
+    }
+
+    .mag-form-header {
+        text-align: center;
+        margin-bottom: 40px;
+        position: relative;
+    }
+
+    .mag-form-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, var(--mag-light) 0%, #ede9fe 100%);
+        color: var(--mag-primary-dark);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border-radius: 20px;
+        margin-bottom: 16px;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .mag-form-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--mag-dark);
+        margin-bottom: 8px;
+        letter-spacing: -0.02em;
+    }
+
+    .mag-form-subtitle {
+        color: var(--mag-gray);
+        font-size: 15px;
+    }
+
+    .mag-form {
+        position: relative;
+    }
+
+    /* Form Groups */
+    .mag-form .form-group,
+    .mag-form .mb-3 {
+        margin-bottom: 24px;
+        position: relative;
+    }
+
+    .mag-form label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--mag-dark);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: var(--mag-transition);
+    }
+
+    .mag-form .form-control,
+    .mag-form .form-select {
+        width: 100%;
+        padding: 16px 20px;
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--mag-dark);
+        background: #ffffff;
+        border: 2px solid var(--mag-border);
+        border-radius: var(--mag-radius);
+        transition: var(--mag-transition);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .mag-form .form-control:hover,
+    .mag-form .form-select:hover {
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .mag-form .form-control:focus,
+    .mag-form .form-select:focus {
+        outline: none;
+        border-color: var(--mag-primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1), 0 4px 12px rgba(99, 102, 241, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .mag-form textarea.form-control {
+        min-height: 140px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    /* File Input Styling */
+    .mag-form input[type="file"] {
+        padding: 12px;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        cursor: pointer;
+    }
+
+    .mag-form input[type="file"]::file-selector-button {
+        padding: 10px 20px;
+        margin-right: 16px;
+        background: linear-gradient(135deg, var(--mag-primary) 0%, var(--mag-primary-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: var(--mag-transition);
+    }
+
+    .mag-form input[type="file"]::file-selector-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Date Input */
+    .mag-form input[type="date"] {
+        position: relative;
+    }
+
+    .mag-form input[type="date"]::-webkit-calendar-picker-indicator {
+        background: transparent;
+        bottom: 0;
+        color: transparent;
+        cursor: pointer;
+        height: auto;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: auto;
+    }
+
+    .date-wrapper {
+        position: relative;
+    }
+
+    .date-wrapper::after {
+        content: '\f133';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 400;
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--mag-primary);
+        font-size: 18px;
+        pointer-events: none;
+    }
+
+    /* Select Styling */
+    .mag-form .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236366f1' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 0-1.659z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 20px center;
+        background-size: 16px;
+        padding-right: 50px;
+    }
+
+    /* Input Icons */
+    .input-icon-wrapper {
+        position: relative;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--mag-gray);
+        font-size: 18px;
+        transition: var(--mag-transition);
+        z-index: 2;
+    }
+
+    .mag-form .form-control:focus ~ .input-icon,
+    .input-icon-wrapper:focus-within .input-icon {
+        color: var(--mag-primary);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .mag-form .form-control.ps-5 {
+        padding-left: 52px;
+    }
+
+    /* Floating Label Effect */
+    .floating-group {
+        position: relative;
+    }
+
+    .floating-group .form-control::placeholder {
+        color: transparent;
+    }
+
+    .floating-group label {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: white;
+        padding: 0 8px;
+        margin: 0;
+        font-size: 15px;
+        text-transform: none;
+        letter-spacing: normal;
+        color: var(--mag-gray);
+        pointer-events: none;
+        transition: var(--mag-transition);
+    }
+
+    .floating-group .form-control:focus ~ label,
+    .floating-group .form-control:not(:placeholder-shown) ~ label {
+        top: 0;
+        font-size: 12px;
+        color: var(--mag-primary);
+        font-weight: 700;
+    }
+
+    /* Character Counter */
+    .char-counter {
+        position: absolute;
+        bottom: 12px;
+        right: 16px;
+        font-size: 12px;
+        color: var(--mag-gray);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+
+    /* Validation States */
+    .mag-form .form-control.is-valid {
+        border-color: #10b981;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2310b981' viewBox='0 0 16 16'%3E%3Cpath d='M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 20px center;
+        padding-right: 50px;
+    }
+
+    .mag-form .form-control.is-invalid {
+        border-color: #ef4444;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ef4444' viewBox='0 0 16 16'%3E%3Cpath d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 20px center;
+        padding-right: 50px;
+    }
+
+    .invalid-feedback {
+        color: #ef4444;
+        font-size: 13px;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 500;
+    }
+
+    /* Submit Button */
+    .btn-mag {
+        position: relative;
+        padding: 16px 40px;
+        font-size: 15px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #fff;
+        background: linear-gradient(135deg, var(--mag-primary) 0%, var(--mag-secondary) 100%);
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        overflow: hidden;
+        transition: var(--mag-transition);
+        box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-mag::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s;
+    }
+
+    .btn-mag:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 40px -5px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-mag:hover::before {
+        left: 100%;
+    }
+
+    .btn-mag:active {
+        transform: translateY(-1px);
+    }
+
+    .btn-mag i {
+        margin-right: 8px;
+    }
+
+    /* Form Grid Enhancements */
+    .mag-form .row {
+        --bs-gutter-x: 24px;
+    }
+
+    /* Image Preview */
+    .image-preview {
+        margin-top: 12px;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: var(--mag-radius);
+        border: 2px dashed var(--mag-border);
+        text-align: center;
+        transition: var(--mag-transition);
+    }
+
+    .image-preview:hover {
+        border-color: var(--mag-primary);
+        background: #f5f3ff;
+    }
+
+    .image-preview img {
+        max-height: 200px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Status Badge Selector */
+    .status-selector {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .status-option {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .status-option input {
+        display: none;
+    }
+
+    .status-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 16px;
+        background: #fff;
+        border: 2px solid var(--mag-border);
+        border-radius: var(--mag-radius);
+        cursor: pointer;
+        transition: var(--mag-transition);
+        text-align: center;
+    }
+
+    .status-option input:checked + .status-label {
+        border-color: var(--mag-primary);
+        background: var(--mag-light);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+    }
+
+    .status-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        transition: var(--mag-transition);
+    }
+
+    .status-draft .status-icon { background: #f1f5f9; color: #64748b; }
+    .status-published .status-icon { background: #d1fae5; color: #059669; }
+    .status-archived .status-icon { background: #fee2e2; color: #dc2626; }
+
+    .status-option input:checked + .status-label .status-icon {
+        transform: scale(1.1);
+    }
+
+    .status-text {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--mag-dark);
+    }
+
+    /* Animations */
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .mag-form-wrapper {
+        animation: slideUp 0.6s ease-out;
+    }
+
+    .mag-form .col-lg-6,
+    .mag-form .col-lg-8,
+    .mag-form .col-lg-4,
+    .mag-form .col-12 {
+        animation: slideUp 0.6s ease-out forwards;
+    }
+
+    .mag-form .col-lg-6:nth-child(1) { animation-delay: 0.1s; }
+    .mag-form .col-lg-6:nth-child(2) { animation-delay: 0.15s; }
+    .mag-form .col-12 { animation-delay: 0.2s; }
+    .mag-form .col-lg-8 { animation-delay: 0.25s; }
+    .mag-form .col-lg-4 { animation-delay: 0.3s; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .mag-form-wrapper {
+            padding: 24px;
+            margin: 16px;
+        }
+
+        .mag-form-title {
+            font-size: 24px;
+        }
+
+        .status-selector {
+            flex-direction: column;
+        }
+
+        .btn-mag {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="mag-form-wrapper">
+    <div class="mag-form-header">
+        <div class="mag-form-badge">
+            <i class="fas fa-pen-nib"></i>
+            Content Editor
         </div>
+        <h2 class="mag-form-title">Create New Article</h2>
+        <p class="mag-form-subtitle">Craft compelling content for your magazine</p>
+    </div>
+
+    <div class="row g-4">
         <div class="col-lg-6">
-            {{ form_row(form.statut) }}
+            <div class="form-group">
+                <label for="{{ form.title.vars.id }}">
+                    <i class="fas fa-heading text-primary me-2"></i>Article Title
+                </label>
+                {{ form_widget(form.title, {'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Enter a captivating title...'
+                }}) }}
+            </div>
         </div>
+        
+        <div class="col-lg-6">
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-toggle-on text-primary me-2"></i>Publication Status
+                </label>
+                <div class="status-selector">
+                    <label class="status-option status-draft">
+                        <input type="radio" name="status" value="draft" checked>
+                        <span class="status-label">
+                            <span class="status-icon"><i class="fas fa-pencil-alt"></i></span>
+                            <span class="status-text">Draft</span>
+                        </span>
+                    </label>
+                    <label class="status-option status-published">
+                        <input type="radio" name="status" value="published">
+                        <span class="status-label">
+                            <span class="status-icon"><i class="fas fa-check"></i></span>
+                            <span class="status-text">Published</span>
+                        </span>
+                    </label>
+                    <label class="status-option status-archived">
+                        <input type="radio" name="status" value="archived">
+                        <span class="status-label">
+                            <span class="status-icon"><i class="fas fa-archive"></i></span>
+                            <span class="status-text">Archived</span>
+                        </span>
+                    </label>
+                </div>
+                {{ form_widget(form.statut, {'attr': {'style': 'display: none;'}}) }}
+            </div>
+        </div>
+        
         <div class="col-12">
-            {{ form_row(form.description) }}
+            <div class="form-group">
+                <label for="{{ form.description.vars.id }}">
+                    <i class="fas fa-align-left text-primary me-2"></i>Description
+                </label>
+                {{ form_widget(form.description, {'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Write a compelling description...',
+                    'rows': '5'
+                }}) }}
+                <span class="char-counter">0 / 500</span>
+            </div>
         </div>
+        
         <div class="col-lg-8">
-            {{ form_row(form.image) }}
+            <div class="form-group">
+                <label for="{{ form.image.vars.id }}">
+                    <i class="fas fa-image text-primary me-2"></i>Featured Image
+                </label>
+                {{ form_widget(form.image, {'attr': {
+                    'class': 'form-control',
+                    'accept': 'image/*'
+                }}) }}
+                <div class="image-preview" id="imagePreview">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                    <p class="text-muted mb-0">Drag & drop or click to upload</p>
+                    <small class="text-muted">Recommended: 1200x800px, max 5MB</small>
+                </div>
+            </div>
         </div>
+        
         <div class="col-lg-4">
-            {{ form_row(form.dateCreate) }}
+            <div class="form-group">
+                <label for="{{ form.dateCreate.vars.id }}">
+                    <i class="fas fa-calendar-alt text-primary me-2"></i>Publication Date
+                </label>
+                <div class="date-wrapper">
+                    {{ form_widget(form.dateCreate, {'attr': {
+                        'class': 'form-control'
+                    }}) }}
+                </div>
+            </div>
         </div>
     </div>
-    <div class="d-flex justify-content-end mt-4">
-        <button class="btn btn-mag">{{ button_label|default('Save') }}</button>
+    
+    <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+        <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+            <i class="fas fa-arrow-left me-2"></i>Cancel
+        </button>
+        <button class="btn btn-mag" type="submit">
+            <i class="fas fa-save"></i>
+            {{ button_label|default('Save Article') }}
+        </button>
     </div>
+</div>
+
+<script>
+    // Character counter
+    const textarea = document.querySelector('textarea');
+    const counter = document.querySelector('.char-counter');
+    
+    if (textarea && counter) {
+        textarea.addEventListener('input', function() {
+            const length = this.value.length;
+            counter.textContent = `${length} / 500`;
+            
+            if (length > 450) {
+                counter.style.color = '#ef4444';
+            } else if (length > 400) {
+                counter.style.color = '#f59e0b';
+            } else {
+                counter.style.color = '#64748b';
+            }
+        });
+    }
+
+    // Image preview
+    const fileInput = document.querySelector('input[type="file"]');
+    const preview = document.getElementById('imagePreview');
+    
+    if (fileInput && preview) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    preview.style.borderStyle = 'solid';
+                    preview.style.borderColor = '#6366f1';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Status selector sync
+    const statusRadios = document.querySelectorAll('.status-option input');
+    const statusSelect = document.querySelector('select[name*="statut"]');
+    
+    if (statusRadios.length && statusSelect) {
+        statusRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                statusSelect.value = this.value;
+            });
+        });
+    }
+</script>
+
 {{ form_end(form) }}

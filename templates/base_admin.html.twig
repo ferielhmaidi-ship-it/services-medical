@@ -177,6 +177,39 @@
                     <i class="fas fa-fw fa-stethoscope"></i>
                     <span>Spécialités</span>
                 </a>
+            </li>
+
+            <!-- Nav Item - Questions Management -->
+            <li class="nav-item {{ 'admin_question' in app.request.get('_route') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ path('admin_question_index') }}">
+                    <i class="fas fa-fw fa-question-circle"></i>
+                    <span>Questions</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Contenu & Magazine
+            </div>
+
+            <!-- Nav Item - Magazines -->
+            <li class="nav-item {{ 'magazine' in app.request.get('_route') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ path('app_magazine_index') }}">
+                    <i class="fas fa-fw fa-book"></i>
+                    <span>Magazines</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Articles -->
+            <li class="nav-item {{ 'article' in app.request.get('_route') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ path('app_article_index') }}">
+                    <i class="fas fa-fw fa-newspaper"></i>
+                    <span>Articles</span>
+                </a>
+            </li>
 
 
             <!-- Divider -->

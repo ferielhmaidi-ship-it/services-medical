@@ -1,36 +1,855 @@
-{% extends 'magazine-admin/base.html.twig' %}
+{# templates/magazine-admin/magazine/new.html.twig #}
+{# templates/magazine-admin/magazine/edit.html.twig #}
+{% extends 'base_admin.html.twig' %}
 
-{% block title %}Edit Magazine{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-    {% include 'magazine-admin/magazine/_styles.html.twig' %}
+{% block title %}
+    {% if magazine is defined and magazine.id %}
+        Modifier le Magazine - {{ magazine.title }}
+    {% else %}
+        Nouveau Magazine
+    {% endif %}
 {% endblock %}
 
-{% block body_class %}magazine-page{% endblock %}
-
 {% block body %}
-    <section class="mag-shell">
-        <div class="container">
-            <div class="mag-header">
-                <div>
-                    <h1 class="mag-title">Edit magazine</h1>
-                    <p class="mag-subtitle">Update content, cover image, or status.</p>
+<style>
+    :root {
+        --mag-primary: #6366f1;
+        --mag-primary-dark: #4f46e5;
+        --mag-secondary: #ec4899;
+        --mag-accent: #f59e0b;
+        --mag-success: #10b981;
+        --mag-dark: #1e293b;
+        --mag-gray: #64748b;
+        --mag-light: #f8fafc;
+        --mag-border: #e2e8f0;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Page Header */
+    .page-header-mag {
+        background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+        border-radius: 20px;
+        padding: 28px 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--mag-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .page-title-mag {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .title-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--mag-primary) 0%, var(--mag-secondary) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 24px;
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); }
+        50% { box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5); }
+    }
+
+    .title-text h1 {
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--mag-dark);
+        margin: 0;
+        letter-spacing: -0.02em;
+    }
+
+    .title-text p {
+        color: var(--mag-gray);
+        margin: 4px 0 0;
+        font-size: 14px;
+    }
+
+    .btn-back-mag {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 24px;
+        background: #f1f5f9;
+        color: #475569;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: var(--transition);
+        border: none;
+    }
+
+    .btn-back-mag:hover {
+        background: #e2e8f0;
+        color: #334155;
+        transform: translateX(-4px);
+    }
+
+    /* Form Container */
+    .form-container-mag {
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border: 1px solid var(--mag-border);
+        overflow: hidden;
+    }
+
+    .form-header-mag {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 24px 32px;
+        border-bottom: 1px solid var(--mag-border);
+    }
+
+    .form-header-mag h6 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--mag-dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-header-mag i {
+        color: var(--mag-primary);
+    }
+
+    .form-body-mag {
+        padding: 32px;
+    }
+
+    /* Form Groups */
+    .form-group-mag {
+        margin-bottom: 28px;
+    }
+
+    .form-label-mag {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--mag-dark);
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .form-label-mag .required {
+        color: #ef4444;
+        margin-left: 4px;
+    }
+
+    .form-input-mag,
+    .form-select-mag,
+    .form-textarea-mag {
+        width: 100%;
+        padding: 14px 18px;
+        font-size: 15px;
+        color: var(--mag-dark);
+        background: #fff;
+        border: 2px solid var(--mag-border);
+        border-radius: 12px;
+        transition: var(--transition);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .form-input-mag:hover,
+    .form-select-mag:hover,
+    .form-textarea-mag:hover {
+        border-color: #cbd5e1;
+    }
+
+    .form-input-mag:focus,
+    .form-select-mag:focus,
+    .form-textarea-mag:focus {
+        outline: none;
+        border-color: var(--mag-primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-textarea-mag {
+        min-height: 140px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    .form-hint-mag {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        font-size: 13px;
+        color: var(--mag-gray);
+    }
+
+    .form-hint-mag i {
+        color: var(--mag-primary);
+    }
+
+    .form-error-mag {
+        color: #ef4444;
+        font-size: 13px;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 500;
+    }
+
+    /* Sidebar Cards */
+    .upload-card-mag {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 16px;
+        border: 2px dashed var(--mag-border);
+        overflow: hidden;
+        transition: var(--transition);
+    }
+
+    .upload-card-mag:hover {
+        border-color: var(--mag-primary);
+        background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    }
+
+    .upload-card-mag.has-file {
+        border-style: solid;
+        border-color: var(--mag-success);
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    }
+
+    .upload-header-mag {
+        padding: 16px 20px;
+        background: rgba(255, 255, 255, 0.6);
+        border-bottom: 1px solid var(--mag-border);
+    }
+
+    .upload-header-mag h6 {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--mag-dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .upload-header-mag i {
+        color: var(--mag-primary);
+    }
+
+    .upload-body-mag {
+        padding: 20px;
+    }
+
+    /* File Preview */
+    .file-preview-mag {
+        text-align: center;
+        margin-bottom: 16px;
+    }
+
+    .file-preview-mag img {
+        max-height: 150px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        transition: var(--transition);
+    }
+
+    .file-preview-mag img:hover {
+        transform: scale(1.05);
+    }
+
+    .file-info-mag {
+        background: #fff;
+        padding: 12px;
+        border-radius: 10px;
+        margin-top: 12px;
+    }
+
+    .file-info-mag small {
+        color: var(--mag-gray);
+        word-break: break-all;
+    }
+
+    .btn-view-pdf {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        color: #fff;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+    .btn-view-pdf:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        color: #fff;
+    }
+
+    /* Custom File Input */
+    .file-input-wrapper {
+        position: relative;
+    }
+
+    .file-input-mag {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .file-input-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 32px 24px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        background: #fff;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .file-input-wrapper:hover .file-input-label {
+        border-color: var(--mag-primary);
+        background: #f5f3ff;
+    }
+
+    .file-input-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--mag-primary);
+        font-size: 20px;
+    }
+
+    .file-input-text {
+        text-align: center;
+    }
+
+    .file-input-text strong {
+        display: block;
+        color: var(--mag-dark);
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .file-input-text span {
+        color: var(--mag-gray);
+        font-size: 12px;
+    }
+
+    .file-selected {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: #f0fdf4;
+        border-radius: 12px;
+        border: 1px solid #86efac;
+    }
+
+    .file-selected.active {
+        display: flex;
+    }
+
+    .file-selected-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #22c55e;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Form Footer */
+    .form-footer-mag {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 28px;
+        border-top: 1px solid var(--mag-border);
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .required-note {
+        color: var(--mag-gray);
+        font-size: 13px;
+    }
+
+    .required-note span {
+        color: #ef4444;
+        font-weight: 700;
+    }
+
+    .form-actions-mag {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-cancel-mag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 28px;
+        background: #f1f5f9;
+        color: #475569;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+    }
+
+    .btn-cancel-mag:hover {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .btn-submit-mag {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 32px;
+        background: linear-gradient(135deg, var(--mag-primary) 0%, var(--mag-secondary) 100%);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-submit-mag::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s;
+    }
+
+    .btn-submit-mag:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-submit-mag:hover::before {
+        left: 100%;
+    }
+
+    /* Select2 Customization */
+    .select2-container--bootstrap4 .select2-selection {
+        border: 2px solid var(--mag-border) !important;
+        border-radius: 12px !important;
+        padding: 10px 14px !important;
+        height: auto !important;
+        min-height: 50px;
+    }
+
+    .select2-container--bootstrap4 .select2-selection:focus {
+        border-color: var(--mag-primary) !important;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+    }
+
+    /* Animations */
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-header-mag,
+    .form-container-mag {
+        animation: slideUp 0.6s ease-out;
+    }
+
+    .form-container-mag {
+        animation-delay: 0.1s;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-header-mag {
+            flex-direction: column;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .title-text h1 {
+            font-size: 22px;
+        }
+
+        .form-body-mag {
+            padding: 24px;
+        }
+
+        .form-footer-mag {
+            flex-direction: column-reverse;
+        }
+
+        .form-actions-mag {
+            width: 100%;
+        }
+
+        .btn-cancel-mag,
+        .btn-submit-mag {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+
+<!-- Page Header -->
+<div class="page-header-mag">
+    <div class="page-title-mag">
+        <div class="title-icon">
+            <i class="fas fa-{% if magazine is defined and magazine.id %}edit{% else %}plus-circle{% endif %}"></i>
+        </div>
+        <div class="title-text">
+            <h1>
+                {% if magazine is defined and magazine.id %}
+                    Modifier le Magazine
+                {% else %}
+                    Nouveau Magazine
+                {% endif %}
+            </h1>
+            <p>
+                {% if magazine is defined and magazine.id %}
+                    Modifiez les informations de {{ magazine.title }}
+                {% else %}
+                    Créez un nouveau magazine pour votre collection
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    <a href="{{ path('app_magazine_index') }}" class="btn-back-mag">
+        <i class="fas fa-arrow-left"></i> Retour à la liste
+    </a>
+</div>
+
+<!-- Form Container -->
+<div class="form-container-mag">
+    <div class="form-header-mag">
+        <h6>
+            <i class="fas fa-{% if magazine is defined and magazine.id %}edit{% else %}plus-circle{% endif %}"></i>
+            {% if magazine is defined and magazine.id %}
+                Formulaire de modification
+            {% else %}
+                Formulaire de création
+            {% endif %}
+        </h6>
+    </div>
+    
+    <div class="form-body-mag">
+        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Title -->
+                <div class="form-group-mag">
+                    <label class="form-label-mag">
+                        Titre du magazine <span class="required">*</span>
+                    </label>
+                    {{ form_widget(form.title, {'attr': {
+                        'class': 'form-input-mag',
+                        'placeholder': 'Ex: Magazine Santé - Janvier 2024'
+                    }}) }}
+                    {% if form_errors(form.title) %}
+                        <div class="form-error-mag">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form_errors(form.title) }}
+                        </div>
+                    {% endif %}
                 </div>
-                <a class="mag-link" href="{{ path('app_magazine_index') }}">
-                    <i class="bi bi-arrow-left me-2"></i>
-                    Back to list
-                </a>
+
+                <!-- Description -->
+                <div class="form-group-mag">
+                    <label class="form-label-mag">
+                        Description <span class="required">*</span>
+                    </label>
+                    {{ form_widget(form.description, {'attr': {
+                        'class': 'form-textarea-mag',
+                        'placeholder': 'Décrivez le contenu de ce magazine...',
+                        'rows': '6'
+                    }}) }}
+                    <div class="form-hint-mag">
+                        <i class="fas fa-info-circle"></i>
+                        Une description claire et détaillée aide les lecteurs à comprendre le contenu
+                    </div>
+                    {% if form_errors(form.description) %}
+                        <div class="form-error-mag">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form_errors(form.description) }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    <!-- Date -->
+                    <div class="col-md-6">
+                        <div class="form-group-mag">
+                            <label class="form-label-mag">
+                                Date de création <span class="required">*</span>
+                            </label>
+                            {{ form_widget(form.dateCreate, {'attr': {
+                                'class': 'form-input-mag'
+                            }}) }}
+                            {% if form_errors(form.dateCreate) %}
+                                <div class="form-error-mag">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    {{ form_errors(form.dateCreate) }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-6">
+                        <div class="form-group-mag">
+                            <label class="form-label-mag">
+                                Statut <span class="required">*</span>
+                            </label>
+                            {{ form_widget(form.statut, {'attr': {
+                                'class': 'form-select-mag select2'
+                            }}) }}
+                            <div class="form-hint-mag">
+                                <i class="fas fa-info-circle"></i>
+                                Brouillon = visible admin uniquement | Publié = visible sur le site
+                            </div>
+                            {% if form_errors(form.statut) %}
+                                <div class="form-error-mag">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    {{ form_errors(form.statut) }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="mag-card mag-form mb-4">
-                {{ include('magazine-admin/magazine/_form.html.twig', {'button_label': 'Update'}) }}
-            </div>
+            <div class="col-lg-4">
+                <!-- Image Upload -->
+                <div class="upload-card-mag {% if magazine is defined and magazine.image %}has-file{% endif %} mb-4">
+                    <div class="upload-header-mag">
+                        <h6>
+                            <i class="fas fa-image"></i>
+                            Image du magazine
+                        </h6>
+                    </div>
+                    <div class="upload-body-mag">
+                        {% if magazine is defined and magazine.image %}
+                            <div class="file-preview-mag">
+                                <img src="{{ asset('uploads/' ~ magazine.image) }}" alt="{{ magazine.title }}">
+                                <div class="file-info-mag">
+                                    <small>{{ magazine.image }}</small>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="file-input-wrapper">
+                            {{ form_widget(form.image, {'attr': {
+                                'class': 'file-input-mag',
+                                'id': 'magazineImage'
+                            }}) }}
+                            <label for="magazineImage" class="file-input-label" id="imageLabel">
+                                <div class="file-input-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <div class="file-input-text">
+                                    <strong>Cliquez pour uploader</strong>
+                                    <span>ou glissez-déposez</span>
+                                </div>
+                            </label>
+                            <div class="file-selected" id="imageSelected">
+                                <div class="file-selected-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <strong>Fichier sélectionné</strong>
+                                    <div id="imageFileName" class="text-success" style="font-size: 13px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-hint-mag mt-3">
+                            <i class="fas fa-info-circle"></i>
+                            Formats: JPEG, PNG, GIF, WebP (Max: 2Mo)
+                        </div>
+                        
+                        {% if form_errors(form.image) %}
+                            <div class="form-error-mag mt-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ form_errors(form.image) }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
 
-            <div class="mag-card d-flex align-items-center justify-content-between">
-                <span class="text-muted">Remove this magazine permanently.</span>
-                {{ include('magazine-admin/magazine/_delete_form.html.twig') }}
+                <!-- PDF Upload -->
+                <div class="upload-card-mag {% if magazine is defined and magazine.pdfFile %}has-file{% endif %}">
+                    <div class="upload-header-mag">
+                        <h6>
+                            <i class="fas fa-file-pdf"></i>
+                            Fichier PDF
+                        </h6>
+                    </div>
+                    <div class="upload-body-mag">
+                        {% if magazine is defined and magazine.pdfFile %}
+                            <div class="alert alert-info mb-3" style="border-radius: 10px; border: none; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
+                                <i class="fas fa-file-pdf text-primary mb-2" style="font-size: 24px;"></i>
+                                <div class="mb-2">
+                                    <strong class="text-dark">Fichier actuel:</strong><br>
+                                    <small class="text-muted">{{ magazine.pdfFile }}</small>
+                                </div>
+                                <a href="{{ asset('uploads/' ~ magazine.pdfFile) }}" target="_blank" class="btn-view-pdf">
+                                    <i class="fas fa-eye"></i> Voir le PDF
+                                </a>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="file-input-wrapper">
+                            {{ form_widget(form.pdfFileUpload, {'attr': {
+                                'class': 'file-input-mag',
+                                'id': 'magazinePdf'
+                            }}) }}
+                            <label for="magazinePdf" class="file-input-label" id="pdfLabel">
+                                <div class="file-input-icon" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #dc2626;">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                                <div class="file-input-text">
+                                    <strong>Télécharger un PDF</strong>
+                                    <span>Format PDF uniquement</span>
+                                </div>
+                            </label>
+                            <div class="file-selected" id="pdfSelected">
+                                <div class="file-selected-icon" style="background: #dc2626;">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <strong>PDF sélectionné</strong>
+                                    <div id="pdfFileName" class="text-success" style="font-size: 13px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-hint-mag mt-3">
+                            <i class="fas fa-info-circle"></i>
+                            Format: PDF (Max: 10Mo)
+                        </div>
+                        
+                        {% if form_errors(form.pdfFileUpload) %}
+                            <div class="form-error-mag mt-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ form_errors(form.pdfFileUpload) }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+
+        <div class="form-footer-mag">
+            <div class="required-note">
+                <span>*</span> Champs obligatoires
+            </div>
+            <div class="form-actions-mag">
+                <a href="{{ path('app_magazine_index') }}" class="btn-cancel-mag">
+                    <i class="fas fa-times"></i> Annuler
+                </a>
+                <button type="submit" class="btn-submit-mag">
+                    <i class="fas fa-save"></i>
+                    {% if magazine is defined and magazine.id %}
+                        Mettre à jour
+                    {% else %}
+                        Créer le magazine
+                    {% endif %}
+                </button>
+            </div>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+
+<script>
+    // File input handling
+    function handleFileInput(inputId, labelId, selectedId, fileNameId) {
+        const input = document.getElementById(inputId);
+        const label = document.getElementById(labelId);
+        const selected = document.getElementById(selectedId);
+        const fileName = document.getElementById(fileNameId);
+
+        if (input) {
+            input.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    label.style.display = 'none';
+                    selected.classList.add('active');
+                    fileName.textContent = this.files[0].name;
+                    
+                    // Preview for images
+                    if (inputId === 'magazineImage' && this.files[0].type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // You can add image preview logic here
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                }
+            });
+        }
+    }
+
+    handleFileInput('magazineImage', 'imageLabel', 'imageSelected', 'imageFileName');
+    handleFileInput('magazinePdf', 'pdfLabel', 'pdfSelected', 'pdfFileName');
+
+    // Initialize Select2
+    $(document).ready(function() {
+        if ($.fn.select2) {
+            $('.select2').select2({
+                theme: 'bootstrap4',
+                width: '100%',
+                minimumResultsForSearch: Infinity
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
 {% endblock %}

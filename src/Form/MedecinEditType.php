@@ -154,24 +154,33 @@ class MedecinEditType extends AbstractType
                 'type' => PasswordType::class,
                 'invalid_message' => 'The password fields must match.',
                 'options' => ['attr' => ['class' => 'form-control']],
-                'required' => false,
+                'required' => $options['is_new'],
                 'first_options'  => [
-                    'label' => 'New Password',
+                    'label' => $options['is_new'] ? 'Password *' : 'New Password',
                     'attr' => [
-                        'placeholder' => 'Leave blank to keep current password',
+                        'placeholder' => $options['is_new'] ? 'Minimum 6 characters' : 'Leave blank to keep current password',
                         'autocomplete' => 'new-password'
                     ],
                     'help' => 'Minimum 6 characters'
                 ],
                 'second_options' => [
-                    'label' => 'Repeat Password',
+                    'label' => $options['is_new'] ? 'Repeat Password *' : 'Repeat Password',
                     'attr' => [
-                        'placeholder' => 'Leave blank to keep current password',
+                        'placeholder' => $options['is_new'] ? 'Enter same password again' : 'Leave blank to keep current password',
                         'autocomplete' => 'new-password'
                     ]
                 ],
                 'mapped' => false,
-                'constraints' => [
+                'constraints' => $options['is_new'] ? [
+                    new \Symfony\Component\Validator\Constraints\NotBlank([
+                        'message' => 'Please enter a password',
+                    ]),
+                    new Length([
+                        'min' => 6,
+                        'minMessage' => 'Your password should be at least {{ limit }} characters',
+                        'max' => 4096,
+                    ]),
+                ] : [
                     new Length([
                         'min' => 6,
                         'minMessage' => 'Your password should be at least {{ limit }} characters',
@@ -185,7 +194,9 @@ class MedecinEditType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Medecin::class,
+            'is_new' => false,
             'attr' => ['class' => 'needs-validation', 'novalidate' => 'novalidate']
         ]);
+        $resolver->setAllowedTypes('is_new', 'bool');
     }
 }

@@ -14,19 +14,6 @@
 </head>
 
 <body>
-  <header class="border-bottom bg-white">
-    <div class="container py-3 d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center gap-2">
-        <i class="bi bi-grid-fill text-primary"></i>
-        <span class="fw-bold">Admin Panel</span>
-      </div>
-      <nav class="d-flex gap-3">
-        <a class="text-decoration-none" href="{{ path('app_magazine_index') }}">Magazines</a>
-        <a class="text-decoration-none" href="{{ path('app_home') }}">Front office</a>
-      </nav>
-    </div>
-  </header>
-
   <main>
     {% block body %}{% endblock %}
   </main>

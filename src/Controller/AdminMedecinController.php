@@ -29,6 +29,43 @@ class AdminMedecinController extends AbstractController
         $this->doctorVerificationService = $doctorVerificationService;
     }
 
+    #[Route('/new', name: 'admin_medecin_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $medecin = new Medecin();
+        $form = $this->createForm(MedecinEditType::class, $medecin, [
+            'is_new' => true,
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('plainPassword')->getData();
+            if ($plainPassword) {
+                $medecin->setPassword(
+                    $this->passwordHasher->hashPassword($medecin, $plainPassword)
+                );
+            } else {
+                // For a new doctor, we need a password
+                $this->addFlash('error', 'Un mot de passe est requis pour un nouveau médecin.');
+                return $this->render('admin_medecin/new.html.twig', [
+                    'medecin' => $medecin,
+                    'form' => $form,
+                ]);
+            }
+
+            $entityManager->persist($medecin);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Médecin créé avec succès!');
+            return $this->redirectToRoute('admin_medecin_index');
+        }
+
+        return $this->render('admin_medecin/new.html.twig', [
+            'medecin' => $medecin,
+            'form' => $form->createView(),
+        ]);
+    }
+
     #[Route('/', name: 'admin_medecin_index', methods: ['GET'])]
     public function index(MedecinRepository $medecinRepository): Response
     {

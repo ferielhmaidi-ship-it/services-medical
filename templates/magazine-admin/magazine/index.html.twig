@@ -1,75 +1,204 @@
-{% extends 'magazine-admin/base.html.twig' %}
+{# templates/magazine-admin/magazine/index.html.twig #}
+{% extends 'base_admin.html.twig' %}
 
-{% block title %}Magazine index{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-    {% include 'magazine-admin/magazine/_styles.html.twig' %}
-{% endblock %}
-
-{% block body_class %}magazine-page{% endblock %}
+{% block title %}Gestion des Magazines{% endblock %}
 
 {% block body %}
-    <section class="mag-shell">
-        <div class="container">
-            <div class="mag-header">
-                <div>
-                    <h1 class="mag-title">Magazine library</h1>
-                    <p class="mag-subtitle">Manage your editorial content in one clean view.</p>
-                </div>
-                <div class="mag-toolbar">
-                    <a class="btn btn-mag" href="{{ path('app_magazine_new') }}">
-                        <i class="bi bi-plus-lg me-2"></i>
-                        Create new
-                    </a>
-                </div>
-            </div>
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-book text-primary"></i> Gestion des Magazines
+        </h1>
+        <div>
+            <a href="{{ path('app_magazine_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Nouveau Magazine
+            </a>
+            <span class="badge badge-primary ml-2">
+                <i class="fas fa-book"></i> {{ magazines|length }} Magazine(s)
+            </span>
+        </div>
+    </div>
 
-            <div class="mag-card">
-                <div class="table-responsive">
-                    <table class="table mag-table align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>Image</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th class="text-end">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for magazine in magazines %}
-                            <tr>
-                                <td class="fw-semibold text-dark">{{ magazine.title }}</td>
-                                <td class="text-muted">{{ magazine.description|slice(0, 50) }}...</td>
-                                <td>
-                                    {% if magazine.image is defined and magazine.image %}
-                                        <img src="{{ asset('uploads/' ~ magazine.image) }}" alt="cover" style="width: 50px; height: 50px; object-fit: cover;" class="rounded shadow-sm">
-                                    {% else %}
-                                        <span class="text-muted small">No image</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ magazine.dateCreate ? magazine.dateCreate|date('Y-m-d') : '—' }}</td>
-                                <td><span class="mag-badge">{{ magazine.statut }}</span></td>
-                                <td class="text-end">
-                                    <div class="mag-actions d-flex justify-content-end gap-2">
-                                        <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_magazine_show', {'id': magazine.id}) }}">View</a>
-                                        <a class="btn btn-outline-primary btn-sm" href="{{ path('app_magazine_edit', {'id': magazine.id}) }}">Edit</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center text-muted py-4">
-                                    No magazines yet. Click "Create new" to add the first one.
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Liste des Magazines</h6>
+            <div>
+                <a href="{{ path('app_article_index') }}" class="btn btn-info btn-sm">
+                    <i class="fas fa-newspaper"></i> Voir les Articles
+                </a>
             </div>
         </div>
-    </section>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="magazineTable" width="100%" cellspacing="0">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th>Titre</th>
+                            <th>Description</th>
+                            <th>Date de création</th>
+                            <th>Statut</th>
+                            <th>Articles</th>
+                            <th>PDF</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for magazine in magazines %}
+                        <tr>
+                            <td>{{ magazine.id }}</td>
+                            <td class="text-center">
+                                {% if magazine.image %}
+                                    <img src="{{ asset('uploads/' ~ magazine.image) }}" 
+                                         alt="{{ magazine.title }}" 
+                                         class="img-thumbnail" 
+                                         style="width: 60px; height: 60px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center" 
+                                         style="width: 60px; height: 60px; border-radius: 4px;">
+                                        <i class="fas fa-book fa-2x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ magazine.title }}</strong>
+                            </td>
+                            <td>
+                                {{ magazine.description|length > 50 ? magazine.description|slice(0, 50) ~ '...' : magazine.description }}
+                            </td>
+                            <td>
+                                {{ magazine.dateCreate|date('d/m/Y') }}<br>
+                                <small class="text-muted">{{ magazine.dateCreate|date('H:i') }}</small>
+                            </td>
+                            <td>
+                                {% if magazine.statut == 'published' %}
+                                    <span class="badge badge-success"><i class="fas fa-check-circle"></i> Publié</span>
+                                {% elseif magazine.statut == 'draft' %}
+                                    <span class="badge badge-warning"><i class="fas fa-pencil-alt"></i> Brouillon</span>
+                                {% else %}
+                                    <span class="badge badge-secondary"><i class="fas fa-archive"></i> Archivé</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-info">
+                                    <i class="fas fa-newspaper"></i> {{ magazine.articles|length }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                {% if magazine.pdfFile %}
+                                    <a href="{{ asset('uploads/' ~ magazine.pdfFile) }}" 
+                                       target="_blank" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       data-toggle="tooltip"
+                                       title="Voir le PDF">
+                                        <i class="fas fa-file-pdf fa-lg"></i>
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">
+                                        <i class="fas fa-file-pdf"></i> Aucun
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ path('app_magazine_show', {'id': magazine.id}) }}"
+                                       class="btn btn-info btn-sm"
+                                       data-toggle="tooltip"
+                                       title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('app_magazine_edit', {'id': magazine.id}) }}"
+                                       class="btn btn-warning btn-sm"
+                                       data-toggle="tooltip"
+                                       title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-danger btn-sm"
+                                            data-toggle="modal"
+                                            data-target="#deleteModal{{ magazine.id }}"
+                                            title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Delete Modal -->
+                                <div class="modal fade" id="deleteModal{{ magazine.id }}" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirmer la suppression</h5>
+                                                <button type="button" class="close" data-dismiss="modal">
+                                                    <span>&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Êtes-vous sûr de vouloir supprimer le magazine <strong>{{ magazine.title }}</strong> ?</p>
+                                                <div class="alert alert-danger">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                    <strong>Attention:</strong> Cette action supprimera tous les articles associés et est irréversible !
+                                                </div>
+                                                {% if magazine.articles|length > 0 %}
+                                                    <p class="mb-0 text-warning">
+                                                        <i class="fas fa-info-circle"></i> 
+                                                        {{ magazine.articles|length }} article(s) seront également supprimés.
+                                                    </p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                                                <form method="post" action="{{ path('app_magazine_delete', {'id': magazine.id}) }}" style="display: inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ magazine.id) }}">
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <i class="fas fa-trash"></i> Supprimer définitivement
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center py-5">
+                                <i class="fas fa-book fa-4x text-muted mb-3"></i>
+                                <h5 class="text-muted">Aucun magazine trouvé</h5>
+                                <p class="text-muted">Commencez par créer votre premier magazine</p>
+                                <a href="{{ path('app_magazine_new') }}" class="btn btn-primary mt-2">
+                                    <i class="fas fa-plus-circle"></i> Créer un magazine
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            $('#magazineTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
+                },
+                "order": [[4, "desc"]],
+                "pageLength": 10,
+                "responsive": true,
+                "columnDefs": [
+                    { "orderable": false, "targets": [1, 6, 7, 8] }
+                ]
+            });
+
+            // Initialize tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
 {% endblock %}

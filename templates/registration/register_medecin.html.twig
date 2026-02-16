@@ -269,6 +269,7 @@
                                     }}) }}
                                 </div>
                                 <div class="form-text help-text">{{ form_help(registrationForm.email) }}</div>
+                                {{ form_errors(registrationForm.email) }}
                             </div>
 
                             <div class="col-md-6">
@@ -283,6 +284,7 @@
                                     }}) }}
                                 </div>
                                 <div class="form-text help-text">{{ form_help(registrationForm.phoneNumber) }}</div>
+                                {{ form_errors(registrationForm.phoneNumber) }}
                             </div>
 
                             <!-- Row 2: CIN and Specialty -->
@@ -320,6 +322,7 @@
                                         'placeholder': 'Ahmed'
                                     }}) }}
                                 </div>
+                                {{ form_errors(registrationForm.firstName) }}
                             </div>
 
                             <div class="col-md-4">
@@ -333,6 +336,7 @@
                                         'placeholder': 'Ben Ali'
                                     }}) }}
                                 </div>
+                                {{ form_errors(registrationForm.lastName) }}
                             </div>
 
                             <div class="col-md-4">
@@ -345,6 +349,7 @@
                                         'class': 'form-select border-start-0 bg-light'
                                     }}) }}
                                 </div>
+                                {{ form_errors(registrationForm.gender) }}
                             </div>
 
                             <!-- Row 4: Age and Governorate -->
@@ -360,6 +365,7 @@
                                     }}) }}
                                 </div>
                                 <div class="form-text help-text">{{ form_help(registrationForm.age) }}</div>
+                                {{ form_errors(registrationForm.age) }}
                             </div>
 
                             <div class="col-md-4">
@@ -372,6 +378,7 @@
                                         'class': 'form-select border-start-0 bg-light'
                                     }}) }}
                                 </div>
+                                {{ form_errors(registrationForm.governorate) }}
                             </div>
 
                             <div class="col-md-4">
@@ -391,6 +398,7 @@
                                         'placeholder': 'Votre adresse complète'
                                     }}) }}
                                 </div>
+                                {{ form_errors(registrationForm.address) }}
                             </div>
 
                             <!-- Education -->
@@ -407,6 +415,7 @@
                                     }}) }}
                                 </div>
                                 <div class="form-text help-text">{{ form_help(registrationForm.education) }}</div>
+                                {{ form_errors(registrationForm.education) }}
                             </div>
 
                             <!-- Experience -->
@@ -423,6 +432,7 @@
                                     }}) }}
                                 </div>
                                 <div class="form-text help-text">{{ form_help(registrationForm.experience) }}</div>
+                                {{ form_errors(registrationForm.experience) }}
                             </div>
 
                             <hr class="my-4">

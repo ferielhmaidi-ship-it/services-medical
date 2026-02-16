@@ -142,18 +142,16 @@
             <div class="form-group">
               <div class="select-wrapper">
                 <select name="department" id="department" class="form-select" required>
-                  <option value="" disabled selected>Select Department</option>
-                  <option value="cardiology">Cardiology</option>
-                  <option value="neurology">Neurology</option>
-                  <option value="pediatrics">Pediatrics</option>
-                  <option value="surgery">Surgery</option>
-                  <option value="emergency">Emergency</option>
+                  <option value="" disabled selected>Select Specialty</option>
+                  {% for spec in specialites %}
+                    <option value="{{ spec.id }}">{{ spec.nom }}</option>
+                  {% endfor %}
                 </select>
                 <label for="department" class="form-label">
                   <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
                   </svg>
-                  Department
+                  Specialty
                 </label>
                 <span class="select-arrow"></span>
               </div>
@@ -161,12 +159,8 @@
 
             <div class="form-group">
               <div class="select-wrapper">
-                <select name="doctor" id="doctor" class="form-select" required>
-                  <option value="" disabled selected>Select Doctor</option>
-                  <option value="dr-morgan">Dr. Jennifer Morgan</option>
-                  <option value="dr-kim">Dr. Robert Kim</option>
-                  <option value="dr-thompson">Dr. Sarah Thompson</option>
-                  <option value="dr-rivera">Dr. Michael Rivera</option>
+                <select name="doctor" id="doctor" class="form-select" required disabled>
+                  <option value="" disabled selected>Select a specialty first</option>
                 </select>
                 <label for="doctor" class="form-label">
                   <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1024,23 +1018,71 @@
     }
   }
 
+  // Fetch doctors based on specialty
+  document.getElementById('department').addEventListener('change', function() {
+    const specialiteId = this.value;
+    const doctorSelect = document.getElementById('doctor');
+    
+    doctorSelect.disabled = true;
+    doctorSelect.innerHTML = '<option value="" disabled selected>Loading doctors...</option>';
+    
+    fetch(`/api/doctors/${specialiteId}`)
+      .then(response => response.json())
+      .then(data => {
+        doctorSelect.innerHTML = '<option value="" disabled selected>Select Doctor</option>';
+        if (data.length === 0) {
+          doctorSelect.innerHTML = '<option value="" disabled selected>No doctors found</option>';
+        } else {
+          data.forEach(doctor => {
+            const option = document.createElement('option');
+            option.value = doctor.id;
+            option.textContent = doctor.name;
+            doctorSelect.appendChild(option);
+          });
+          doctorSelect.disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching doctors:', error);
+        doctorSelect.innerHTML = '<option value="" disabled selected>Error loading doctors</option>';
+      });
+  });
+
   // Form submission
   document.getElementById('appointmentForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const submitBtn = document.querySelector('.btn-submit');
+    const formData = new FormData(this);
     
     submitBtn.classList.add('loading');
     
-    setTimeout(() => {
+    fetch('{{ path("app_appointment_submit") }}', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
       submitBtn.classList.remove('loading');
-      submitBtn.classList.add('success');
       
-      setTimeout(() => {
-        document.querySelector('.form-step.active').style.display = 'none';
-        document.querySelector('.form-progress').style.display = 'none';
-        document.getElementById('formSuccess').classList.add('active');
-      }, 500);
-    }, 2000);
+      if (data.status === 'success') {
+        submitBtn.classList.add('success');
+        setTimeout(() => {
+          document.querySelector('.form-step.active').style.display = 'none';
+          document.querySelector('.form-progress').style.display = 'none';
+          document.getElementById('formSuccess').classList.add('active');
+          
+          // Smooth scroll to success message
+          document.getElementById('formSuccess').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 500);
+      } else {
+        alert(data.message || 'An error occurred during booking.');
+      }
+    })
+    .catch(error => {
+      submitBtn.classList.remove('loading');
+      console.error('Error submitting form:', error);
+      alert('An error occurred. Please check your connection and try again.');
+    });
   });
 
   function resetForm() {

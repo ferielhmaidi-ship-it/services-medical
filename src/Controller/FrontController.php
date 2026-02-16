@@ -109,8 +109,8 @@ class FrontController extends AbstractController
 
         if ($searchTerm) {
             $articles = $repo->createQueryBuilder('a')
-                ->where('a.title LIKE :search')
-                ->setParameter('search', '%'.$searchTerm.'%')
+                ->where('LOWER(a.title) LIKE LOWER(:search)')
+                ->setParameter('search', '%' . trim($searchTerm) . '%')
                 ->orderBy('a.id', 'DESC')
                 ->getQuery()
                 ->getResult();

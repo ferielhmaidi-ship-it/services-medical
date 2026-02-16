@@ -32,21 +32,31 @@ class MedecinRegistrationType extends AbstractType
                     'placeholder' => 'doctor@example.com'
                 ],
                 'label' => 'Email Address *',
-                'help' => 'This will be your login email'
+                'help' => 'This will be your login email',
+                'constraints' => [
+                    new NotBlank(['message' => 'Please enter your email']),
+                    new \Symfony\Component\Validator\Constraints\Email(['message' => 'Please enter a valid email address']),
+                ],
             ])
             ->add('firstName', TextType::class, [
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'John'
                 ],
-                'label' => 'First Name *'
+                'label' => 'First Name *',
+                'constraints' => [
+                    new NotBlank(['message' => 'Please enter your first name']),
+                ],
             ])
             ->add('lastName', TextType::class, [
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Doe'
                 ],
-                'label' => 'Last Name *'
+                'label' => 'Last Name *',
+                'constraints' => [
+                    new NotBlank(['message' => 'Please enter your last name']),
+                ],
             ])
             ->add('age', IntegerType::class, [
                 'required' => false,

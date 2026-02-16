@@ -247,6 +247,7 @@
                                     }}) }}
                                 </div>
                                 <div class="form-text help-text">{{ form_help(registrationForm.email) }}</div>
+                                {{ form_errors(registrationForm.email) }}
                             </div>
 
                             <div class="col-md-6">
@@ -261,6 +262,7 @@
                                     }}) }}
                                 </div>
                                 <div class="form-text help-text">{{ form_help(registrationForm.phoneNumber) }}</div>
+                                {{ form_errors(registrationForm.phoneNumber) }}
                             </div>
 
                             <!-- First Name and Last Name -->
@@ -275,6 +277,7 @@
                                         'placeholder': 'Ahmed'
                                     }}) }}
                                 </div>
+                                {{ form_errors(registrationForm.firstName) }}
                             </div>
 
                             <div class="col-md-6">
@@ -288,6 +291,7 @@
                                         'placeholder': 'Ben Ali'
                                     }}) }}
                                 </div>
+                                {{ form_errors(registrationForm.lastName) }}
                             </div>
 
                             <!-- Age, Gender, Date of Birth -->
@@ -303,6 +307,7 @@
                                     }}) }}
                                 </div>
                                 <div class="form-text help-text">{{ form_help(registrationForm.age) }}</div>
+                                {{ form_errors(registrationForm.age) }}
                             </div>
 
                             <div class="col-md-4">
@@ -315,6 +320,7 @@
                                         'class': 'form-select border-start-0 bg-light'
                                     }}) }}
                                 </div>
+                                {{ form_errors(registrationForm.gender) }}
                             </div>
 
                             <div class="col-md-4 date-input-wrapper">
@@ -328,6 +334,7 @@
                                     }}) }}
                                 </div>
                                 <div class="form-text help-text">{{ form_help(registrationForm.dateOfBirth) }}</div>
+                                {{ form_errors(registrationForm.dateOfBirth) }}
                             </div>
 
                             <!-- Address -->
@@ -344,6 +351,7 @@
                                     }}) }}
                                 </div>
                                 <div class="form-text help-text">{{ form_help(registrationForm.address) }}</div>
+                                {{ form_errors(registrationForm.address) }}
                             </div>
 
                             <!-- Insurance checkbox -->

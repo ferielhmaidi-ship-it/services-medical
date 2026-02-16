@@ -1,68 +1,987 @@
-{% extends 'magazine-admin/base.html.twig' %}
+{# templates/magazine-admin/magazine/show.html.twig #}
+{% extends 'base_admin.html.twig' %}
 
-{% block title %}Magazine{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-    {% include 'magazine-admin/magazine/_styles.html.twig' %}
-{% endblock %}
-
-{% block body_class %}magazine-page{% endblock %}
+{% block title %}Détails du Magazine - {{ magazine.title }}{% endblock %}
 
 {% block body %}
-    <section class="mag-shell">
-        <div class="container">
-            <div class="mag-header">
-                <div>
-                    <h1 class="mag-title">{{ magazine.title }}</h1>
-                    <p class="mag-subtitle">Magazine details and metadata.</p>
-                </div>
-                <div class="mag-actions">
-                    <a class="btn btn-outline-primary btn-sm" href="{{ path('app_magazine_edit', {'id': magazine.id}) }}">
-                        <i class="bi bi-pencil me-1"></i>
-                        Edit
-                    </a>
-                    <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_magazine_index') }}">
-                        Back to list
-                    </a>
-                </div>
-            </div>
+<style>
+    :root {
+        --mag-primary: #6366f1;
+        --mag-primary-dark: #4f46e5;
+        --mag-secondary: #ec4899;
+        --mag-accent: #f59e0b;
+        --mag-success: #10b981;
+        --mag-warning: #f59e0b;
+        --mag-danger: #ef4444;
+        --mag-info: #06b6d4;
+        --mag-dark: #1e293b;
+        --mag-light: #f8fafc;
+        --mag-gray: #64748b;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-            <div class="mag-card">
-                <div class="row g-4">
-                    <div class="col-lg-8">
-                        <div class="mb-3">
-                            <div class="text-uppercase text-muted small">Description</div>
-                            <div class="fw-semibold text-dark">{{ magazine.description }}</div>
-                        </div>
-                        <div class="d-flex flex-wrap gap-3">
-                            <div class="mag-kpi">
-                                <i class="bi bi-calendar3"></i>
-                                <span>{{ magazine.dateCreate ? magazine.dateCreate|date('Y-m-d') : '—' }}</span>
-                            </div>
-                            <div class="mag-kpi">
-                                <i class="bi bi-flag"></i>
-                                <span class="mag-badge">{{ magazine.statut }}</span>
-                            </div>
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+        border-radius: 20px;
+        padding: 24px 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e2e8f0;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--mag-dark);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .page-title-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--mag-primary) 0%, var(--mag-secondary) 100%);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 24px;
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-mag {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: var(--transition);
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-mag-back {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .btn-mag-back:hover {
+        background: #e2e8f0;
+        color: #334155;
+        transform: translateY(-2px);
+    }
+
+    .btn-mag-edit {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-mag-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-mag-add {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-mag-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Cards */
+    .mag-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        transition: var(--transition);
+    }
+
+    .mag-card:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .mag-card-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 20px 24px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .mag-card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--mag-dark);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .mag-card-title i {
+        color: var(--mag-primary);
+    }
+
+    .mag-card-body {
+        padding: 24px;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .status-published {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+    }
+
+    .status-draft {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+        border: 1px solid #fcd34d;
+    }
+
+    .status-archived {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    /* Magazine Info */
+    .mag-cover {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        transition: var(--transition);
+    }
+
+    .mag-cover:hover {
+        transform: translateY(-4px) rotateY(5deg);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .mag-cover img {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+    }
+
+    .mag-cover-placeholder {
+        width: 100%;
+        height: 280px;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+    }
+
+    .mag-cover-placeholder i {
+        font-size: 64px;
+        margin-bottom: 16px;
+    }
+
+    /* Info Table */
+    .info-table {
+        width: 100%;
+    }
+
+    .info-table th {
+        color: #64748b;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 12px 0;
+        width: 35%;
+        vertical-align: top;
+    }
+
+    .info-table td {
+        padding: 12px 0;
+        color: var(--mag-dark);
+        font-weight: 500;
+    }
+
+    .info-table tr:not(:last-child) {
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    /* Description Box */
+    .desc-box {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 16px;
+        padding: 20px;
+        border-left: 4px solid var(--mag-primary);
+    }
+
+    .desc-box h6 {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--mag-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .desc-box p {
+        color: #475569;
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    /* PDF Button */
+    .btn-pdf {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        color: #fff;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: var(--transition);
+        box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-pdf:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4);
+        color: #fff;
+    }
+
+    /* Articles Table */
+    .articles-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .articles-table th {
+        background: #f8fafc;
+        padding: 16px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .articles-table td {
+        padding: 16px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .articles-table tr:hover td {
+        background: #f8fafc;
+    }
+
+    .article-thumb {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        object-fit: cover;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .article-thumb-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+    }
+
+    .article-title {
+        font-weight: 600;
+        color: var(--mag-dark);
+        margin-bottom: 4px;
+    }
+
+    .article-excerpt {
+        font-size: 13px;
+        color: #64748b;
+        max-width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .btn-action {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+    }
+
+    .btn-view {
+        background: #e0f2fe;
+        color: #0284c7;
+    }
+
+    .btn-view:hover {
+        background: #0284c7;
+        color: #fff;
+        transform: scale(1.1);
+    }
+
+    .btn-edit-sm {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .btn-edit-sm:hover {
+        background: #f59e0b;
+        color: #fff;
+        transform: scale(1.1);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: #94a3b8;
+        font-size: 32px;
+    }
+
+    /* Stats Cards */
+    .stat-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        border: 1px solid #e2e8f0;
+        transition: var(--transition);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .stat-icon.blue {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #2563eb;
+    }
+
+    .stat-icon.green {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #059669;
+    }
+
+    .stat-icon.yellow {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #d97706;
+    }
+
+    .stat-icon.purple {
+        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        color: #4f46e5;
+    }
+
+    .stat-info h4 {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--mag-dark);
+        margin: 0;
+    }
+
+    .stat-info span {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Quick Actions */
+    .action-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: var(--transition);
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+    }
+
+    .action-btn i {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    .action-btn.edit {
+        background: #fff7ed;
+        color: #c2410c;
+        border: 2px solid #fed7aa;
+    }
+
+    .action-btn.edit i {
+        background: #fff;
+        color: #f97316;
+    }
+
+    .action-btn.edit:hover {
+        background: #f97316;
+        color: #fff;
+        border-color: #f97316;
+    }
+
+    .action-btn.add {
+        background: #f0fdf4;
+        color: #15803d;
+        border: 2px solid #bbf7d0;
+    }
+
+    .action-btn.add i {
+        background: #fff;
+        color: #22c55e;
+    }
+
+    .action-btn.add:hover {
+        background: #22c55e;
+        color: #fff;
+        border-color: #22c55e;
+    }
+
+    .action-btn.delete {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 2px solid #fecaca;
+    }
+
+    .action-btn.delete i {
+        background: #fff;
+        color: #ef4444;
+    }
+
+    .action-btn.delete:hover {
+        background: #ef4444;
+        color: #fff;
+        border-color: #ef4444;
+    }
+
+    /* Animations */
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .mag-card {
+        animation: slideUp 0.6s ease-out forwards;
+    }
+
+    .mag-card:nth-child(1) { animation-delay: 0.1s; }
+    .mag-card:nth-child(2) { animation-delay: 0.2s; }
+
+    /* Modal */
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        border-bottom: 1px solid #fecaca;
+    }
+
+    .modal-title {
+        font-weight: 700;
+        color: #991b1b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .modal-body .alert {
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        color: #991b1b;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .page-header {
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .page-actions {
+            justify-content: center;
+        }
+    }
+</style>
+
+<!-- Page Header -->
+<div class="page-header d-sm-flex align-items-center justify-content-between">
+    <h1 class="page-title">
+        <div class="page-title-icon">
+            <i class="fas fa-book-open"></i>
+        </div>
+        {{ magazine.title }}
+    </h1>
+    <div class="page-actions">
+        <a href="{{ path('app_magazine_index') }}" class="btn-mag btn-mag-back">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+        <a href="{{ path('app_magazine_edit', {'id': magazine.id}) }}" class="btn-mag btn-mag-edit">
+            <i class="fas fa-edit"></i> Modifier
+        </a>
+        <a href="{{ path('app_article_new', {'magazine_id': magazine.id}) }}" class="btn-mag btn-mag-add">
+            <i class="fas fa-plus-circle"></i> Nouvel article
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-xl-8 col-lg-7">
+        <!-- Magazine Info Card -->
+        <div class="mag-card mb-4">
+            <div class="mag-card-header">
+                <h6 class="mag-card-title">
+                    <i class="fas fa-info-circle"></i>
+                    Informations du Magazine
+                </h6>
+                {% if magazine.statut == 'published' %}
+                    <span class="status-badge status-published">
+                        <i class="fas fa-check-circle"></i> Publié
+                    </span>
+                {% elseif magazine.statut == 'draft' %}
+                    <span class="status-badge status-draft">
+                        <i class="fas fa-pencil-alt"></i> Brouillon
+                    </span>
+                {% else %}
+                    <span class="status-badge status-archived">
+                        <i class="fas fa-archive"></i> Archivé
+                    </span>
+                {% endif %}
+            </div>
+            <div class="mag-card-body">
+                <div class="row">
+                    <div class="col-md-5 mb-4 mb-md-0">
+                        <div class="mag-cover">
+                            {% if magazine.image %}
+                                <img src="{{ asset('uploads/' ~ magazine.image) }}" alt="{{ magazine.title }}">
+                            {% else %}
+                                <div class="mag-cover-placeholder">
+                                    <i class="fas fa-book"></i>
+                                    <span>Aucune image</span>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
-                    <div class="col-lg-4">
-                        <div class="text-uppercase text-muted small">Cover image</div>
-                        {% if magazine.image %}
-                            <div class="mt-2 text-center">
-                                <img src="{{ asset('uploads/' ~ magazine.image) }}" alt="{{ magazine.title }}" class="img-fluid rounded shadow-sm" style="max-height: 200px;">
-                            </div>
-                        {% else %}
-                            <div class="text-muted mt-2">No image provided.</div>
-                        {% endif %}
+                    <div class="col-md-7">
+                        <table class="info-table">
+                            <tr>
+                                <th><i class="fas fa-heading text-primary me-2"></i>Titre</th>
+                                <td class="h5 font-weight-bold">{{ magazine.title }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-calendar text-primary me-2"></i>Date création</th>
+                                <td>
+                                    {{ magazine.dateCreate|date('d F Y') }}
+                                    <span class="text-muted">à {{ magazine.dateCreate|date('H:i') }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-toggle-on text-primary me-2"></i>Statut</th>
+                                <td>
+                                    {% if magazine.statut == 'published' %}
+                                        <span class="badge bg-success text-white px-3 py-2 rounded-pill">
+                                            <i class="fas fa-check-circle me-1"></i> Publié
+                                        </span>
+                                    {% elseif magazine.statut == 'draft' %}
+                                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                                            <i class="fas fa-pencil-alt me-1"></i> Brouillon
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary text-white px-3 py-2 rounded-pill">
+                                            <i class="fas fa-archive me-1"></i> Archivé
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-file-pdf text-primary me-2"></i>Fichier PDF</th>
+                                <td>
+                                    {% if magazine.pdfFile %}
+                                        <a href="{{ asset('uploads/pdfs/' ~ magazine.pdfFile) }}" target="_blank" class="btn-pdf">
+                                            <i class="fas fa-download"></i>
+                                            Télécharger PDF
+                                        </a>
+                                        <div class="mt-2 text-muted small">
+                                            <i class="fas fa-file"></i> {{ magazine.pdfFile }}
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">
+                                            <i class="fas fa-times-circle text-danger me-1"></i>
+                                            Aucun PDF associé
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
-            </div>
 
-            <div class="mag-card mt-4 d-flex align-items-center justify-content-between">
-                <span class="text-muted">Remove this magazine permanently.</span>
-                {{ include('magazine-admin/magazine/_delete_form.html.twig') }}
+                <div class="desc-box mt-4">
+                    <h6>
+                        <i class="fas fa-align-left"></i>
+                        Description
+                    </h6>
+                    <p>{{ magazine.description|nl2br|default('Aucune description disponible.') }}</p>
+                </div>
             </div>
         </div>
-    </section>
+
+        <!-- Articles Card -->
+        <div class="mag-card">
+            <div class="mag-card-header">
+                <h6 class="mag-card-title">
+                    <i class="fas fa-newspaper"></i>
+                    Articles du Magazine
+                    <span class="badge bg-primary text-white rounded-pill ms-2">{{ magazine.articles|length }}</span>
+                </h6>
+                <a href="{{ path('app_article_new', {'magazine_id': magazine.id}) }}" class="btn-mag btn-mag-add btn-sm">
+                    <i class="fas fa-plus"></i> Ajouter
+                </a>
+            </div>
+            <div class="mag-card-body p-0">
+                {% if magazine.articles|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="articles-table">
+                            <thead>
+                                <tr>
+                                    <th width="60">Image</th>
+                                    <th>Article</th>
+                                    <th>Auteur</th>
+                                    <th>Date</th>
+                                    <th>Statut</th>
+                                    <th width="100">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for article in magazine.articles %}
+                                    <tr>
+                                        <td>
+                                            {% if article.image %}
+                                                <img src="{{ asset('uploads/' ~ article.image) }}" alt="" class="article-thumb">
+                                            {% else %}
+                                                <div class="article-thumb-placeholder">
+                                                    <i class="fas fa-file-alt"></i>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="article-title">{{ article.title }}</div>
+                                            <div class="article-excerpt">{{ article.resume|default('Pas de résumé') }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-semibold text-dark">
+                                                <i class="fas fa-user-circle text-muted me-1"></i>
+                                                {{ article.auteur }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">
+                                                <i class="fas fa-calendar-alt me-1"></i>
+                                                {{ article.datePub|date('d/m/Y') }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if article.statut == 'published' %}
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill">
+                                                    <i class="fas fa-check-circle me-1"></i>Publié
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 rounded-pill">
+                                                    <i class="fas fa-pencil-alt me-1"></i>Brouillon
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="{{ path('app_article_show', {'id': article.id}) }}" class="btn-action btn-view" data-bs-toggle="tooltip" title="Voir">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ path('app_article_edit', {'id': article.id}) }}" class="btn-action btn-edit-sm" data-bs-toggle="tooltip" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <h5 class="text-muted mb-2">Aucun article</h5>
+                        <p class="text-muted mb-4">Ce magazine ne contient pas encore d'articles.</p>
+                        <a href="{{ path('app_article_new', {'magazine_id': magazine.id}) }}" class="btn-mag btn-mag-add">
+                            <i class="fas fa-plus-circle"></i> Ajouter un article
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-xl-4 col-lg-5 mt-4 mt-lg-0">
+        <!-- Stats -->
+        <div class="mag-card mb-4">
+            <div class="mag-card-header">
+                <h6 class="mag-card-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Statistiques
+                </h6>
+            </div>
+            <div class="mag-card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>{{ magazine.articles|length }}</h4>
+                                <span>Articles</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>{{ magazine.articles|filter(a => a.statut == 'published')|length }}</h4>
+                                <span>Publiés</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon yellow">
+                                <i class="fas fa-pencil-alt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>{{ magazine.articles|filter(a => a.statut == 'draft')|length }}</h4>
+                                <span>Brouillons</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon purple">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>{{ magazine.pdfFile ? 'Oui' : 'Non' }}</h4>
+                                <span>PDF</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mag-card mb-4">
+            <div class="mag-card-header">
+                <h6 class="mag-card-title">
+                    <i class="fas fa-bolt"></i>
+                    Actions Rapides
+                </h6>
+            </div>
+            <div class="mag-card-body">
+                <div class="action-list">
+                    <a href="{{ path('app_magazine_edit', {'id': magazine.id}) }}" class="action-btn edit">
+                        <i class="fas fa-edit"></i>
+                        <span>Modifier le magazine</span>
+                    </a>
+                    <a href="{{ path('app_article_new', {'magazine_id': magazine.id}) }}" class="action-btn add">
+                        <i class="fas fa-plus"></i>
+                        <span>Ajouter un article</span>
+                    </a>
+                    <button type="button" class="action-btn delete" data-toggle="modal" data-target="#deleteModal">
+                        <i class="fas fa-trash-alt"></i>
+                        <span>Supprimer le magazine</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Info -->
+        <div class="mag-card">
+            <div class="mag-card-header">
+                <h6 class="mag-card-title">
+                    <i class="fas fa-server"></i>
+                    Informations système
+                </h6>
+            </div>
+            <div class="mag-card-body">
+                <table class="info-table">
+                    <tr>
+                        <th>ID Magazine</th>
+                        <td class="font-monospace text-primary">#{{ magazine.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Créé le</th>
+                        <td>{{ magazine.dateCreate|date('d/m/Y H:i') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Dernière modif</th>
+                        <td class="text-muted">—</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Confirmer la suppression
+                </h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">
+                    Êtes-vous sûr de vouloir supprimer définitivement le magazine 
+                    <strong class="text-dark">{{ magazine.title }}</strong> ?
+                </p>
+                <div class="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>Attention :</strong> Cette action supprimera également 
+                    <strong>{{ magazine.articles|length }} article(s)</strong> associé(s) et est irréversible !
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <form method="post" action="{{ path('app_magazine_delete', {'id': magazine.id}) }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ magazine.id) }}">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-2"></i>
+                        Supprimer définitivement
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
 {% endblock %}
