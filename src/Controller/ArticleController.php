@@ -31,7 +31,7 @@ final class ArticleController extends AbstractController
         EntityManagerInterface $entityManager,
         FileUploader $fileUploader
     ): Response {
-        // 🚨 CORRECTIF D'URGENCE SQL : Création forcée de la colonne image
+        //  CORRECTIF D'URGENCE SQL : Création forcée de la colonne image
         try {
             $conn = $entityManager->getConnection();
             // On vérifie si la colonne existe
@@ -83,7 +83,7 @@ final class ArticleController extends AbstractController
         EntityManagerInterface $entityManager,
         FileUploader $fileUploader
     ): Response {
-        // 🚨 CORRECTIF D'URGENCE SQL : Création forcée de la colonne image
+        //  CORRECTIF D'URGENCE SQL : Création forcée de la colonne image
         try {
             $conn = $entityManager->getConnection();
             $columns = $conn->fetchAllAssociative("SHOW COLUMNS FROM article LIKE 'image'");

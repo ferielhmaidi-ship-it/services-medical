@@ -20,6 +20,12 @@ class Appointment
     #[Assert\GreaterThan(value: 'today', message: 'The date must be in the future')]
     private ?\DateTimeInterface $date = null;
 
+    #[ORM\Column(type: Types::TIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $startTime = null;
+
+    #[ORM\Column(options: ["default" => 30])]
+    private ?int $duration = 30;
+
     #[ORM\Column(length: 255)]
     private ?string $status = 'pending';
 
@@ -35,16 +41,21 @@ class Appointment
     private ?Patient $patient = null;
 
     #[ORM\ManyToOne(inversedBy: 'appointments')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Medecin $medecin = null;
+    #[ORM\JoinColumn(name: "doctor_id", nullable: false)]
+    private ?Medecin $doctor = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(options: ["default" => false])]
+    private ?bool $reminderSent = false;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->status = 'pending';
+        $this->duration = 30;
+        $this->reminderSent = false;
     }
 
     public function getId(): ?int
@@ -60,6 +71,30 @@ class Appointment
     public function setDate(\DateTimeInterface $date): static
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getStartTime(): ?\DateTimeInterface
+    {
+        return $this->startTime;
+    }
+
+    public function setStartTime(?\DateTimeInterface $startTime): static
+    {
+        $this->startTime = $startTime;
+
+        return $this;
+    }
+
+    public function getDuration(): ?int
+    {
+        return $this->duration;
+    }
+
+    public function setDuration(int $duration): static
+    {
+        $this->duration = $duration;
 
         return $this;
     }
@@ -112,14 +147,14 @@ class Appointment
         return $this;
     }
 
-    public function getMedecin(): ?Medecin
+    public function getDoctor(): ?Medecin
     {
-        return $this->medecin;
+        return $this->doctor;
     }
 
-    public function setMedecin(?Medecin $medecin): static
+    public function setDoctor(?Medecin $doctor): static
     {
-        $this->medecin = $medecin;
+        $this->doctor = $doctor;
 
         return $this;
     }
@@ -132,6 +167,18 @@ class Appointment
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function isReminderSent(): ?bool
+    {
+        return $this->reminderSent;
+    }
+
+    public function setReminderSent(bool $reminderSent): static
+    {
+        $this->reminderSent = $reminderSent;
 
         return $this;
     }

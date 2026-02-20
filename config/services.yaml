@@ -53,3 +53,7 @@ services:
     App\Service\FileUploader:
         arguments:
             $targetDirectory: '%uploads_directory%'
+
+    App\Controller\IaController:
+        arguments:
+            $uploadDirectory: '%kernel.project_dir%/public/uploads'

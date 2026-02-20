@@ -17,7 +17,7 @@ class ArticleRepository extends ServiceEntityRepository
     }
 
     /**
-     * 🔍 Search articles inside one magazine
+     * Search articles inside one magazine
      * @return Article[]
      */
     public function findByMagazineAndSearch(int $magazineId, string $term): array
@@ -33,7 +33,7 @@ class ArticleRepository extends ServiceEntityRepository
     }
 
     /**
-     * 🌍 Global search
+     *  Global search
      * @return Article[]
      */
     public function findByGlobalSearch(string $term): array

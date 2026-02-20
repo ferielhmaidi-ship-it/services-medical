@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}TempsTravail index{% endblock %}
+
+{% block body %}
+    <h1>TempsTravail index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>DayOfWeek</th>
+                <th>StartTime</th>
+                <th>EndTime</th>
+                <th>DoctorId</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for temps_travail in temps_travails %}
+            <tr>
+                <td>{{ temps_travail.id }}</td>
+                <td>{{ temps_travail.dayOfWeek }}</td>
+                <td>{{ temps_travail.startTime ? temps_travail.startTime|date('H:i') : '' }}</td>
+                <td>{{ temps_travail.endTime ? temps_travail.endTime|date('H:i') : '' }}</td>
+                <td>{{ temps_travail.doctorId }}</td>
+                <td>
+                    <a href="{{ path('app_temps_travail_show', {'id': temps_travail.id}) }}">show</a>
+                    <a href="{{ path('app_temps_travail_edit', {'id': temps_travail.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_temps_travail_new') }}">Create new</a>
+{% endblock %}

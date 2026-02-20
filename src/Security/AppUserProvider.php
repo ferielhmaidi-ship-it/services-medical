@@ -50,6 +50,8 @@ class AppUserProvider implements UserProviderInterface
 
     public function supportsClass(string $class): bool
     {
-        return Admin::class === $class || Medecin::class === $class || Patient::class === $class;
+        return is_a($class, Admin::class, true) || 
+               is_a($class, Medecin::class, true) || 
+               is_a($class, Patient::class, true);
     }
 }

@@ -1,0 +1,773 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<style>
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --success: #059669;
+    --success-dark: #047857;
+    --danger: #dc2626;
+    --warning: #d97706;
+    --info: #0891b2;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --radius: 0.5rem;
+    --radius-lg: 0.75rem;
+}
+
+.page {
+    min-height: 100vh;
+    background: var(--gray-50);
+    /* TRANSLATION VERS LE BAS : 8rem au lieu de 2rem */
+    padding: 8rem 1rem 4rem;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header Card */
+.header-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--gray-200);
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.title-section h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.025em;
+}
+
+.subtitle {
+    color: var(--gray-500);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.patient-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--gray-100);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    font-weight: 500;
+    border: 1px solid var(--gray-200);
+}
+
+.patient-badge span {
+    color: var(--gray-900);
+    font-weight: 600;
+}
+
+/* Action Buttons */
+.action-bar {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-success {
+    background: var(--success);
+    color: white;
+}
+
+.btn-success:hover {
+    background: var(--success-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Section Cards */
+.section-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to right, white, var(--gray-50));
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gray-800);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-title::before {
+    content: '';
+    width: 4px;
+    height: 1.5rem;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+.count-badge {
+    background: var(--gray-100);
+    color: var(--gray-600);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* Tables */
+.table-container {
+    overflow-x: auto;
+    padding: 0 2rem 2rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.875rem;
+}
+
+thead {
+    position: sticky;
+    top: 0;
+}
+
+th {
+    background: var(--gray-50);
+    color: var(--gray-700);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 1rem 0.75rem;
+    text-align: left;
+    border-bottom: 2px solid var(--gray-200);
+    white-space: nowrap;
+}
+
+td {
+    padding: 1rem 0.75rem;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-700);
+    vertical-align: top;
+}
+
+tbody tr:hover {
+    background: var(--gray-50);
+    transition: background 0.15s ease;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Table Cell Content */
+.cell-id {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 600;
+    color: var(--gray-900);
+    font-size: 0.8125rem;
+}
+
+.cell-text {
+    max-width: 200px;
+    line-height: 1.5;
+    color: var(--gray-600);
+}
+
+.cell-date {
+    white-space: nowrap;
+    color: var(--gray-500);
+    font-weight: 500;
+}
+
+/* Action Buttons in Table */
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.btn-view {
+    background: var(--gray-100);
+    color: var(--info);
+}
+
+.btn-view:hover {
+    background: #cffafe;
+    color: #0e7490;
+}
+
+.btn-edit {
+    background: var(--gray-100);
+    color: var(--warning);
+}
+
+.btn-edit:hover {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.btn-delete {
+    background: var(--gray-100);
+    color: var(--danger);
+}
+
+.btn-delete:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--gray-400);
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state-text {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Document Form Section */
+.form-section {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+    padding: 2rem;
+    margin-top: 2rem;
+    /* Marge ajoutée pour compenser la suppression du footer */
+    margin-bottom: 4rem;
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.form-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gray-800);
+    margin: 0;
+}
+
+.btn-toggle {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-300);
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.btn-toggle:hover {
+    background: var(--gray-200);
+    border-color: var(--gray-400);
+}
+
+.btn-toggle.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+#document-form {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(2px);
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.form-content {
+    width: 100%;
+    max-width: 720px;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    background: #ffffff;
+    padding: 1.75rem;
+    border-radius: 1rem;
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-lg);
+    animation: modalIn 0.22s ease-out;
+    position: relative;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.form-content h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    color: var(--gray-900);
+}
+
+.modal-close {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 0.5rem;
+    background: #fff;
+    color: var(--gray-600);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close:hover {
+    background: var(--gray-100);
+    color: var(--gray-800);
+}
+
+.form-content label {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: var(--gray-700);
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+.form-content input,
+.form-content select,
+.form-content textarea {
+    width: 100%;
+    border: 1px solid var(--gray-300);
+    border-radius: 0.6rem;
+    padding: 0.72rem 0.85rem;
+    font-size: 0.9rem;
+    color: var(--gray-800);
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-content textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.form-content input:focus,
+.form-content select:focus,
+.form-content textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.form-content > div {
+    margin-bottom: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .cell-text {
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 768px) {
+    .page {
+        /* Sur mobile : 6rem au lieu de 8rem */
+        padding: 6rem 0.5rem 2rem;
+    }
+    
+    .header-top {
+        flex-direction: column;
+    }
+    
+    .action-bar {
+        width: 100%;
+    }
+    
+    .btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .section-header {
+        padding: 1rem;
+    }
+    
+    .table-container {
+        padding: 0 1rem 1rem;
+    }
+    
+    th, td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8125rem;
+    }
+    
+    .cell-text {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+</style>
+
+<div class="page">
+    <div class="container">
+        
+        <!-- Header Card -->
+        <div class="header-card">
+            <div class="header-top">
+                <div class="title-section">
+                    <h1>Dossier Médical</h1>
+                    <div class="subtitle">Gestion des rapports et ordonnances patient</div>
+                </div>
+                <div class="patient-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Rendez-vous #{{ idrendezvous }}
+                </div>
+            </div>
+            
+            <div class="action-bar">
+                <a href="{{ path('rapport_add', { return: app.request.uri }) }}" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nouveau Rapport
+                </a>
+                <a href="{{ path('ordonnance_add', { return: app.request.uri }) }}" class="btn btn-success">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Nouvelle Ordonnance
+                </a>
+            </div>
+        </div>
+
+        <!-- Rapports Section -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Rapports Médicaux</h2>
+                <span class="count-badge">{{ rapports|length }} rapport{{ rapports|length > 1 ? 's' : '' }}</span>
+            </div>
+            
+            {% if rapports is empty %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <div class="empty-state-text">Aucun rapport médical enregistré</div>
+                </div>
+            {% else %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Motif</th>
+                                <th>Diagnostic</th>
+                                <th>Observations</th>
+                                <th>Recommandations</th>
+                                <th>Traitements</th>
+                                <th>Date de création</th>
+                                <th style="text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in rapports %}
+                            <tr>
+                                <td><span class="cell-id">#{{ r.id }}</span></td>
+                                <td><div class="cell-text">{{ r.consultationReason }}</div></td>
+                                <td><div class="cell-text">{{ r.diagnosis }}</div></td>
+                                <td><div class="cell-text">{{ r.observations }}</div></td>
+                                <td><div class="cell-text">{{ r.recommendations }}</div></td>
+                                <td><div class="cell-text">{{ r.treatments }}</div></td>
+                                <td class="cell-date">{{ r.createdAt|date('d/m/Y H:i') }}</td>
+                                <td>
+                                    <div class="actions">
+                                        <a href="{{ path('rapport_show', { idrapport: r.id, source: 'dossier', return: app.request.uri }) }}" class="btn-icon btn-view" title="Voir">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                <circle cx="12" cy="12" r="3"></circle>
+                                            </svg>
+                                        </a>
+                                        <a href="{{ path('rapport_mod', { idrapport: r.id, return: app.request.uri }) }}" class="btn-icon btn-edit" title="Modifier">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                            </svg>
+                                        </a>
+                                        <a href="{{ path('rapport_delete', { idrapport: r.id }) }}" class="btn-icon btn-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce rapport ? Cette action est irréversible.')">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Ordonnances Section -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Ordonnances</h2>
+                <span class="count-badge">{{ ordonnances|length }} ordonnance{{ ordonnances|length > 1 ? 's' : '' }}</span>
+            </div>
+            
+            {% if ordonnances is empty %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">💊</div>
+                    <div class="empty-state-text">Aucune ordonnance enregistrée</div>
+                </div>
+            {% else %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Médicament</th>
+                                <th>Posologie</th>
+                                <th>Instructions</th>
+                                <th>Notes</th>
+                                <th>Date de création</th>
+                                <th style="text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for o in ordonnances %}
+                            <tr>
+                                <td><span class="cell-id">#{{ o.id }}</span></td>
+                                <td><div class="cell-text"><strong>{{ o.medicament }}</strong></div></td>
+                                <td><div class="cell-text">{{ o.posologie }}</div></td>
+                                <td><div class="cell-text">{{ o.instructions }}</div></td>
+                                <td><div class="cell-text">{{ o.notes }}</div></td>
+                                <td class="cell-date">{{ o.createdAt|date('d/m/Y H:i') }}</td>
+                                <td>
+                                    <div class="actions">
+                                        <a href="{{ path('ordonnance_show', { id: o.id, source: 'dossier', return: app.request.uri }) }}" class="btn-icon btn-view" title="Voir">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                <circle cx="12" cy="12" r="3"></circle>
+                                            </svg>
+                                        </a>
+                                        <a href="{{ path('ordonnance_mod', { id: o.id, return: app.request.uri }) }}" class="btn-icon btn-edit" title="Modifier">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                            </svg>
+                                        </a>
+                                        <a href="{{ path('ordonnance_del', { id: o.id }) }}" class="btn-icon btn-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette ordonnance ?')">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Document Form Section -->
+        {% if showCreateButton %}
+        <div class="form-section">
+            <div class="form-header">
+                <h3 class="form-title">Documents additionnels</h3>
+                <button class="btn-toggle" type="button" onclick="toggleForm()" id="toggleBtn">
+                    <span id="toggleText">Afficher le formulaire</span>
+                    <svg id="toggleIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.2s;">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="document-form" onclick="closeFormOnBackdrop(event)">
+                <div class="form-content" onclick="event.stopPropagation()">
+                    <button type="button" class="modal-close" onclick="toggleForm()" aria-label="Fermer la fenêtre">✕</button>
+                    <h4>Nouveau document</h4>
+                    {{ form_start(form) }}
+                    {{ form_row(form.nom) }}
+                    {{ form_row(form.type) }}
+                    {{ form_row(form.taille) }}
+                    {{ form_row(form.description) }}
+                    {% if form._token is defined %}
+                        {{ form_row(form._token) }}
+                    {% endif %}
+                    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button type="button" class="btn" style="background: var(--gray-200); color: var(--gray-700);" onclick="toggleForm()">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer le document</button>
+                    </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- FOOTER SUPPRIMÉ -->
+
+<script>
+function toggleForm() {
+    const form = document.getElementById('document-form');
+    const btn = document.getElementById('toggleBtn');
+    const text = document.getElementById('toggleText');
+    const icon = document.getElementById('toggleIcon');
+    
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        btn.classList.add('active');
+        text.textContent = 'Masquer le formulaire';
+        icon.style.transform = 'rotate(180deg)';
+    } else {
+        form.style.display = 'none';
+        document.body.style.overflow = '';
+        btn.classList.remove('active');
+        text.textContent = 'Afficher le formulaire';
+        icon.style.transform = 'rotate(0deg)';
+    }
+}
+
+function closeFormOnBackdrop(event) {
+    if (event.target.id === 'document-form') {
+        toggleForm();
+    }
+}
+
+document.addEventListener('keydown', function (event) {
+    const form = document.getElementById('document-form');
+    if (event.key === 'Escape' && form && form.style.display === 'flex') {
+        toggleForm();
+    }
+});
+</script>
+
+{% endblock %}

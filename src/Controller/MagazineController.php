@@ -18,7 +18,7 @@ final class MagazineController extends AbstractController
     #[Route(name: 'app_magazine_index', methods: ['GET'])]
     public function index(MagazineRepository $magazineRepository, EntityManagerInterface $entityManager): Response
     {
-        // 🚨 CORRECTIF D'URGENCE SQL : Création forcée des colonnes image et pdf_file
+        //  CORRECTIF D'URGENCE SQL : Création forcée des colonnes image et pdf_file
         try {
             $conn = $entityManager->getConnection();
             

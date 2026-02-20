@@ -47,6 +47,7 @@ security:
         - { path: ^/terms$, roles: PUBLIC_ACCESS }
         - { path: ^/magazines, roles: PUBLIC_ACCESS }
         - { path: ^/question, roles: PUBLIC_ACCESS }
+        - { path: ^/annuaire$, roles: PUBLIC_ACCESS }
 
         # Protected routes by role
         - { path: ^/admin, roles: ROLE_ADMIN }

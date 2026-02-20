@@ -1,4 +1,4 @@
-<header id="header" class="header d-flex align-items-center fixed-top">
+﻿<header id="header" class="header d-flex align-items-center fixed-top">
   <div class="container position-relative d-flex align-items-center justify-content-between">
 
     <!-- Logo -->
@@ -9,16 +9,14 @@
     <nav id="navmenu" class="navmenu">
       <ul>
         <!-- Accueil -->
-        <li><a href="{{ path('app_home') }}" class="{{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Accueil</a></li>
+        <li><a href="{{ path('app_home') }}" class="{{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}">Accueil</a></li>
+        <li><a href="{{ path('app_annuaire') }}" class="{{ app.request.attributes.get('_route') == 'app_annuaire' ? 'active' : '' }}"><i class="fas fa-book-medical me-1"></i>Annuaire Médical</a></li>
         
         <!-- À propos -->
-        <li><a href="{{ path('app_about') }}" class="{{ app.request.get('_route') == 'app_about' ? 'active' : '' }}">À propos</a></li>
+        <li><a href="{{ path('app_about') }}" class="{{ app.request.attributes.get('_route') == 'app_about' ? 'active' : '' }}">À propos</a></li>
 
         <!-- Services -->
         <li><a href="{{ path('app_services') }}" class="{{ app.request.get('_route') == 'app_services' ? 'active' : '' }}">Services</a></li>
-
-        <!-- Annuaire -->
-        <li><a href="{{ path('app_annuaire') }}" class="{{ app.request.get('_route') == 'app_annuaire' ? 'active' : '' }}"><i class="fas fa-book-medical me-1"></i>Annuaire</a></li>
 
         <!-- Forum -->
         <li><a href="{{ path('question_index') }}" class="{{ app.request.get('_route') starts with 'question_' ? 'active' : '' }}">Forum</a></li>
@@ -31,35 +29,49 @@
           </ul>
         </li>
 
-         <!-- Rapports Dropdown -->
-        <li class="dropdown"><a href="#"><span>Rapports</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-          <ul>
-            <li><a href="#">Rapport 1</a></li>
-            <li><a href="#">Rapport 2</a></li>
-          </ul>
-        </li>
-
         {% if app.user %}
           <!-- Contenu spécifique à l'utilisateur -->
           {% if is_granted('ROLE_PATIENT') %}
             <!-- Trouver un médecin -->
-            <li><a href="{{ path('app_doctors') }}" class="{{ app.request.get('_route') == 'app_doctors' ? 'active' : '' }}">Médecins</a></li>
+            <li><a href="{{ path('app_doctors') }}" class="{{ app.request.attributes.get('_route') == 'app_doctors' ? 'active' : '' }}">Trouver un Médecin</a></li>
             
-            <!-- Prendre rendez-vous -->
-            <li><a href="{{ path('app_appointment') }}" class="{{ app.request.get('_route') == 'app_appointment' ? 'active' : '' }}">Rendez-vous</a></li>
+            <!-- Mes rendez-vous -->
+            <li><a href="{{ path('app_patient_appointment_list') }}" class="{{ app.request.attributes.get('_route') == 'app_patient_appointment_list' ? 'active' : '' }}">Mes Rendez-vous</a></li>
+
+            <!-- Rapports & Ordonnances -->
+            <li>
+              <a href="{{ path('patient_reports_prescriptions') }}" class="{{ app.request.attributes.get('_route') == 'patient_reports_prescriptions' ? 'active' : '' }}">
+                Rapports &amp; Ordonnances
+              </a>
+            </li>
           {% endif %}
 
           {% if is_granted('ROLE_ADMIN') %}
-            <li><a href="{{ path('admin_dashboard') }}" class="{{ app.request.get('_route') starts with 'admin_' ? 'active' : '' }}">Admin</a></li>
+            <li><a href="{{ path('admin_dashboard') }}" class="{{ app.request.attributes.get('_route') starts with 'admin' ? 'active' : '' }}">Panneau Admin</a></li>
           {% endif %}
 
+          {% if is_granted('ROLE_MEDECIN') %}
+            <li><a href="{{ path('app_calendrier') }}" class="{{ app.request.attributes.get('_route') == 'app_calendrier' ? 'active' : '' }}">Calendrier</a></li>
+            <li><a href="{{ path('app_doctor_appointments') }}" class="{{ app.request.attributes.get('_route') == 'app_doctor_appointments' ? 'active' : '' }}">Mes Rendez-vous</a></li>
+
+            <li class="dropdown">
+              <a href="#" class="{{ app.request.attributes.get('_route') starts with 'app_medical_record_' ? 'active' : '' }}">
+                <span>Dossier Médicales</span>
+                <i class="bi bi-chevron-down toggle-dropdown"></i>
+              </a>
+              <ul>
+                <li><a href="{{ path('pages_dossier_medical') }}">Documents</a></li>
+                <li><a href="{{ path('app_medical_record_prescriptions_reports') }}">Ordonnances et Rapports</a></li>
+                <li><a href="{{ path('app_medical_record_ai_assistance') }}">Assistance IA</a></li>
+              </ul>
+            </li>
+          {% endif %}
         {% else %}
-          <!-- Trouver un médecin (pour tous) -->
-          <li><a href="{{ path('app_doctors') }}" class="{{ app.request.get('_route') == 'app_doctors' ? 'active' : '' }}">Médecins</a></li>
+          <li><a href="{{ path('app_doctors') }}" class="{{ app.request.attributes.get('_route') == 'app_doctors' ? 'active' : '' }}">Trouver un Médecin</a></li>
         {% endif %}
 
-        <!-- Contact -->
-        <li><a href="{{ path('app_contact') }}" class="{{ app.request.get('_route') == 'app_contact' ? 'active' : '' }}">Contact</a></li>
+        <!-- Toujours afficher Contact -->
+        <li><a href="{{ path('app_contact') }}" class="{{ app.request.attributes.get('_route') == 'app_contact' ? 'active' : '' }}">Contact</a></li>
 
         <!-- Menu déroulant utilisateur (seulement connecté) -->
         {% if app.user %}
@@ -89,7 +101,7 @@
                 </li>
               {% elseif is_granted('ROLE_PATIENT') %}
                 <li>
-                  <a href="{{ path('patient_dashboard') }}">
+                   <a href="{{ path('patient_dashboard') }}">
                     <i class="fas fa-user-injured me-2"></i>Mon Espace
                   </a>
                 </li>
@@ -105,10 +117,9 @@
             </ul>
           </li>
         {% else %}
-          <!-- Connexion -->
-          <li class="ms-lg-3">
-            <a href="{{ path('app_login') }}" class="btn btn-primary text-white px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center" style="height: auto; line-height: normal;">
-              <i class="fas fa-sign-in-alt me-2"></i>Connexion
+          <li>
+            <a href="{{ path('app_login') }}" class="{{ app.request.attributes.get('_route') == 'app_login' ? 'active' : '' }}">
+              <i class="fas fa-sign-in-alt me-1"></i>Connexion
             </a>
           </li>
         {% endif %}
@@ -118,4 +129,3 @@
 
   </div>
 </header>
-

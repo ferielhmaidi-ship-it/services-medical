@@ -1,0 +1,617 @@
+{# templates/assistant.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Assistant IA Médical{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #059669;
+            --info: #0891b2;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+
+        .assistant-container {
+            max-width: 900px;
+            margin: 0 auto;
+            /* Translation vers le bas */
+            padding: 140px 1.5rem 4rem;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* Header */
+        .assistant-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .assistant-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .assistant-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .assistant-subtitle {
+            color: var(--gray-500);
+            font-size: 1rem;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(to right, white, var(--gray-50));
+            border-bottom: 1px solid var(--gray-200);
+            font-weight: 600;
+            color: var(--gray-800);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.875rem;
+        }
+
+        .form-hint {
+            font-weight: 400;
+            color: var(--gray-500);
+            font-size: 0.8125rem;
+            margin-left: 0.25rem;
+        }
+
+        /* File Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            background: var(--gray-50);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .upload-zone.has-file {
+            border-color: var(--success);
+            background: #f0fdf4;
+        }
+
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            color: var(--gray-400);
+        }
+
+        .upload-zone:hover .upload-icon {
+            color: var(--primary);
+        }
+
+        .upload-text {
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-subtext {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        .file-input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-name {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: white;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .upload-zone.has-file .file-name {
+            display: inline-block;
+        }
+
+        .upload-zone.has-file .upload-icon,
+        .upload-zone.has-file .upload-text,
+        .upload-zone.has-file .upload-subtext {
+            display: none;
+        }
+
+        /* Textarea */
+        .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Button */
+        .btn-submit {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Mode Badge */
+        .mode-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .mode-pdf {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .mode-google {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .mode-db {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* Collapsible Sections */
+        .collapsible {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .collapsible-header {
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            border: none;
+            width: 100%;
+            font-size: 0.875rem;
+        }
+
+        .collapsible-header:hover {
+            filter: brightness(0.95);
+        }
+
+        .collapsible-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .collapsible.open .collapsible-icon {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-pdf .collapsible-header {
+            background: var(--gray-600);
+            color: white;
+        }
+
+        .collapsible-google .collapsible-header {
+            background: #ea4335;
+            color: white;
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: var(--gray-50);
+        }
+
+        .collapsible.open .collapsible-content {
+            max-height: 300px;
+        }
+
+        .collapsible-body {
+            padding: 1rem;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .code-block {
+            margin: 0;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.8125rem;
+            line-height: 1.5;
+            color: var(--gray-700);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* Answer Card */
+        .answer-card .card-header {
+            background: linear-gradient(135deg, var(--success) 0%, #047857 100%);
+            color: white;
+            border-bottom: none;
+        }
+
+        .answer-content {
+            padding: 1.5rem;
+            line-height: 1.7;
+            color: var(--gray-700);
+            font-size: 1rem;
+        }
+
+        .answer-content p {
+            margin-bottom: 1rem;
+        }
+
+        .answer-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .answer-footer {
+            text-align: center;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-200);
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .assistant-container {
+                padding: 100px 1rem 2rem;
+            }
+
+            .assistant-title {
+                font-size: 1.5rem;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .upload-zone {
+                padding: 1.5rem 1rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="assistant-container">
+
+    <!-- Header -->
+    <div class="assistant-header">
+        <h1 class="assistant-title">
+            <div class="assistant-icon">🤖</div>
+            Assistant IA Médical
+        </h1>
+        <div class="assistant-subtitle">Analyse intelligente de documents et base de connaissances</div>
+    </div>
+
+    {# Messages flash #}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-error">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {# Formulaire #}
+    <div class="card">
+        <div class="card-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            Nouvelle analyse
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="analysisForm">
+                
+                {# Upload PDF optionnel #}
+                <div class="form-group">
+                    <label class="form-label">
+                        Document médical
+                        <span class="form-hint">(optionnel - laissez vide pour utiliser la base de données)</span>
+                    </label>
+                    <div class="upload-zone" id="uploadZone">
+                        <input 
+                            type="file" 
+                            name="pdf_file" 
+                            id="pdf_file" 
+                            accept=".pdf,application/pdf"
+                            class="file-input"
+                        >
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <div class="upload-text">Cliquez ou déposez un PDF ici</div>
+                        <div class="upload-subtext">Format accepté : PDF uniquement</div>
+                        <div class="file-name" id="fileName"></div>
+                    </div>
+                </div>
+
+                {# Question #}
+                <div class="form-group">
+                    <label for="prompt" class="form-label">Votre question</label>
+                    <textarea
+                        name="prompt"
+                        id="prompt"
+                        class="form-textarea"
+                        placeholder="Poser une question"
+                        required
+                    >{{ prompt|default('') }}</textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    Envoyer la question
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {# Indicateur du mode utilisé #}
+    {% if answer is defined and answer %}
+        <div class="mode-badge mode-{{ mode }}">
+            {% if mode == 'pdf' %}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                Analyse de document PDF
+            {% elseif mode == 'google' %}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+                Recherche web (info non trouvée en base)
+            {% else %}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                </svg>
+                Base de données médicale
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {# Affichage du contenu PDF extrait #}
+    {% if pdf_content is defined and pdf_content and mode == 'pdf' %}
+        <div class="collapsible collapsible-pdf" id="pdfCollapsible">
+            <button class="collapsible-header" onclick="toggleCollapsible('pdfCollapsible')">
+                <span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 0.5rem;">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    Contenu du PDF extrait
+                </span>
+                <svg class="collapsible-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+            <div class="collapsible-content">
+                <div class="collapsible-body">
+                    <pre class="code-block">{{ pdf_content }}</pre>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Affichage des résultats Google #}
+    {% if mode == 'google' and search_results is defined and search_results %}
+        <div class="collapsible collapsible-google" id="googleCollapsible">
+            <button class="collapsible-header" onclick="toggleCollapsible('googleCollapsible')">
+                <span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 0.5rem;">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    Résultats de recherche Google
+                </span>
+                <svg class="collapsible-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+            <div class="collapsible-content">
+                <div class="collapsible-body">
+                    <pre class="code-block">{{ search_results }}</pre>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Réponse de l'IA #}
+    {% if answer is defined and answer %}
+        <div class="card answer-card">
+            <div class="card-header">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Réponse de l'IA
+            </div>
+            <div class="answer-content">
+                {{ answer|nl2br }}
+            </div>
+            <div class="answer-footer">
+                Généré par Llama3 via Ollama • Réponse fournie à titre indicatif uniquement
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+
+<script>
+// Gestion de l'upload de fichier
+document.getElementById('pdf_file').addEventListener('change', function(e) {
+    const zone = document.getElementById('uploadZone');
+    const fileName = document.getElementById('fileName');
+    
+    if (this.files && this.files[0]) {
+        zone.classList.add('has-file');
+        fileName.textContent = '📄 ' + this.files[0].name;
+    } else {
+        zone.classList.remove('has-file');
+        fileName.textContent = '';
+    }
+});
+
+// Toggle collapsible
+function toggleCollapsible(id) {
+    const element = document.getElementById(id);
+    element.classList.toggle('open');
+}
+</script>
+{% endblock %}
