@@ -88,11 +88,11 @@
             </div>
             <div class="detail-row">
                 <span class="detail-label">Date initialement prévue :</span>
-                <span>{{ appointment.date|date('d/m/Y') }}</span>
+                <span>{{ appointment.appointmentDate|date('d/m/Y') }}</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Heure initialement prévue :</span>
-                <span>{{ appointment.startTime|date('H:i') }}</span>
+                <span>{{ appointment.appointmentDate|date('H:i') }}</span>
             </div>
         </div>
 

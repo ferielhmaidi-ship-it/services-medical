@@ -1,0 +1,800 @@
+{% set isEmbed = app.request.query.getBoolean('embed') %}
+{% extends isEmbed ? 'base_embed.html.twig' : 'base.html.twig' %}
+
+{% block title %}Modifier l'ordonnance | Édition{% endblock %}
+
+{% block body %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary: #059669;
+    --primary-dark: #047857;
+    --primary-light: #10b981;
+    --primary-lighter: #d1fae5;
+    --accent: #f59e0b;
+    --danger: #ef4444;
+    --success: #10b981;
+    --bg-warm: #f0fdf4;
+    --surface: #ffffff;
+    --text-primary: #1c1917;
+    --text-secondary: #78716c;
+    --text-muted: #a8a29e;
+    --border: #e7e5e4;
+    --shadow-soft: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-large: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.prescription-studio {
+    min-height: {{ isEmbed ? 'auto' : '100vh' }};
+    background: {{ isEmbed ? 'transparent' : 'var(--bg-warm)' }};
+    padding: {{ isEmbed ? '0' : '6rem 2rem' }};
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1.6;
+}
+
+.prescription-canvas {
+    width: 100%;
+    max-width: 800px;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-large);
+    overflow: hidden;
+    position: relative;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header avec gradient organique */
+.prescription-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, #064e3b 100%);
+    padding: 3rem 2.5rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.prescription-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulse 4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.header-content {
+    position: relative;
+    z-index: 1;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.header-content h2 {
+    color: white;
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.header-content p {
+    color: rgba(255,255,255,0.8);
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Progress indicator */
+.progress-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.progress-step {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.progress-step.active {
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.progress-step.completed {
+    background: rgba(255,255,255,0.6);
+}
+
+/* Form Body */
+.prescription-body {
+    padding: 2.5rem;
+}
+
+.form-section {
+    margin-bottom: 2.5rem;
+    animation: fadeIn 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+.form-section:nth-child(1) { animation-delay: 0.1s; }
+.form-section:nth-child(2) { animation-delay: 0.2s; }
+.form-section:nth-child(3) { animation-delay: 0.3s; }
+.form-section:nth-child(4) { animation-delay: 0.4s; }
+.form-section:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.section-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: var(--shadow-medium);
+}
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.section-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0.25rem 0 0 0;
+}
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.required-indicator {
+    color: var(--danger);
+    font-weight: 700;
+}
+
+/* Input styling avec focus animation */
+.input-wrapper {
+    position: relative;
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem 1rem 1rem 2.75rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    background: var(--surface);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+    font-weight: 500;
+}
+
+.form-control:hover {
+    border-color: #d6d3d1;
+    background: #fafaf9;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    background: var(--surface);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1), var(--shadow-medium);
+}
+
+/* Style spécial pour le select */
+select.form-control {
+    padding-left: 2.75rem;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem;
+    padding-right: 3rem;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1.125rem;
+    transition: all 0.2s;
+    pointer-events: none;
+}
+
+.form-control:focus + .input-icon,
+.input-wrapper:focus-within .input-icon {
+    color: var(--primary);
+    transform: translateY(-50%) scale(1.1);
+}
+
+textarea.form-control {
+    min-height: 140px;
+    resize: vertical;
+    line-height: 1.7;
+    padding: 1rem;
+    padding-left: 1rem;
+}
+
+textarea.form-control + .input-icon {
+    top: 1.5rem;
+    transform: none;
+}
+
+textarea.form-control:focus + .input-icon {
+    transform: scale(1.1);
+}
+
+.form-hint {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.form-error {
+    color: var(--danger);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-top: 0.375rem;
+}
+
+.form-error ul {
+    margin: 0;
+    padding-left: 1rem;
+}
+
+/* Info Card redesign */
+.info-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border: 2px solid #a7f3d0;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    animation: fadeIn 0.5s ease-out 0.1s forwards;
+    opacity: 0;
+}
+
+.info-icon {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+    color: white;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-medium);
+}
+
+.info-content {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.info-content strong {
+    color: var(--primary-dark);
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* Action Bar */
+.action-bar {
+    display: flex;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border);
+    position: sticky;
+    bottom: 0;
+    background: var(--surface);
+    z-index: 10;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-md);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    box-shadow: 0 4px 14px 0 rgba(5, 150, 105, 0.39);
+    flex: 1;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(5, 150, 105, 0.23);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: var(--surface);
+    color: var(--text-secondary);
+    border: 2px solid var(--border);
+    flex: 0 0 auto;
+}
+
+.btn-secondary:hover {
+    border-color: var(--text-muted);
+    color: var(--text-primary);
+    background: var(--bg-warm);
+}
+
+/* Status indicator */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-left: auto;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: blink 2s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Appointment section highlight - EN HAUT */
+.appointment-section {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+    border: 2px solid #a7f3d0;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.appointment-section .section-header {
+    border-bottom-color: #6ee7b7;
+    margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .prescription-studio {
+        padding: 3rem 1rem;
+    }
+    
+    .prescription-canvas {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .prescription-header {
+        padding: 2rem 1.5rem 1.5rem;
+    }
+    
+    .header-content h2 {
+        font-size: 1.5rem;
+    }
+    
+    .prescription-body {
+        padding: 1.5rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+    
+    .action-bar {
+        flex-direction: column-reverse;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+    
+    .info-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.25rem;
+    }
+    
+    .appointment-section {
+        padding: 1rem;
+    }
+}
+</style>
+
+<div class="prescription-studio">
+    <div class="prescription-canvas">
+        <header class="prescription-header">
+            <div class="header-content">
+                <div class="badge">
+                    <span>💊</span>
+                    <span>Prescription Médicale</span>
+                </div>
+                <h2>Modifier l'ordonnance</h2>
+                <p>Édition de la prescription • Dernière modification : {{ "now"|date("d/m/Y H:i") }}</p>
+                
+                <div class="progress-bar">
+                    <div class="progress-step completed"></div>
+                    <div class="progress-step active"></div>
+                    <div class="progress-step"></div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="prescription-body">
+            <div class="info-card">
+                <div class="info-icon">ℹ️</div>
+                <div class="info-content">
+                    <strong>Modification en cours</strong>
+                    Les changements seront appliqués immédiatement après validation. Vérifiez attentivement les posologies avant d'enregistrer.
+                </div>
+            </div>
+
+            {{ form_start(form, {'attr': {'class': 'prescription-form', 'novalidate': 'novalidate'}}) }}
+            {% if form.vars.submitted and not form.vars.valid %}
+                <div class="form-error" style="margin-bottom: 1rem;">
+                    {{ form_errors(form) }}
+                </div>
+            {% endif %}
+            
+            <!-- APPOINTMENT EN PREMIER - EN HAUT -->
+            <div class="form-section appointment-section">
+                <div class="section-header">
+                    <div class="section-icon">📅</div>
+                    <div>
+                        <h3 class="section-title">Rendez-vous associé</h3>
+                        <p class="section-subtitle">Sélectionnez la consultation concernée</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        {{ form_label(form.rendezVous, 'Choix du rendez-vous', {'label_attr': {'class': 'form-label'}}) }}
+                        <span class="required-indicator">*</span>
+                        <div class="input-wrapper">
+                            {{ form_widget(form.rendezVous, {'attr': {'class': 'form-control'}}) }}
+                            <div class="form-error">{{ form_errors(form.rendezVous) }}</div>
+                            <span class="input-icon">📋</span>
+                        </div>
+                        <span class="form-hint">
+                            <span>🔗</span>
+                            <span>Cette ordonnance sera liée au rendez-vous sélectionné</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Date -->
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon">📆</div>
+                    <div>
+                        <h3 class="section-title">Date de prescription</h3>
+                        <p class="section-subtitle">Informations temporelles</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        {{ form_label(form.dateordonnance, 'Date de prescription', {'label_attr': {'class': 'form-label'}}) }}
+                        <span class="required-indicator">*</span>
+                        <div class="input-wrapper">
+                            {{ form_widget(form.dateordonnance, {'attr': {'class': 'form-control'}}) }}
+                            <div class="form-error">{{ form_errors(form.dateordonnance) }}</div>
+                            <span class="input-icon">📅</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Diagnostic -->
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon">🩺</div>
+                    <div>
+                        <h3 class="section-title">Diagnostic</h3>
+                        <p class="section-subtitle">Motif de la prescription</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        {{ form_label(form.diagnosis, 'Diagnostic principal', {'label_attr': {'class': 'form-label'}}) }}
+                        <span class="required-indicator">*</span>
+                        <div class="input-wrapper">
+                            {{ form_widget(form.diagnosis, {'attr': {'class': 'form-control', 'placeholder': 'Diagnostic établi justifiant la prescription'}}) }}
+                            <div class="form-error">{{ form_errors(form.diagnosis) }}</div>
+                            <span class="input-icon">🔍</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Médicaments -->
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon">💊</div>
+                    <div>
+                        <h3 class="section-title">Médicaments prescrits</h3>
+                        <p class="section-subtitle">Traitement et posologie</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        {{ form_label(form.medicament, 'Liste des médicaments', {'label_attr': {'class': 'form-label'}}) }}
+                        <span class="required-indicator">*</span>
+                        <div class="input-wrapper">
+                            {{ form_widget(form.medicament, {'attr': {'class': 'form-control', 'placeholder': 'Nom commercial, principe actif, forme pharmaceutique...', 'rows': 4}}) }}
+                            <div class="form-error">{{ form_errors(form.medicament) }}</div>
+                        </div>
+                        <span class="form-hint">
+                            <span>💡</span>
+                            <span>Indiquez le nom commercial et le principe actif pour chaque médicament</span>
+                        </span>
+                    </div>
+
+                    <div class="form-group full-width">
+                        {{ form_label(form.posologie, 'Posologie et administration', {'label_attr': {'class': 'form-label'}}) }}
+                        <span class="required-indicator">*</span>
+                        <div class="input-wrapper">
+                            {{ form_widget(form.posologie, {'attr': {'class': 'form-control', 'placeholder': 'Dosage précis, fréquence (ex: 3x/jour), durée du traitement...', 'rows': 3}}) }}
+                            <div class="form-error">{{ form_errors(form.posologie) }}</div>
+                        </div>
+                        <span class="form-hint">
+                            <span>⏰</span>
+                            <span>Précisez les horaires et la durée totale du traitement</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Instructions -->
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon">📋</div>
+                    <div>
+                        <h3 class="section-title">Instructions et notes</h3>
+                        <p class="section-subtitle">Précisions complémentaires</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        {{ form_label(form.instructions, 'Instructions spéciales', {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="input-wrapper">
+                            {{ form_widget(form.instructions, {'attr': {'class': 'form-control', 'placeholder': 'Conseils d\'administration, précautions particulières, interactions...', 'rows': 3}}) }}
+                            <div class="form-error">{{ form_errors(form.instructions) }}</div>
+                        </div>
+                        <span class="form-hint">
+                            <span>⚠️</span>
+                            <span>Précautions d'emploi et conseils au patient</span>
+                        </span>
+                    </div>
+
+                    <div class="form-group full-width">
+                        {{ form_label(form.notes, 'Notes complémentaires', {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="input-wrapper">
+                            {{ form_widget(form.notes, {'attr': {'class': 'form-control', 'placeholder': 'Observations, allergies connues, contre-indications, renouvellement...', 'rows': 3}}) }}
+                            <div class="form-error">{{ form_errors(form.notes) }}</div>
+                        </div>
+                        <span class="form-hint">
+                            <span>📝</span>
+                            <span>Informations importantes pour le pharmacien et le patient</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                {% if not isEmbed %}
+                    <a href="javascript:history.back()" class="btn btn-secondary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        Annuler
+                    </a>
+                {% endif %}
+                
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span>Modifications en cours...</span>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Enregistrer les modifications
+                </button>
+            </div>
+            
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+
+<script>
+// Animation au scroll
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.form-section, .info-card').forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(20px)';
+    section.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+    observer.observe(section);
+});
+
+// Auto-save indicator simulation
+document.querySelectorAll('.form-control').forEach(input => {
+    let timeout;
+    input.addEventListener('input', () => {
+        const indicator = document.querySelector('.status-indicator span:last-child');
+        indicator.textContent = 'Sauvegarde automatique...';
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            indicator.textContent = 'Modifications enregistrées';
+            setTimeout(() => {
+                indicator.textContent = 'Modifications en cours...';
+            }, 2000);
+        }, 1000);
+    });
+});
+</script>
+{% endblock %}

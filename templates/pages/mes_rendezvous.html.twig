@@ -3,6 +3,12 @@
 {% block title %}Mes Rendez-vous{% endblock %}
 
 {% block body %}
+<style>
+.appointment-row-selectable { cursor: pointer; }
+.appointment-row-selected { background-color: #ececec !important; }
+.appointment-row-selected > td { background-color: #ececec !important; }
+.appointment-row-selected:hover > td { background-color: #ececec !important; }
+</style>
 <div class="page-title" data-aos="fade">
     <div class="heading">
         <div class="container">
@@ -84,7 +90,7 @@
                         <tbody>
                             {% for item in appointments %}
                                 {% set a = item.appointment %}
-                                <tr>
+                                <tr class="appointment-row-selectable{{ selectedAppointmentId is defined and selectedAppointmentId == a.id ? ' appointment-row-selected' : '' }}" data-appointment-id="{{ a.id }}">
                                     <td class="ps-4">
                                         <div class="fw-bold text-dark">{{ item.patientName }}</div>
                                         <small class="text-muted">ID Patient: {{ a.patientId }}</small>
@@ -138,6 +144,28 @@
 </section>
 
 <script>
+async function selectAppointmentRow(appointmentId, rowEl) {
+    try {
+        const res = await fetch(`/api/calendar/appointment/${appointmentId}/select`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!res.ok) {
+            alert('Impossible de sélectionner ce patient.');
+            return;
+        }
+
+        document.querySelectorAll('.appointment-row-selectable').forEach((row) => {
+            row.classList.remove('appointment-row-selected');
+        });
+        rowEl.classList.add('appointment-row-selected');
+    } catch (e) {
+        console.error(e);
+        alert('Erreur de connexion.');
+    }
+}
+
 async function updateStatus(id, newStatus, btn) {
     if (!confirm('Voulez-vous vraiment changer le statut de ce rendez-vous ?')) return;
 
@@ -166,5 +194,18 @@ async function updateStatus(id, newStatus, btn) {
         btn.innerHTML = originalHtml;
     }
 }
+
+document.querySelectorAll('.appointment-row-selectable').forEach((row) => {
+    row.addEventListener('click', (event) => {
+        if (event.target.closest('button, a, input, select, textarea, label, form')) {
+            return;
+        }
+
+        const appointmentId = row.getAttribute('data-appointment-id');
+        if (appointmentId) {
+            selectAppointmentRow(appointmentId, row);
+        }
+    });
+});
 </script>
 {% endblock %}

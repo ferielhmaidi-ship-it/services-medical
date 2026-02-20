@@ -33,3 +33,8 @@ services:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
         public: true
+
+    App\Controller\IaController:
+        arguments:
+            $uploadDirectory: '%kernel.project_dir%/public/uploads'
+

@@ -30,7 +30,6 @@ class AvailabilityService
         $endDate = (clone $startDate)->modify('+7 days');
         $currentDate = clone $startDate;
 
-        file_put_contents('c:/Users/PC/OneDrive/Desktop/test1/availability_trace.txt', "START_DATE: " . $startDate->format('Y-m-d') . " | DOCTOR: " . $doctorId . "\n", FILE_APPEND);
         while ($currentDate < $endDate) {
             $hours = $this->getWorkingHoursForDay($doctorId, $currentDate);
             $msg = "Checking Doc $doctorId | " . $currentDate->format('Y-m-d') . ": ";
@@ -48,7 +47,7 @@ class AvailabilityService
             else {
                 $msg .= "No working hours found.";
             }
-            file_put_contents('c:/Users/PC/OneDrive/Desktop/test1/availability_trace.txt', $msg . "\n", FILE_APPEND);
+
             $currentDate->modify('+1 day');
         }
 
@@ -245,3 +244,5 @@ class AvailabilityService
         return false;
     }
 }
+
+

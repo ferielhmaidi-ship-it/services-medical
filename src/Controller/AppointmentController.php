@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Appointment;
 use App\Entity\Feedback;
 use App\Entity\Medecin;
+use App\Entity\Patient;
 use App\Entity\RendezVous;
 use App\Form\FeedbackType;
 use App\Repository\AppointmentRepository;
@@ -25,7 +26,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AppointmentController extends AbstractController
 {
     #[Route('/rendezvous/new/{medecin_id}', name: 'app_rendezvous_new', methods: ['GET', 'POST'])]
-    public function new(int $medecin_id, Request $request, MedecinRepository $medecinRepo, EntityManagerInterface $em): Response
+    public function new(int $medecin_id, Request $request, MedecinRepository $medecinRepo, EntityManagerInterface $em, EmailService $emailService): Response
     {
         $medecin = $medecinRepo->find($medecin_id);
         if (!$medecin) {
@@ -44,6 +45,16 @@ class AppointmentController extends AbstractController
             $em->persist($rendezVous);
             $em->flush();
 
+            // Send confirmation email
+            $user = $this->getUser();
+            if ($user instanceof Patient) {
+                try {
+                    $emailService->sendRendezVousConfirmation($rendezVous, $user, $medecin);
+                } catch (\Exception $e) {
+                    // Log error safely
+                }
+            }
+
             return $this->redirectToRoute('app_patient_appointment_list');
         }
 
@@ -56,10 +67,18 @@ class AppointmentController extends AbstractController
     // to avoid conflicts with BookingController and CalendarController
     
     #[Route('/rendezvous/{id}/status/{status}', name: 'app_rendezvous_update_status', methods: ['POST'])]
-    public function updateStatus(RendezVous $rendezVous, string $status, EntityManagerInterface $em): Response
+    public function updateStatus(RendezVous $rendezVous, string $status, EntityManagerInterface $em, EmailService $emailService): Response
     {
         $rendezVous->setStatut($status);
         $em->flush();
+
+        if ($status === 'annule' || $status === 'cancelled') {
+            try {
+                $emailService->sendRendezVousCancellation($rendezVous, $rendezVous->getPatient(), $rendezVous->getDoctor());
+            } catch (\Exception $e) {
+                // Log error
+            }
+        }
 
         return $this->redirectToRoute('app_home'); // Default fallback
     }

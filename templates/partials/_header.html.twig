@@ -1,4 +1,4 @@
-<header id="header" class="header d-flex align-items-center fixed-top">
+﻿<header id="header" class="header d-flex align-items-center fixed-top">
   <div class="container position-relative d-flex align-items-center justify-content-between">
 
     <!-- Logo -->
@@ -24,6 +24,13 @@
 
             <!-- Mes rendez-vous pour les patients -->
             <li><a href="{{ path('app_patient_appointment_list') }}" class="{{ app.request.attributes.get('_route') == 'app_patient_appointment_list' ? 'active' : '' }}">Mes Rendez-vous</a></li>
+
+            <!-- Rapports & Ordonnances pour les patients -->
+            <li>
+              <a href="{{ path('patient_reports_prescriptions') }}" class="{{ app.request.attributes.get('_route') == 'patient_reports_prescriptions' ? 'active' : '' }}">
+                Rapports &amp; Ordonnances
+              </a>
+            </li>
           {% endif %}
 
           {% if is_granted('ROLE_ADMIN') %}
@@ -36,6 +43,19 @@
             <li><a href="{{ path('app_calendrier') }}" class="{{ app.request.attributes.get('_route') == 'app_calendrier' ? 'active' : '' }}">Calendrier</a></li>
             <!-- Mes rendez-vous pour les médecins -->
             <li><a href="{{ path('app_doctor_appointments') }}" class="{{ app.request.attributes.get('_route') == 'app_doctor_appointments' ? 'active' : '' }}">Mes Rendez-vous</a></li>
+
+            <!-- Dossier Médicales -->
+            <li class="dropdown">
+              <a href="#" class="{{ app.request.attributes.get('_route') starts with 'app_medical_record_' ? 'active' : '' }}">
+                <span>Dossier Médicales</span>
+                <i class="bi bi-chevron-down toggle-dropdown"></i>
+              </a>
+              <ul>
+                <li><a href="{{ path('pages_dossier_medical') }}">Documents</a></li>
+                <li><a href="{{ path('app_medical_record_prescriptions_reports') }}">Ordonnances et Rapports</a></li>
+                <li><a href="{{ path('app_medical_record_ai_assistance') }}">Assistance IA</a></li>
+              </ul>
+            </li>
           {% endif %}
 
         {% else %}
@@ -102,3 +122,5 @@
 
   </div>
 </header>
+
+

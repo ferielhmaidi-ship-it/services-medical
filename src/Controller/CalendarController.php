@@ -11,6 +11,7 @@ use App\Repository\IndisponibiliteRepository;
 use App\Repository\CalendarSettingRepository;
 use App\Repository\AppointmentRepository;
 use App\Repository\PatientRepository;
+use App\Repository\RendezVousRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -79,12 +80,76 @@ class CalendarController extends AbstractController
             ];
         }
 
+        $selection = $request->getSession()->get('dossier_medical_selection', []);
+        $selectedAppointmentId = is_array($selection) ? (int) ($selection['appointmentId'] ?? 0) : 0;
+
         return $this->render('pages/mes_rendezvous.html.twig', [
             'appointments' => $enrichedAppointments,
             'currentSearch' => $search,
             'currentDate' => $date,
             'currentSortBy' => $sortBy,
-            'currentOrder' => $order
+            'currentOrder' => $order,
+            'selectedAppointmentId' => $selectedAppointmentId,
+        ]);
+    }
+
+    #[Route('/api/calendar/appointment/{id}/select', name: 'app_api_calendar_appointment_select', methods: ['POST'])]
+    public function selectAppointment(
+        int $id,
+        Request $request,
+        AppointmentRepository $appointmentRepository,
+        RendezVousRepository $rendezVousRepository
+    ): JsonResponse {
+        $appointment = $appointmentRepository->find($id);
+        if (!$appointment || $appointment->getDoctorId() !== $this->getUser()->getId()) {
+            return new JsonResponse(['error' => 'Rendez-vous non trouve'], 404);
+        }
+
+        $patient = $this->patientRepo->find($appointment->getPatientId());
+        if (!$patient) {
+            return new JsonResponse(['error' => 'Patient introuvable'], 404);
+        }
+
+        $targetDate = $appointment->getDate();
+        $startTime = $appointment->getStartTime();
+        $targetDateTime = (new \DateTimeImmutable($targetDate->format('Y-m-d H:i:s')))
+            ->setTime((int) $startTime->format('H'), (int) $startTime->format('i'));
+
+        $dayStart = (new \DateTimeImmutable($targetDate->format('Y-m-d')))->setTime(0, 0, 0);
+        $dayEnd = $dayStart->setTime(23, 59, 59);
+
+        $candidateRendezVous = $rendezVousRepository->createQueryBuilder('rv')
+            ->where('rv.patient = :patient')
+            ->andWhere('rv.doctor = :doctor')
+            ->andWhere('rv.appointmentDate BETWEEN :dayStart AND :dayEnd')
+            ->setParameter('patient', $patient)
+            ->setParameter('doctor', $this->getUser())
+            ->setParameter('dayStart', $dayStart)
+            ->setParameter('dayEnd', $dayEnd)
+            ->getQuery()
+            ->getResult();
+
+        $selectedRendezVous = null;
+        $bestDelta = PHP_INT_MAX;
+        foreach ($candidateRendezVous as $rendezVous) {
+            $delta = abs($rendezVous->getAppointmentDate()->getTimestamp() - $targetDateTime->getTimestamp());
+            if ($delta < $bestDelta) {
+                $bestDelta = $delta;
+                $selectedRendezVous = $rendezVous;
+            }
+        }
+
+        $request->getSession()->set('dossier_medical_selection', [
+            'appointmentId' => $appointment->getId(),
+            'idpatient' => $appointment->getPatientId(),
+            'idmedecin' => $this->getUser()->getId(),
+            'idrendezvous' => $selectedRendezVous?->getId(),
+        ]);
+
+        return new JsonResponse([
+            'success' => true,
+            'appointmentId' => $appointment->getId(),
+            'idRendezVous' => $selectedRendezVous?->getId(),
         ]);
     }
 
