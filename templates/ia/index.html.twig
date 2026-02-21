@@ -450,7 +450,7 @@
             Nouvelle analyse
         </div>
         <div class="card-body">
-            <form method="post" enctype="multipart/form-data" id="analysisForm">
+            <form method="post" enctype="multipart/form-data" id="analysisForm" data-turbo="false">
                 
                 {# Upload PDF optionnel #}
                 <div class="form-group">
@@ -586,7 +586,7 @@
                 {{ answer|nl2br }}
             </div>
             <div class="answer-footer">
-                Généré par Llama3 via Ollama • Réponse fournie à titre indicatif uniquement
+                Généré par Llama3 via OpenRouter • Réponse fournie à titre indicatif uniquement
             </div>
         </div>
     {% endif %}

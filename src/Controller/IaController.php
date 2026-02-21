@@ -110,9 +110,6 @@ class IaController extends AbstractController
     // ============ NOUVEAU PARSING INTELLIGENT ================
     // =========================================================
 
-    /**
-     * Parse le contenu PDF pour dÃ©tecter et structurer le nouveau format
-     */
     private function parsePdfContent(string $rawContent): array
     {
         $structure = [
@@ -134,11 +131,10 @@ class IaController extends AbstractController
             $structure = $this->parseNewFormat($cleaned, $structure);
         } else {
             $structure['format'] = 'legacy';
-            // Parser l'ancien format si nÃ©cessaire
         }
 
-        // GÃ©nÃ©ration du texte structurÃ© pour l'IA
-        $structuredText = $this->generateStructuredText($structure);
+        // GÃ©nÃ©ration du texte structurÃ© pour l'IA (On passe aussi le texte brut pour sÃ©curitÃ©)
+        $structuredText = $this->generateStructuredText($structure, $cleaned);
 
         return [
             'structure' => $structure,
@@ -148,20 +144,20 @@ class IaController extends AbstractController
     }
 
     /**
-     * DÃ©tecte si c'est le nouveau format HTML
+     * DÃ©tecte si c'est le nouveau format HTML ou un format connu
      */
     private function detectNewFormat(string $content): bool
     {
         $markers = [
             'dossier mÃ©dical',
+            'rapport mÃ©dical',
             'document confidentiel',
             'usage mÃ©dical uniquement',
             'informations du document',
+            'informations du patient',
             'rapports mÃ©dicaux',
             'ordonnances',
             'consultation des dÃ©tails',
-            'badge', // Ã‰lÃ©ments visuels du nouveau format
-            'progress-bar',
         ];
 
         $contentLower = mb_strtolower($content, 'UTF-8');
@@ -173,7 +169,8 @@ class IaController extends AbstractController
             }
         }
 
-        return $score >= 3; // Au moins 3 marqueurs pour confirmer
+        // Moins strict pour les rapports simples
+        return $score >= 1; 
     }
 
     /**
@@ -287,7 +284,7 @@ class IaController extends AbstractController
     /**
      * GÃ©nÃ¨re un texte structurÃ© Ã  partir de la structure parsÃ©e
      */
-    private function generateStructuredText(array $structure): string
+    private function generateStructuredText(array $structure, string $rawText): string
     {
         $text = "=== DOSSIER MÃ‰DICAL STRUCTURÃ‰ ===\n\n";
 
@@ -329,6 +326,10 @@ class IaController extends AbstractController
                 $text .= "\n";
             }
         }
+
+        // FALLBACK: Texte brut complet
+        $text .= "=== TEXTE BRUT DU DOCUMENT ===\n";
+        $text .= $rawText . "\n";
 
         return $text;
     }

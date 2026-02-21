@@ -57,3 +57,7 @@ services:
     App\Controller\IaController:
         arguments:
             $uploadDirectory: '%kernel.project_dir%/public/uploads'
+
+    App\Service\OllamaService:
+        arguments:
+            $openRouterApiKey: '%openrouter_api_key%'
