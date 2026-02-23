@@ -84,11 +84,11 @@ class OrdonnanceType extends AbstractType
                         ->addOrderBy('r.startTime', 'DESC');
 
                     if ($options['medecin'] instanceof Medecin) {
-                        $qb->andWhere('r.doctorId = :doctorId')
+                        $qb->andWhere('r.doctor = :doctorId')
                            ->setParameter('doctorId', $options['medecin']->getId());
                     }
                     if ($options['patient'] instanceof Patient) {
-                        $qb->andWhere('r.patientId = :patientId')
+                        $qb->andWhere('r.patient = :patientId')
                            ->setParameter('patientId', $options['patient']->getId());
                     }
 

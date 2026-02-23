@@ -221,7 +221,7 @@ class AvailabilityService
         // appointment_end = appointment_start + appointment_duration
 
         $qb = $this->apptRepo->createQueryBuilder('a')
-            ->where('a.doctorId = :doctorId')
+            ->where('a.doctor = :doctorId')
             ->andWhere('a.date = :date')
             ->andWhere('a.status = :status')
             ->setParameter('doctorId', $doctorId)

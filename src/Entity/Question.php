@@ -20,7 +20,7 @@ class Question
     #[Assert\NotBlank(message: 'Le titre ne peut pas etre vide.')]
     #[Assert\Length(
         min: 5,
-        max: 30,
+        max: 255,
         minMessage: 'Le titre doit contenir au moins {{ limit }} caracteres.',
         maxMessage: 'Le titre ne peut pas depasser {{ limit }} caracteres.'
     )]

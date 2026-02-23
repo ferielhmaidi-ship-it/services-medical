@@ -51,4 +51,17 @@ class ChatbotService
             return 'Error: ' . $e->getMessage();
         }
     }
+
+    public function isSafe(string $text): bool
+    {
+        if (empty(trim($text))) {
+            return true;
+        }
+
+        $prompt = "Analyse le texte suivant et réponds uniquement par 'SAFE' s'il est approprié ou 'UNSAFE' s'il contient des insultes, du harcèlement ou un langage inapproprié (sois attentif aux mots comme 'grosse' s'ils sont utilisés comme insulte, mais accepte-les s'ils sont dans un contexte médical ou descriptif neutre) :\n\n" . $text;
+
+        $response = $this->ask($prompt);
+        
+        return trim(strtoupper($response)) === 'SAFE';
+    }
 }

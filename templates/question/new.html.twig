@@ -410,7 +410,7 @@
                         </div>
                     {% endfor %}
 
-                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'data-turbo': 'false'}}) }}
 
                         <div class="form-group">
                             {{ form_label(form.titre, null, {'label_attr': {'class': 'form-label'}}) }}
@@ -444,42 +444,34 @@
             'rows': '5'
         }
     }) }}
-<div style="
-    position:absolute;
-    right:10px;
-    bottom:10px;
-    display:flex;
-    gap:6px;
-    align-items:center;
-">
 
-    <!-- Select language -->
-    <select id="langSelect"
-        style="
-            padding:5px 8px;
-            border-radius:6px;
-            border:1px solid #ccc;
-            font-size:12px;
-        ">
-        <option value="fr">🇫🇷 FR</option>
-        <option value="en">🇬🇧 EN</option>
-        <option value="ar">🇸🇦 AR</option>
-    </select>
+    <div style="position:absolute; right:10px; bottom:10px; display:flex; gap:6px; align-items:center; z-index: 10;">
+        <select id="langSelect" style="padding:5px 8px; border-radius:6px; border:1px solid #ccc; font-size:12px;">
+            <option value="fr">🇫🇷 FR</option>
+            <option value="en">🇬🇧 EN</option>
+            <option value="ar">🇸🇦 AR</option>
+        </select>
 
-    <!-- Fix -->
-    <button type="button"
-        onclick="fixDescription()"
-        style="background:#6f42c1;color:white;border:none;padding:6px 10px;border-radius:6px;font-size:12px;">
-        ✨ Fix
-    </button>
+        <button type="button" id="voiceBtn" onclick="startVoiceRecognition()"
+            style="background:#198754; color:white; border:none; padding:6px 10px; border-radius:6px; font-size:12px; cursor:pointer;"
+            title="Parler pour remplir">
+            🎙️ Record
+        </button>
 
-    <!-- Translate -->
-    <button type="button"
-        onclick="translateDescription()"
-        style="background:#0d6efd;color:white;border:none;padding:6px 10px;border-radius:6px;font-size:12px;">
-        🌍 Translate
-</div>
+        <button type="button" id="speakBtn" onclick="readAloud()"
+            style="background:#ffc107; color:black; border:none; padding:6px 10px; border-radius:6px; font-size:12px; cursor:pointer;"
+            title="Écouter le texte">
+            🔊 Listen
+        </button>
 
+        <button type="button" onclick="fixDescription(this)" style="background:#6f42c1; color:white; border:none; padding:6px 10px; border-radius:6px; font-size:12px; cursor:pointer;">
+            ✨ Fix
+        </button>
+
+        <button type="button" onclick="translateDescription(this)" style="background:#0d6efd; color:white; border:none; padding:6px 10px; border-radius:6px; font-size:12px; cursor:pointer;">
+            🌍 Translate
+        </button>
+    </div>
 
     {% if form.description.vars.errors|length %}
         <div class="invalid-feedback">
@@ -524,61 +516,138 @@
         </div>
     </div>
 </section>
-<script>
-function translateDescription() {
-    const textarea = document.getElementById('question_description');
-    const lang = document.getElementById('langSelect').value;
-    const text = textarea.value;
+{% endblock %}
 
-    if (!text.trim()) {
-        alert("Write something first");
-        return;
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+    // 1. تحويل الكلام إلى نص (Speech to Text)
+    function startVoiceRecognition() {
+        const textarea = document.getElementById('question_description');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const lang = document.getElementById('langSelect').value;
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+            alert("Votre navigateur ne supporte حدّث متصفحك لدعم خاصية الصوت");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = lang === 'ar' ? 'ar-SA' : (lang === 'fr' ? 'fr-FR' : 'en-US');
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+            voiceBtn.innerHTML = "🛑 Listening...";
+            voiceBtn.style.background = "#dc3545";
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            textarea.value += (textarea.value ? " " : "") + transcript;
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            const errors = {
+                'not-allowed': "Microphone désactivé ou bloqué.",
+                'no-speech': "Aucune voix détectée.",
+                'network': "Erreur réseau : La reconnaissance vocale nécessite une connexion internet vers les services de Google (API Web Speech).",
+                'aborted': "Reconnaissance annulée."
+            };
+            alert(errors[event.error] || "Erreur vocale: " + event.error);
+        };
+
+        recognition.onend = () => {
+            voiceBtn.innerHTML = "🎙️ Record";
+            voiceBtn.style.background = "#198754";
+        };
+
+        recognition.start();
     }
 
-    fetch('/chatbot/translate', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({
-            text: text,
-            target: lang
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        textarea.value = data.result;
-    });
-}
-function fixDescription() {
-    const textarea = document.getElementById('question_description');
-    const lang = document.getElementById('langSelect').value;
-    const text = textarea.value;
+    // 2. تحويل النص إلى كلام (Text to Speech)
+    function readAloud() {
+        const text = document.getElementById('question_description').value;
+        const lang = document.getElementById('langSelect').value;
 
-    if (!text.trim()) {
-        alert("Write something first");
-        return;
+        if (!text.trim()) {
+            alert("Rien à lire !");
+            return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // ضبط اللغة بناءً على الاختيار
+        if (lang === 'ar') utterance.lang = 'ar-SA';
+        else if (lang === 'fr') utterance.lang = 'fr-FR';
+        else utterance.lang = 'en-US';
+
+        // تغيير شكل الزر أثناء القراءة
+        const speakBtn = document.getElementById('speakBtn');
+        utterance.onstart = () => speakBtn.style.boxShadow = "0 0 10px #ffc107";
+        utterance.onend = () => speakBtn.style.boxShadow = "none";
+
+        window.speechSynthesis.speak(utterance);
     }
 
-    fetch('/chatbot/fix', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({
-            text: text,
-            lang: lang
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        textarea.value = data.result;
-    });
-}
+    // 3. تحسين النص (Fix AI)
+    async function fixDescription(btn) {
+        const textarea = document.getElementById('question_description');
+        const text = textarea.value;
+        const lang = document.getElementById('langSelect').value;
 
-</script>
-;
+        if (!text.trim()) return;
+
+        btn.disabled = true;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = "...";
+
+        try {
+            const response = await fetch('/chatbot/fix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text, lang: lang })
+            });
+            const data = await response.json();
+            if (data.result) textarea.value = data.result;
+        } catch (e) {
+            console.error(e);
+            alert("Erreur IA");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
     }
+
+    // 4. ترجمة النص (Translate AI)
+    async function translateDescription(btn) {
+        const textarea = document.getElementById('question_description');
+        const text = textarea.value;
+        const lang = document.getElementById('langSelect').value;
+
+        if (!text.trim()) return;
+
+        btn.disabled = true;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = "...";
+
+        try {
+            const response = await fetch('/chatbot/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text, target: lang })
+            });
+            const data = await response.json();
+            if (data.result) textarea.value = data.result;
+        } catch (e) {
+            console.error(e);
+            alert("Erreur de traduction");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+    </script>
 {% endblock %}

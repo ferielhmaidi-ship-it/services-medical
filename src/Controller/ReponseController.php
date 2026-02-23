@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Question;
 use App\Entity\Reponse;
 use App\Form\ReponseType;
+use App\Service\ChatbotService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -81,7 +82,8 @@ final class ReponseController extends AbstractController
     public function createFromQuestion(
         Question $question,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        ChatbotService $chatbot
     ): RedirectResponse {
         // Ensure only doctors can post responses
         if (!$this->isGranted('ROLE_MEDECIN')) {
@@ -98,6 +100,11 @@ final class ReponseController extends AbstractController
         $contenu = trim((string) $request->request->get('contenu', ''));
         if ($contenu === '') {
             $this->addFlash('error', 'La réponse ne peut pas être vide.');
+            return $this->redirectToRoute('question_index');
+        }
+
+        if (!$chatbot->isSafe($contenu)) {
+            $this->addFlash('error', 'Votre réponse contient un langage inapproprié et a été bloquée.');
             return $this->redirectToRoute('question_index');
         }
 
@@ -122,7 +129,8 @@ final class ReponseController extends AbstractController
     public function edit(
         Reponse $reponse,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        ChatbotService $chatbot
     ): RedirectResponse {
         $token = (string) $request->request->get('_token', '');
         if (!$this->isCsrfTokenValid('reponse_edit_' . $reponse->getId(), $token)) {
@@ -133,6 +141,11 @@ final class ReponseController extends AbstractController
         $contenu = trim((string) $request->request->get('contenu', ''));
         if ($contenu === '') {
             $this->addFlash('error', 'La rÃƒÂ©ponse ne peut pas ÃƒÂªtre vide.');
+            return $this->redirectToRoute('question_index');
+        }
+
+        if (!$chatbot->isSafe($contenu)) {
+            $this->addFlash('error', 'Votre réponse contient un langage inapproprié et a été bloquée.');
             return $this->redirectToRoute('question_index');
         }
 

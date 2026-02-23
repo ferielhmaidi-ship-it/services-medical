@@ -1368,52 +1368,54 @@
 </div>
 
 <script>
-// Animation au scroll
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
+(function() {
+    // Animation au scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
 
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-            setTimeout(() => {
-                entry.target.style.transform = 'none';
-            }, 650);
-        }
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                setTimeout(() => {
+                    entry.target.style.transform = 'none';
+                }, 650);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.appointment-block').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+        observer.observe(el);
     });
-}, observerOptions);
 
-document.querySelectorAll('.appointment-block').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(20px)';
-    el.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-    observer.observe(el);
-});
-
-// Déplacer les modals sous <body> pour éviter les conflits de stacking/transform
-document.querySelectorAll('.modal').forEach(modal => {
-    document.body.appendChild(modal);
-});
-
-// Réinitialiser les animations des modals à l'ouverture
-document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('shown.bs.modal', function () {
-        // Animation d'entrée du contenu
-        const content = this.querySelector('.report-content, .ordonnance-content');
-        if (content) {
-            content.style.animation = 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-        }
+    // Déplacer les modals sous <body> pour éviter les conflits de stacking/transform
+    document.querySelectorAll('.modal').forEach(modal => {
+        document.body.appendChild(modal);
     });
-});
 
-// Nettoyage de secours si un backdrop reste bloqué
-document.addEventListener('hidden.bs.modal', function () {
-    document.body.classList.remove('modal-open');
-    document.body.style.removeProperty('padding-right');
-    document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.remove());
-});
+    // Réinitialiser les animations des modals à l'ouverture
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('shown.bs.modal', function () {
+            // Animation d'entrée du contenu
+            const content = this.querySelector('.report-content, .ordonnance-content');
+            if (content) {
+                content.style.animation = 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+            }
+        });
+    });
+
+    // Nettoyage de secours si un backdrop reste bloqué
+    document.addEventListener('hidden.bs.modal', function () {
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('padding-right');
+        document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.remove());
+    });
+})();
 </script>
 {% endblock %}

@@ -1118,6 +1118,12 @@
                                 <div class="q-header">
                                     <div class="q-title-row">
                                         <h2 class="q-title">{{ q.titre }}</h2>
+                                        <button class="edit-icon ms-2" type="button" onclick="readText('{{ q.titre|e('js') }}. {{ q.description|e('js') }}')" title="Écouter la question">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                            </svg>
+                                        </button>
                                         <button class="edit-icon" type="button" data-bs-toggle="modal" data-bs-target="#editModal-{{ q.id }}" aria-label="Modifier la question">
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <path d="M12 20h9"></path>
@@ -1201,6 +1207,17 @@
                                                         {{ r.createdAt ? r.createdAt|date('d M Y H:i') : '' }}
                                                     </div>
                                                     <div class="reply-actions-top">
+                                                        <button
+                                                            type="button"
+                                                            class="reply-edit-btn"
+                                                            onclick="readText('{{ r.contenu|e('js') }}')"
+                                                            title="Écouter la réponse"
+                                                        >
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                                <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                                                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                                            </svg>
+                                                        </button>
                                                         <button
                                                             type="button"
                                                             class="reply-edit-btn"
@@ -1469,6 +1486,14 @@
                 }
             })
             .catch(error => console.error('Error:', error));
+    }
+
+    function readText(text) {
+        if (!text) return;
+        window.speechSynthesis.cancel(); // Stop any current speech
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'fr-FR'; // Default to French
+        window.speechSynthesis.speak(utterance);
     }
 </script>
 {% endblock %}

@@ -3,74 +3,81 @@
 
     <!-- Logo -->
     <a href="{{ path('app_home') }}" class="logo d-flex align-items-center me-auto me-xl-0">
-      <h1 class="sitename">Tabib<span>Net</span></h1>
+      <h1 class="sitename">TabibNet</h1>
     </a>
 
     <nav id="navmenu" class="navmenu">
       <ul>
         <!-- Accueil -->
         <li><a href="{{ path('app_home') }}" class="{{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}">Accueil</a></li>
-        <li><a href="{{ path('app_annuaire') }}" class="{{ app.request.attributes.get('_route') == 'app_annuaire' ? 'active' : '' }}"><i class="fas fa-book-medical me-1"></i>Annuaire Médical</a></li>
-        
-        <!-- À propos -->
-        <li><a href="{{ path('app_about') }}" class="{{ app.request.attributes.get('_route') == 'app_about' ? 'active' : '' }}">À propos</a></li>
+
+        <!-- Médecins Dropdown -->
+        <li class="dropdown">
+          <a href="#" class="{{ app.request.attributes.get('_route') in ['app_annuaire', 'app_doctors'] ? 'active' : '' }}">
+            <span>Médecins</span> <i class="bi bi-chevron-down toggle-dropdown"></i>
+          </a>
+          <ul>
+            <li><a href="{{ path('app_annuaire') }}"><i class="fas fa-book-medical me-2"></i>Annuaire Médical</a></li>
+            {% if is_granted('ROLE_PATIENT') or not app.user %}
+              <li><a href="{{ path('app_doctors') }}"><i class="fas fa-user-md me-2"></i>Trouver un Médecin</a></li>
+            {% endif %}
+          </ul>
+        </li>
 
         <!-- Services -->
         <li><a href="{{ path('app_services') }}" class="{{ app.request.get('_route') == 'app_services' ? 'active' : '' }}">Services</a></li>
 
-        <!-- Forum -->
-        <li><a href="{{ path('question_index') }}" class="{{ app.request.get('_route') starts with 'question_' ? 'active' : '' }}">Forum</a></li>
+        {% if app.user %}
+          <!-- Ma Santé Dropdown -->
+          <li class="dropdown">
+            <a href="#" class="{{ (app.request.attributes.get('_route') starts with 'app_patient_') or (app.request.attributes.get('_route') starts with 'app_doctor_') or (app.request.attributes.get('_route') == 'app_calendrier') ? 'active' : '' }}">
+              <span>Ma Santé</span> <i class="bi bi-chevron-down toggle-dropdown"></i>
+            </a>
+            <ul>
+              {% if is_granted('ROLE_PATIENT') %}
+                <li><a href="{{ path('app_patient_appointment_list') }}"><i class="fas fa-calendar-alt me-2"></i>Mes Rendez-vous</a></li>
+                <li><a href="{{ path('patient_reports_prescriptions') }}"><i class="fas fa-file-medical me-2"></i>Rapports & Ordonnances</a></li>
+              {% endif %}
 
-        <!-- Magazines Dropdown -->
-        <li class="dropdown"><a href="#"><span>Magazines</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+              {% if is_granted('ROLE_MEDECIN') %}
+                <li><a href="{{ path('app_calendrier') }}"><i class="fas fa-calendar-check me-2"></i>Calendrier</a></li>
+                <li><a href="{{ path('app_doctor_appointments') }}"><i class="fas fa-clock me-2"></i>Mes Rendez-vous</a></li>
+                <li class="dropdown">
+                  <a href="#"><span>Dossier Médical</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                  <ul>
+                    <li><a href="{{ path('pages_dossier_medical') }}">Documents</a></li>
+                    <li><a href="{{ path('app_medical_record_prescriptions_reports') }}">Ordonnances et Rapports</a></li>
+                    <li><a href="{{ path('app_medical_record_ai_assistance') }}">Assistance IA</a></li>
+                  </ul>
+                </li>
+              {% endif %}
+
+              {% if is_granted('ROLE_ADMIN') %}
+                <li><a href="{{ path('admin_dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Panneau Admin</a></li>
+              {% endif %}
+            </ul>
+          </li>
+        {% endif %}
+
+        <!-- Communauté Dropdown -->
+        <li class="dropdown">
+          <a href="#" class="{{ (app.request.get('_route') starts with 'question_') or (app.request.get('_route') starts with 'front_magazine_') ? 'active' : '' }}">
+            <span>Communauté</span> <i class="bi bi-chevron-down toggle-dropdown"></i>
+          </a>
           <ul>
-            <li><a href="{{ url('front_magazine_index') }}">Tous les magazines</a></li>
-            <li><a href="{{ url('front_articles_search') }}">Rechercher des articles</a></li>
+            <li><a href="{{ path('question_index') }}"><i class="fas fa-comments me-2"></i>Forum</a></li>
+            <li class="dropdown">
+              <a href="#"><span>Magazines</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+              <ul>
+                <li><a href="{{ url('front_magazine_index') }}">Tous les magazines</a></li>
+                <li><a href="{{ url('front_articles_search') }}">Rechercher des articles</a></li>
+              </ul>
+            </li>
           </ul>
         </li>
 
-        {% if app.user %}
-          <!-- Contenu spécifique à l'utilisateur -->
-          {% if is_granted('ROLE_PATIENT') %}
-            <!-- Trouver un médecin -->
-            <li><a href="{{ path('app_doctors') }}" class="{{ app.request.attributes.get('_route') == 'app_doctors' ? 'active' : '' }}">Trouver un Médecin</a></li>
-            
-            <!-- Mes rendez-vous -->
-            <li><a href="{{ path('app_patient_appointment_list') }}" class="{{ app.request.attributes.get('_route') == 'app_patient_appointment_list' ? 'active' : '' }}">Mes Rendez-vous</a></li>
-
-            <!-- Rapports & Ordonnances -->
-            <li>
-              <a href="{{ path('patient_reports_prescriptions') }}" class="{{ app.request.attributes.get('_route') == 'patient_reports_prescriptions' ? 'active' : '' }}">
-                Rapports &amp; Ordonnances
-              </a>
-            </li>
-          {% endif %}
-
-          {% if is_granted('ROLE_ADMIN') %}
-            <li><a href="{{ path('admin_dashboard') }}" class="{{ app.request.attributes.get('_route') starts with 'admin' ? 'active' : '' }}">Panneau Admin</a></li>
-          {% endif %}
-
-          {% if is_granted('ROLE_MEDECIN') %}
-            <li><a href="{{ path('app_calendrier') }}" class="{{ app.request.attributes.get('_route') == 'app_calendrier' ? 'active' : '' }}">Calendrier</a></li>
-            <li><a href="{{ path('app_doctor_appointments') }}" class="{{ app.request.attributes.get('_route') == 'app_doctor_appointments' ? 'active' : '' }}">Mes Rendez-vous</a></li>
-
-            <li class="dropdown">
-              <a href="#" class="{{ app.request.attributes.get('_route') starts with 'app_medical_record_' ? 'active' : '' }}">
-                <span>Dossier Médicales</span>
-                <i class="bi bi-chevron-down toggle-dropdown"></i>
-              </a>
-              <ul>
-                <li><a href="{{ path('pages_dossier_medical') }}">Documents</a></li>
-                <li><a href="{{ path('app_medical_record_prescriptions_reports') }}">Ordonnances et Rapports</a></li>
-                <li><a href="{{ path('app_medical_record_ai_assistance') }}">Assistance IA</a></li>
-              </ul>
-            </li>
-          {% endif %}
-        {% else %}
-          <li><a href="{{ path('app_doctors') }}" class="{{ app.request.attributes.get('_route') == 'app_doctors' ? 'active' : '' }}">Trouver un Médecin</a></li>
-        {% endif %}
-
-        <!-- Toujours afficher Contact -->
+        <!-- À propos & Contact Direct -->
+        <li><a href="{{ path('app_about') }}" class="{{ app.request.attributes.get('_route') == 'app_about' ? 'active' : '' }}">À propos</a></li>
         <li><a href="{{ path('app_contact') }}" class="{{ app.request.attributes.get('_route') == 'app_contact' ? 'active' : '' }}">Contact</a></li>
 
         <!-- Menu déroulant utilisateur (seulement connecté) -->

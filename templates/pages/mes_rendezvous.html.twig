@@ -93,7 +93,7 @@
                                 <tr class="appointment-row-selectable{{ selectedAppointmentId is defined and selectedAppointmentId == a.id ? ' appointment-row-selected' : '' }}" data-appointment-id="{{ a.id }}">
                                     <td class="ps-4">
                                         <div class="fw-bold text-dark">{{ item.patientName }}</div>
-                                        <small class="text-muted">ID Patient: {{ a.patientId }}</small>
+                                        <small class="text-muted">ID Patient: {{ a.patient.id }}</small>
                                     </td>
                                     <td>
                                         <div class="text-primary fw-bold"><i class="bi bi-calendar-event me-2"></i>{{ a.date|date('d/m/Y') }}</div>

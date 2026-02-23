@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Question;
 use App\Entity\Specialite;
 use App\Form\QuestionType;
+use App\Service\ChatbotService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -88,7 +89,7 @@ class QuestionController extends AbstractController
     }
 
     #[Route('/new', name: 'question_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, ChatbotService $chatbot): Response
     {
         // Ensure only patients can post questions
         if (!$this->isGranted('ROLE_PATIENT')) {
@@ -101,6 +102,14 @@ class QuestionController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Check for inappropriate content
+            $contentToTest = $question->getTitre() . " " . $question->getDescription();
+            if (!$chatbot->isSafe($contentToTest)) {
+                $this->addFlash('error', 'Votre contenu contient un langage inapproprié et a été bloqué.');
+                return $this->render('question/new.html.twig', [
+                    'form' => $form->createView(),
+                ]);
+            }
             $question->setCreatedAt(new \DateTime());
             
             // Assign the current user (Patient) to the question
@@ -125,12 +134,22 @@ class QuestionController extends AbstractController
     public function edit(
         Question $question,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        ChatbotService $chatbot
     ): Response {
         $form = $this->createForm(QuestionType::class, $question);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Check for inappropriate content
+            $contentToTest = $question->getTitre() . " " . $question->getDescription();
+            if (!$chatbot->isSafe($contentToTest)) {
+                $this->addFlash('error', 'Votre contenu contient un langage inapproprié et a été bloqué.');
+                return $this->render('question/edit.html.twig', [
+                    'form' => $form->createView(),
+                    'question' => $question,
+                ]);
+            }
             $em->flush();
 
             $this->addFlash('success', 'Question modifiée avec succès');
