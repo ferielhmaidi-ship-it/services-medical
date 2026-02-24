@@ -1,0 +1,295 @@
+{# templates/admin_medecin/index.html.twig #}
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Gestion des Médecins{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% include 'magazine-admin/magazine/_styles.html.twig' %}
+{% endblock %}
+
+{% block body %}
+    <section class="mag-shell">
+        <div class="container-fluid">
+            <!-- Page Heading -->
+            <div class="mag-header">
+                <div>
+                    <h1 class="mag-title">Gestion des Médecins</h1>
+                    <p class="mag-subtitle">Consultez et gérez les comptes des professionnels de santé.</p>
+                </div>
+                <div class="mag-toolbar">
+                    <a href="{{ path('admin_medecin_new') }}" class="btn btn-primary btn-sm rounded-pill px-3 me-2">
+                        <i class="fas fa-plus me-1"></i> Ajouter un Médecin
+                    </a>
+                    <span class="badge rounded-pill bg-light text-primary border px-3 py-2">
+                        <i class="fas fa-user-md me-1"></i> {{ medecins|length }} Médecin(s)
+                    </span>
+                </div>
+            </div>
+
+            <!-- Filter Card -->
+            <div class="mag-card mb-4">
+                <div class="mb-3 d-flex align-items-center">
+                    <i class="fas fa-filter text-primary me-2"></i>
+                    <h6 class="m-0 font-weight-bold text-primary">Filtres de recherche</h6>
+                </div>
+                <div class="row g-3">
+                    <!-- Statut Filter -->
+                    <div class="col-md-4">
+                        <label for="filterStatus" class="form-label small fw-bold">Statut du compte</label>
+                        <select id="filterStatus" class="form-control select2">
+                            <option value="">Tous les statuts</option>
+                            <option value="Actif">Actif</option>
+                            <option value="Inactif">Inactif</option>
+                        </select>
+                    </div>
+
+                    <!-- Vérification Filter -->
+                    <div class="col-md-4">
+                        <label for="filterVerified" class="form-label small fw-bold">Vérification</label>
+                        <select id="filterVerified" class="form-control select2">
+                            <option value="">Tous les états</option>
+                            <option value="Vérifié">Vérifié</option>
+                            <option value="Non vérifié">Non vérifié</option>
+                        </select>
+                    </div>
+
+                    <!-- Spécialité Filter -->
+                    <div class="col-md-4">
+                        <label for="filterSpecialty" class="form-label small fw-bold">Spécialité médicale</label>
+                        <select id="filterSpecialty" class="form-control select2">
+                            <option value="">Toutes les spécialités</option>
+                            {% for specialty in specialties|sort %}
+                                <option value="{{ specialty }}">{{ specialty }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button id="resetFilters" class="btn btn-outline-secondary btn-sm rounded-pill">
+                        <i class="fas fa-redo me-1"></i> Réinitialiser les filtres
+                    </button>
+                </div>
+            </div>
+
+            <!-- main Listing -->
+            <div class="mag-card pb-0">
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Liste des Médecins</h6>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary btn-sm rounded-pill dropdown-toggle" type="button"
+                                id="exportDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-download me-1"></i> Exporter
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="exportDropdown" style="border-radius: 12px;">
+                            <a class="dropdown-item" href="#" onclick="exportTable('csv')">
+                                <i class="fas fa-file-csv text-success me-2"></i> CSV
+                            </a>
+                            <a class="dropdown-item" href="#" onclick="exportTable('excel')">
+                                <i class="fas fa-file-excel text-success me-2"></i> Excel
+                            </a>
+                            <a class="dropdown-item" href="#" onclick="exportTable('pdf')">
+                                <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" onclick="window.print()">
+                                <i class="fas fa-print text-primary me-2"></i> Imprimer
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table mag-table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th class="border-0 ps-3">ID</th>
+                                <th class="border-0">Nom Complet</th>
+                                <th class="border-0">Email</th>
+                                <th class="border-0" data-filter="specialty">Spécialité</th>
+                                <th class="border-0">CIN</th>
+                                <th class="border-0">Téléphone</th>
+                                <th class="border-0" data-filter="status">Statut</th>
+                                <th class="border-0" data-filter="verified">Vérifié</th>
+                                <th class="border-0 text-end pe-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for medecin in medecins %}
+                            <tr>
+                                <td class="ps-3 align-middle text-muted">#{{ medecin.id }}</td>
+                                <td class="align-middle">
+                                    <span class="fw-bold" style="color: var(--mag-ink);">{{ medecin.getFullName() }}</span><br>
+                                    <small class="text-muted">{{ medecin.age ? medecin.age ~ ' ans' : 'Âge non spécifié' }}</small>
+                                </td>
+                                <td class="align-middle text-muted small">
+                                    {{ medecin.email }}
+                                </td>
+                                <td class="align-middle" data-sort="{{ medecin.specialty }}" data-filter="{{ medecin.specialty }}">
+                                    <span class="badge rounded-pill bg-light text-primary border px-3">{{ medecin.specialty }}</span>
+                                </td>
+                                <td class="align-middle text-muted small">{{ medecin.cin }}</td>
+                                <td class="align-middle">
+                                    {% if medecin.phoneNumber %}
+                                        <a href="tel:{{ medecin.phoneNumber }}" class="text-primary text-decoration-none small">
+                                            <i class="fas fa-phone me-1"></i> {{ medecin.phoneNumber }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted small">Non renseigné</span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-middle" data-sort="{{ medecin.isActive ? '1' : '0' }}" data-filter="{{ medecin.isActive ? 'Actif' : 'Inactif' }}">
+                                    {% if medecin.isActive %}
+                                        <span class="badge rounded-pill px-3" style="background-color: #e6f4ea; color: #1e7e34;">Actif</span>
+                                    {% else %}
+                                        <span class="badge rounded-pill px-3" style="background-color: #fce8e6; color: #d93025;">Inactif</span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-middle" data-sort="{{ medecin.isVerified ? '1' : '0' }}" data-filter="{{ medecin.isVerified ? 'Vérifié' : 'Non vérifié' }}">
+                                    {% if medecin.isVerified %}
+                                        <span class="badge rounded-pill px-3" style="background-color: #e8f0fe; color: #1967d2;"><i class="fas fa-check-circle me-1"></i> Vérifié</span>
+                                    {% else %}
+                                        <span class="badge rounded-pill px-3" style="background-color: #fff4e5; color: #b06000;"><i class="fas fa-clock me-1"></i> En attente</span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-middle text-end pe-3">
+                                    <div class="mag-actions justify-content-end">
+                                        <a href="{{ path('admin_medecin_show', {'id': medecin.id}) }}"
+                                           class="btn btn-outline-primary btn-sm rounded-pill"
+                                           data-toggle="tooltip"
+                                           title="Voir détails">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ path('admin_medecin_edit', {'id': medecin.id}) }}"
+                                           class="btn btn-outline-warning btn-sm rounded-pill"
+                                           data-toggle="tooltip"
+                                           title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button"
+                                                class="btn btn-outline-danger btn-sm rounded-pill"
+                                                data-toggle="modal"
+                                                data-target="#deleteModal{{ medecin.id }}"
+                                                title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Delete Modal -->
+                                    <div class="modal fade" id="deleteModal{{ medecin.id }}" tabindex="-1" role="dialog">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+                                                <div class="modal-header border-bottom-0">
+                                                    <h5 class="modal-title fw-bold">Confirmer la suppression</h5>
+                                                    <button type="button" class="close" data-dismiss="modal">
+                                                        <span>&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body text-center py-4">
+                                                    <div class="mb-3">
+                                                        <i class="fas fa-exclamation-circle text-danger fa-4x"></i>
+                                                    </div>
+                                                    <p class="mb-1">Êtes-vous sûr de vouloir supprimer le médecin</p>
+                                                    <h5 class="fw-bold mb-3">{{ medecin.getFullName() }} ?</h5>
+                                                    <p class="text-muted small mb-0">Cette action est irréversible et supprimera toutes les données associées.</p>
+                                                </div>
+                                                <div class="modal-footer border-top-0 justify-content-center pb-4">
+                                                    <button type="button" class="btn btn-light rounded-pill px-4" data-dismiss="modal">Annuler</button>
+                                                    <form method="post" action="{{ path('admin_medecin_delete', {'id': medecin.id}) }}" style="display: inline;">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ medecin.id) }}">
+                                                        <button type="submit" class="btn btn-danger rounded-pill px-4">
+                                                            <i class="fas fa-trash me-1"></i> Supprimer définitivement
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="9" class="text-center py-5">
+                                    <i class="fas fa-user-md fa-3x text-muted mb-3 opacity-50"></i>
+                                    <h5 class="text-muted">Aucun médecin trouvé</h5>
+                                    <p class="text-muted small">Les nouveaux inscrits apparaîtront ici automatiquement.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <!-- DataTables Buttons Extension -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            var table = $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json",
+                    "search": "Recherche:",
+                    "searchPlaceholder": "Filtrer..."
+                },
+                "order": [[0, "desc"]],
+                "pageLength": 10,
+                "responsive": true,
+                "dom": '<"d-flex justify-content-between align-items-center mb-4"fB>rtip',
+                "buttons": [
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="fas fa-file-excel me-1"></i> Excel',
+                        className: 'btn btn-outline-success btn-sm rounded-pill px-3',
+                        exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] }
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: '<i class="fas fa-file-pdf me-1"></i> PDF',
+                        className: 'btn btn-outline-danger btn-sm rounded-pill px-3',
+                        exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] },
+                        orientation: 'landscape',
+                        pageSize: 'A4'
+                    }
+                ],
+                "columnDefs": [
+                    { "targets": [8], "orderable": false, "searchable": false }
+                ],
+                "initComplete": function() {
+                    $('.select2').select2({ theme: 'bootstrap4', width: '100%', allowClear: true });
+                }
+            });
+
+            // Filters implementation
+            $('#filterStatus').on('change', function() { table.column(6).search(this.value ? '^' + this.value + '$' : '', true, false).draw(); });
+            $('#filterVerified').on('change', function() { table.column(7).search(this.value ? '^' + this.value + '$' : '', true, false).draw(); });
+            $('#filterSpecialty').on('change', function() { table.column(3).search(this.value ? '^' + this.value + '$' : '', true, false).draw(); });
+            
+            $('#resetFilters').on('click', function() {
+                $('.select2').val(null).trigger('change');
+                table.columns().search('').draw();
+            });
+
+            // Custom export trigger
+            window.exportTable = function(type) {
+                if (type === 'excel') table.button('.buttons-excel').trigger();
+                if (type === 'pdf') table.button('.buttons-pdf').trigger();
+                if (type === 'csv') table.button('.buttons-excel').trigger();
+            };
+
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dossier M?dicales - TabibNet{% endblock %}
+
+{% block body %}
+<section class="section py-5">
+  <div class="container">
+    <h1 class="mb-4">Dossier M?dicales</h1>
+    <p class="text-muted mb-4">Espace m?decin pour centraliser les documents patient, ordonnances, rapports et assistance IA.</p>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Documents</h5>
+            <p class="card-text">Consulter et organiser les documents m?dicaux des patients.</p>
+            <a class="btn btn-primary" href="{{ path('app_medical_record_documents') }}">Ouvrir</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Ordonnances et Rapports</h5>
+            <p class="card-text">Cr?er et suivre les ordonnances et rapports cliniques.</p>
+            <a class="btn btn-primary" href="{{ path('app_medical_record_prescriptions_reports') }}">Ouvrir</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Assistance IA</h5>
+            <p class="card-text">Aide ? la r?daction et ? l'analyse rapide des donn?es patient.</p>
+            <a class="btn btn-primary" href="{{ path('app_medical_record_ai_assistance') }}">Ouvrir</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

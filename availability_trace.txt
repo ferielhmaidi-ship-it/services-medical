@@ -1,0 +1,120 @@
+START_DATE: 2026-02-16 | DOCTOR: 2
+Checking Doc 2 | 2026-02-16: Working hours found. Added.
+Checking Doc 2 | 2026-02-17: Working hours found. Added.
+Checking Doc 2 | 2026-02-18: No working hours found.
+Checking Doc 2 | 2026-02-19: No working hours found.
+Checking Doc 2 | 2026-02-20: Working hours found. Added.
+Checking Doc 2 | 2026-02-21: No working hours found.
+Checking Doc 2 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 1
+Checking Doc 1 | 2026-02-16: Working hours found. Added.
+Checking Doc 1 | 2026-02-17: Working hours found. Added.
+Checking Doc 1 | 2026-02-18: Working hours found. Added.
+Checking Doc 1 | 2026-02-19: Working hours found. Blocked by Indisponibilite.
+Checking Doc 1 | 2026-02-20: No working hours found.
+Checking Doc 1 | 2026-02-21: No working hours found.
+Checking Doc 1 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 2
+Checking Doc 2 | 2026-02-16: Working hours found. Added.
+Checking Doc 2 | 2026-02-17: Working hours found. Added.
+Checking Doc 2 | 2026-02-18: No working hours found.
+Checking Doc 2 | 2026-02-19: No working hours found.
+Checking Doc 2 | 2026-02-20: Working hours found. Added.
+Checking Doc 2 | 2026-02-21: No working hours found.
+Checking Doc 2 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 1
+Checking Doc 1 | 2026-02-16: Working hours found. Added.
+Checking Doc 1 | 2026-02-17: Working hours found. Added.
+Checking Doc 1 | 2026-02-18: Working hours found. Added.
+Checking Doc 1 | 2026-02-19: Working hours found. Blocked by Indisponibilite.
+Checking Doc 1 | 2026-02-20: No working hours found.
+Checking Doc 1 | 2026-02-21: No working hours found.
+Checking Doc 1 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 2
+Checking Doc 2 | 2026-02-16: Working hours found. Added.
+Checking Doc 2 | 2026-02-17: Working hours found. Added.
+Checking Doc 2 | 2026-02-18: No working hours found.
+Checking Doc 2 | 2026-02-19: No working hours found.
+Checking Doc 2 | 2026-02-20: Working hours found. Added.
+Checking Doc 2 | 2026-02-21: No working hours found.
+Checking Doc 2 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 1
+Checking Doc 1 | 2026-02-16: No working hours found.
+Checking Doc 1 | 2026-02-17: No working hours found.
+Checking Doc 1 | 2026-02-18: No working hours found.
+Checking Doc 1 | 2026-02-19: No working hours found.
+Checking Doc 1 | 2026-02-20: No working hours found.
+Checking Doc 1 | 2026-02-21: No working hours found.
+Checking Doc 1 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 1
+Checking Doc 1 | 2026-02-16: No working hours found.
+Checking Doc 1 | 2026-02-17: No working hours found.
+Checking Doc 1 | 2026-02-18: No working hours found.
+Checking Doc 1 | 2026-02-19: No working hours found.
+Checking Doc 1 | 2026-02-20: No working hours found.
+Checking Doc 1 | 2026-02-21: No working hours found.
+Checking Doc 1 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 1
+Checking Doc 1 | 2026-02-16: No working hours found.
+Checking Doc 1 | 2026-02-17: No working hours found.
+Checking Doc 1 | 2026-02-18: No working hours found.
+Checking Doc 1 | 2026-02-19: No working hours found.
+Checking Doc 1 | 2026-02-20: No working hours found.
+Checking Doc 1 | 2026-02-21: No working hours found.
+Checking Doc 1 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 1
+Checking Doc 1 | 2026-02-16: No working hours found.
+Checking Doc 1 | 2026-02-17: No working hours found.
+Checking Doc 1 | 2026-02-18: No working hours found.
+Checking Doc 1 | 2026-02-19: No working hours found.
+Checking Doc 1 | 2026-02-20: No working hours found.
+Checking Doc 1 | 2026-02-21: No working hours found.
+Checking Doc 1 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 1
+Checking Doc 1 | 2026-02-16: No working hours found.
+Checking Doc 1 | 2026-02-17: No working hours found.
+Checking Doc 1 | 2026-02-18: No working hours found.
+Checking Doc 1 | 2026-02-19: No working hours found.
+Checking Doc 1 | 2026-02-20: No working hours found.
+Checking Doc 1 | 2026-02-21: No working hours found.
+Checking Doc 1 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 1
+Checking Doc 1 | 2026-02-16: No working hours found.
+Checking Doc 1 | 2026-02-17: No working hours found.
+Checking Doc 1 | 2026-02-18: No working hours found.
+Checking Doc 1 | 2026-02-19: No working hours found.
+Checking Doc 1 | 2026-02-20: No working hours found.
+Checking Doc 1 | 2026-02-21: No working hours found.
+Checking Doc 1 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 1
+Checking Doc 1 | 2026-02-16: No working hours found.
+Checking Doc 1 | 2026-02-17: No working hours found.
+Checking Doc 1 | 2026-02-18: No working hours found.
+Checking Doc 1 | 2026-02-19: No working hours found.
+Checking Doc 1 | 2026-02-20: No working hours found.
+Checking Doc 1 | 2026-02-21: No working hours found.
+Checking Doc 1 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 1
+Checking Doc 1 | 2026-02-16: Working hours found. Added.
+Checking Doc 1 | 2026-02-17: No working hours found.
+Checking Doc 1 | 2026-02-18: Working hours found. Added.
+Checking Doc 1 | 2026-02-19: No working hours found.
+Checking Doc 1 | 2026-02-20: Working hours found. Added.
+Checking Doc 1 | 2026-02-21: No working hours found.
+Checking Doc 1 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 1
+Checking Doc 1 | 2026-02-16: Working hours found. Added.
+Checking Doc 1 | 2026-02-17: No working hours found.
+Checking Doc 1 | 2026-02-18: Working hours found. Added.
+Checking Doc 1 | 2026-02-19: No working hours found.
+Checking Doc 1 | 2026-02-20: Working hours found. Added.
+Checking Doc 1 | 2026-02-21: No working hours found.
+Checking Doc 1 | 2026-02-22: No working hours found.
+START_DATE: 2026-02-16 | DOCTOR: 1
+Checking Doc 1 | 2026-02-16: Working hours found. Added.
+Checking Doc 1 | 2026-02-17: No working hours found.
+Checking Doc 1 | 2026-02-18: Working hours found. Added.
+Checking Doc 1 | 2026-02-19: No working hours found.
+Checking Doc 1 | 2026-02-20: Working hours found. Added.
+Checking Doc 1 | 2026-02-21: No working hours found.
+Checking Doc 1 | 2026-02-22: No working hours found.

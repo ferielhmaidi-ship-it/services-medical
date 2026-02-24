@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Service Details - MediNest{% endblock %}
+{% block body_class %}service-details-page{% endblock %}
+
+{% block body %}
+<div class="page-title">
+  <div class="heading">
+    <div class="container">
+      <div class="row d-flex justify-content-center text-center">
+        <div class="col-lg-8">
+          <h1 class="heading-title">Service Details</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="breadcrumbs">
+    <div class="container">
+      <ol>
+        <li><a href="{{ path('app_home') }}">Home</a></li>
+        <li><a href="{{ path('app_services') }}">Services</a></li>
+        <li class="current">Details</li>
+      </ol>
+    </div>
+  </nav>
+</div>
+
+<section id="service-details" class="service-details section">
+  <div class="container" data-aos="fade-up">
+    <div class="row">
+      <div class="col-lg-8">
+        <h2>Cardiology Excellence</h2>
+        <p>Our cardiology service provides comprehensive care for heart conditions.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

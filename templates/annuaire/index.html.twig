@@ -1,0 +1,680 @@
+{# templates/annuaire/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Annuaire Médical Tunisien - TabibNet{% endblock %}
+{% block description %}Consultez l'annuaire médical complet de Tunisie - Recherchez des médecins par spécialité et localisation.{% endblock %}
+
+{% block body %}
+<!-- Annuaire Hero -->
+<section class="annuaire-hero section position-relative overflow-hidden">
+    <div class="container position-relative z-2">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center" data-aos="fade-up">
+                <h1 class="hero-title mb-3 display-4 fw-bold text-white">Annuaire Médical Tunisien</h1>
+                <p class="lead mb-4 fs-5 text-white opacity-90">
+                    Annuaire complet des médecins de libre pratique en Tunisie
+                    <br>
+                    <small class="opacity-75">
+                        {% if apiStatus.data_loaded %}
+                            <i class="fas fa-database text-success me-1"></i>
+                            {{ apiStatus.record_count|default(0)|number_format(0, ',', ' ') }} médecins référencés
+                        {% else %}
+                            <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                            Service en maintenance
+                        {% endif %}
+                    </small>
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+                    <span class="badge bg-white text-primary py-2 px-3 rounded-pill fw-medium">
+                        <i class="fas fa-stethoscope me-2"></i>Médecins Libéraux
+                    </span>
+                    <span class="badge bg-white text-primary py-2 px-3 rounded-pill fw-medium">
+                        <i class="fas fa-map-marker-alt me-2"></i>Couverture Nationale
+                    </span>
+                    <span class="badge bg-white text-primary py-2 px-3 rounded-pill fw-medium">
+                        <i class="fas fa-shield-alt me-2"></i>Données Officielles
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Background Elements -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 z-1">
+        <div class="bg-blur-1"></div>
+        <div class="bg-blur-2"></div>
+    </div>
+</section>
+
+<!-- Search Filters -->
+<section class="search-filters section pb-0">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="search-wrapper">
+            <div class="search-card">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="row align-items-center mb-4">
+                        <div class="col">
+                            <h2 class="h3 mb-0">
+                                <i class="fas fa-search me-2 text-primary"></i>Recherche dans l'Annuaire
+                            </h2>
+                            <p class="text-muted mb-0 mt-2">Recherchez des médecins selon vos critères</p>
+                        </div>
+                        <div class="col-auto">
+                            <div class="d-flex align-items-center text-primary">
+                                <i class="fas fa-filter me-2"></i>
+                                <span>Filtres de recherche</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form action="{{ path('app_annuaire') }}" method="get" class="row g-4">
+                        <!-- Name Input -->
+                        <div class="col-xl-4 col-lg-6 col-md-6">
+                            <label class="form-label fw-semibold d-flex align-items-center">
+                                <i class="fas fa-user-md me-2 text-primary"></i>Nom du médecin
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-primary bg-gradient text-white border-0">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" name="name"
+                                       placeholder="Ex: Ahmed Ben Ali (recherche approximative)"
+                                       value="{{ name }}">
+                            </div>
+                            <small class="text-muted mt-1 d-block">La recherche par nom utilise une correspondance approximative</small>
+                        </div>
+
+                        <!-- Specialty Select -->
+                        <div class="col-xl-4 col-lg-6 col-md-6">
+                            <label class="form-label fw-semibold d-flex align-items-center">
+                                <i class="fas fa-stethoscope me-2 text-primary"></i>Spécialité
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-primary bg-gradient text-white border-0">
+                                    <i class="fas fa-clinic-medical"></i>
+                                </span>
+                                <select class="form-select border-start-0" name="specialty">
+                                    <option value="">Toutes les spécialités</option>
+                                    {% for group, specs in specialtyGroups %}
+                                        <optgroup label="{{ group }}">
+                                            {% for specValue in specs %}
+                                                <option value="{{ specValue }}" {{ specialty == specValue ? 'selected' : '' }}>
+                                                    {{ specValue }}
+                                                </option>
+                                            {% endfor %}
+                                        </optgroup>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Governorate Select -->
+                        <div class="col-xl-4 col-lg-6 col-md-6">
+                            <label class="form-label fw-semibold d-flex align-items-center">
+                                <i class="fas fa-map-marker-alt me-2 text-primary"></i>Gouvernorat
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-primary bg-gradient text-white border-0">
+                                    <i class="fas fa-location-dot"></i>
+                                </span>
+                                <select class="form-select border-start-0" name="governorate">
+                                    <option value="">Tous les gouvernorats</option>
+                                    {% for label, value in governorates %}
+                                        <option value="{{ value }}" {{ governorate == value ? 'selected' : '' }}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="col-12">
+                            <div class="d-flex flex-wrap gap-2 justify-content-center mt-2">
+                                <button type="submit" class="btn btn-primary btn-lg shadow-sm px-5">
+                                    <i class="fas fa-search me-2"></i> Rechercher
+                                </button>
+                                <a href="{{ path('app_annuaire') }}" class="btn btn-outline-primary btn-lg">
+                                    <i class="fas fa-redo me-2"></i> Réinitialiser
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Stats -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="search-stats">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="stats-left">
+                            <h5 class="mb-0">
+                                <i class="fas fa-stethoscope me-2 text-primary"></i>
+                                <span class="text-primary fw-bold">{{ pagination.totalItems|default(0)|number_format(0, ',', ' ') }}</span>
+                                médecin{{ pagination.totalItems|default(0) != 1 ? 's' : '' }} trouvé{{ pagination.totalItems|default(0) != 1 ? 's' : '' }}
+                            </h5>
+                            {% if apiStatus.data_loaded %}
+                                <p class="text-muted small mb-0 mt-1">
+                                <i class="fas fa-info-circle me-1 text-info"></i>
+                                Page {{ pagination.currentPage|default(1) }} sur {{ pagination.totalPages|default(1) }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="stats-right">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-list-ol me-1"></i>{{ pagination.pageSize|default(20) }} par page
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ path('app_annuaire', {per_page: 10, name: name, specialty: specialty, governorate: governorate}) }}">10 par page</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_annuaire', {per_page: 20, name: name, specialty: specialty, governorate: governorate}) }}">20 par page</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_annuaire', {per_page: 50, name: name, specialty: specialty, governorate: governorate}) }}">50 par page</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Doctors Results -->
+<section class="annuaire-results section">
+    <div class="container" data-aos="fade-up" data-aos-delay="200">
+        {% if not searchResult.success %}
+            <!-- Error Message -->
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                {{ searchResult.message }}
+            </div>
+        {% elseif doctors|length > 0 %}
+            <!-- Doctors Grid -->
+            <div class="row g-4">
+                {% for doctor in doctors %}
+                <div class="col-xl-4 col-lg-6 col-md-6">
+                    <div class="doctor-card card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <!-- Doctor Header -->
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center me-3 flex-shrink-0">
+                                    {{ doctor['Nom & Prénom']|split(' ')|map(word => word|first)|join('')|upper }}
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-1">{{ doctor['Nom & Prénom'] }}</h5>
+                                    <span class="badge bg-primary rounded-pill mb-2">{{ doctor['Spécialité'] }}</span>
+                                    <div class="small text-muted">
+                                        <i class="fas fa-user-md me-1"></i>Médecin Libre
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Doctor Details -->
+                            <div class="doctor-details">
+                                <!-- Address -->
+                                {% if doctor['Adresse Professionnelle'] %}
+                                <div class="mb-3">
+                                    <h6 class="text-muted small mb-2">
+                                        <i class="fas fa-map-marker-alt me-1 text-primary"></i>Adresse
+                                    </h6>
+                                    <p class="mb-0 small">{{ doctor['Adresse Professionnelle'] }}</p>
+                                </div>
+                                {% endif %}
+
+                                <!-- Contact Info -->
+                                <div class="contact-info">
+                                    {% if doctor['Téléphone'] %}
+                                    <div class="mb-2">
+                                        <i class="fas fa-phone text-primary me-2 fa-sm"></i>
+                                        <a href="tel:{{ doctor['Téléphone'] }}" class="text-decoration-none">
+                                            {{ doctor['Téléphone'] }}
+                                        </a>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="mb-2">
+                                        <i class="fas fa-city text-primary me-2 fa-sm"></i>
+                                        <strong>{{ doctor['Governorate'] }}</strong>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <i class="fas fa-stethoscope text-primary me-2 fa-sm"></i>
+                                        {{ doctor['Spécialité'] }}
+                                    </div>
+                                </div>
+
+                                <!-- Practice Mode -->
+                                <div class="mt-3 pt-3 border-top">
+                                    <div class="d-flex align-items-center small text-muted">
+                                        <i class="fas fa-briefcase-medical me-2 text-success"></i>
+                                        <span>{{ doctor['Mode Exercice'] }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0 pt-0">
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-outline-primary btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#doctorDetail{{ loop.index }}">
+                                    <i class="fas fa-eye me-1"></i> Détails
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Doctor Detail Modal -->
+                    <div class="modal fade" id="doctorDetail{{ loop.index }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Détails du Médecin</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="text-center mb-4">
+                                        <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; font-size: 1.5rem;">
+                                            {{ doctor['Nom & Prénom']|split(' ')|map(word => word|first)|join('')|upper }}
+                                        </div>
+                                        <h4>{{ doctor['Nom & Prénom'] }}</h4>
+                                        <p class="text-primary fw-bold mb-2">{{ doctor['Spécialité'] }}</p>
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            {{ doctor['Mode Exercice'] }}
+                                        </span>
+                                    </div>
+
+                                    <div class="doctor-info">
+                                        <h6 class="text-muted mb-3">Informations</h6>
+                                        <ul class="list-unstyled">
+                                            {% if doctor['Adresse Professionnelle'] %}
+                                            <li class="mb-2">
+                                                <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                                                <strong>Adresse:</strong>
+                                                <p class="mb-0 small">{{ doctor['Adresse Professionnelle'] }}</p>
+                                            </li>
+                                            {% endif %}
+
+                                            {% if doctor['Téléphone'] %}
+                                            <li class="mb-2">
+                                                <i class="fas fa-phone text-muted me-2"></i>
+                                                <strong>Téléphone:</strong>
+                                                <p class="mb-0 small">{{ doctor['Téléphone'] }}</p>
+                                            </li>
+                                            {% endif %}
+
+                                            <li class="mb-2">
+                                                <i class="fas fa-city text-muted me-2"></i>
+                                                <strong>Gouvernorat:</strong>
+                                                <p class="mb-0 small">{{ doctor['Governorate'] }}</p>
+                                            </li>
+
+                                            <li class="mb-2">
+                                                <i class="fas fa-stethoscope text-muted me-2"></i>
+                                                <strong>Spécialité:</strong>
+                                                <p class="mb-0 small">{{ doctor['Spécialité'] }}</p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                    <a href="{{ path('app_appointment') }}" class="btn btn-primary">
+                                        <i class="fas fa-calendar-check me-2"></i>Prendre RDV
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if pagination.totalPages > 1 %}
+            <div class="mt-5">
+                <nav aria-label="Pagination">
+                    <ul class="pagination justify-content-center">
+                        <!-- Previous Page -->
+                        <li class="page-item {{ currentPage == 1 ? 'disabled' : '' }}">
+                            <a class="page-link" href="{{ path('app_annuaire', {page: currentPage-1, name: name, specialty: specialty, governorate: governorate, per_page: pagination.pageSize}) }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        <!-- Page Numbers -->
+                        {% set startPage = max(1, currentPage - 2) %}
+                        {% set endPage = min(pagination.totalPages, startPage + 4) %}
+
+                        {% if startPage > 1 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ path('app_annuaire', {page: 1, name: name, specialty: specialty, governorate: governorate, per_page: pagination.pageSize}) }}">1</a>
+                        </li>
+                        {% if startPage > 2 %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                        {% endif %}
+
+                        {% for p in startPage..endPage %}
+                        <li class="page-item {{ p == currentPage ? 'active' : '' }}">
+                            <a class="page-link" href="{{ path('app_annuaire', {page: p, name: name, specialty: specialty, governorate: governorate, per_page: pagination.pageSize}) }}">{{ p }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if endPage < pagination.totalPages %}
+                        {% if endPage < pagination.totalPages - 1 %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ path('app_annuaire', {page: pagination.totalPages, name: name, specialty: specialty, governorate: governorate, per_page: pagination.pageSize}) }}">{{ pagination.totalPages }}</a>
+                        </li>
+                        {% endif %}
+
+                        <!-- Next Page -->
+                        <li class="page-item {{ currentPage == pagination.totalPages ? 'disabled' : '' }}">
+                            <a class="page-link" href="{{ path('app_annuaire', {page: currentPage+1, name: name, specialty: specialty, governorate: governorate, per_page: pagination.pageSize}) }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+
+        {% else %}
+            <!-- No Results -->
+            <div class="no-results text-center py-5">
+                <div class="no-results-icon mb-4">
+                    <i class="fas fa-search text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+                </div>
+                <h4 class="mb-3">Aucun médecin trouvé</h4>
+                <p class="text-muted mb-4">
+                    {% if name or specialty or governorate %}
+                        Essayez de modifier vos filtres de recherche.
+                    {% else %}
+                        L'annuaire contient {{ apiStatus.record_count|default(0)|number_format(0, ',', ' ') }} médecins.
+                        Utilisez les filtres pour affiner votre recherche.
+                    {% endif %}
+                </p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="{{ path('app_annuaire') }}" class="btn btn-primary">
+                        <i class="fas fa-redo me-2"></i>Tout afficher
+                    </a>
+                    <a href="{{ path('app_doctors') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user-md me-2"></i>Trouver un médecin
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Info Section -->
+        {% if apiStatus.data_loaded %}
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="info-card">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body p-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h5 class="mb-2">
+                                        <i class="fas fa-info-circle me-2 text-primary"></i>
+                                        À propos de cet annuaire
+                                    </h5>
+                                    <p class="text-muted mb-0">
+                                        Cet annuaire répertorie {{ apiStatus.record_count|default(0)|number_format(0, ',', ' ') }} médecins
+                                        de libre pratique en Tunisie. Les données sont mises à jour régulièrement à partir des sources officielles.
+                                    </p>
+                                </div>
+                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                    <div class="d-flex flex-column align-items-md-end">
+                                        <div class="mb-2">
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-database me-1"></i>
+                                                Données actualisées
+                                            </span>
+                                        </div>
+                                        <small class="text-muted">
+                                            {{ pagination.totalItems|default(0)|number_format(0, ',', ' ') }} résultats affichés
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+/* Hero Section */
+.annuaire-hero {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.9) 100%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="white" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+    background-size: cover, cover;
+    background-position: center, center;
+    padding: 120px 0 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.annuaire-hero .bg-blur-1 {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    filter: blur(60px);
+    top: -150px;
+    right: -150px;
+}
+
+.annuaire-hero .bg-blur-2 {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    filter: blur(80px);
+    bottom: -200px;
+    left: -200px;
+}
+
+/* Search Section */
+.search-wrapper {
+    margin-top: -60px;
+    position: relative;
+    z-index: 10;
+}
+
+.search-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    border: none;
+    overflow: hidden;
+}
+
+.search-stats {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Doctor Cards */
+.doctor-card {
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.doctor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+.avatar-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Pagination */
+.pagination .page-link {
+    border: none;
+    color: #666;
+    padding: 0.5rem 0.75rem;
+    margin: 0 0.25rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+/* No Results */
+.no-results {
+    background: white;
+    padding: 80px 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+}
+
+.no-results-icon {
+    font-size: 5rem;
+    color: rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+.btn-outline-primary {
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border: 2px solid #10b981;
+    color: #10b981;
+}
+
+.btn-outline-primary:hover {
+    background-color: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .annuaire-hero {
+        padding: 100px 0 60px;
+    }
+
+    .search-wrapper {
+        margin-top: -40px;
+    }
+
+    .doctor-card {
+        margin-bottom: 1rem;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+    }
+
+    .page-link {
+        padding: 0.4rem 0.6rem;
+        margin: 0.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .search-card .card-body {
+        padding: 1.5rem !important;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit on select change
+    const filterSelects = document.querySelectorAll('select[name="specialty"], select[name="governorate"]');
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            const name = document.querySelector('[name="name"]').value.trim();
+            const specialty = document.querySelector('[name="specialty"]').value;
+            const governorate = document.querySelector('[name="governorate"]').value;
+
+            // Only auto-submit if at least one field has value
+            if (name || specialty || governorate) {
+                const btn = this.form.querySelector('button[type="submit"]');
+                if(btn) {
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Recherche...';
+                    btn.disabled = true;
+
+                    setTimeout(() => {
+                        this.form.submit();
+                    }, 300);
+                }
+            }
+        });
+    });
+
+    // Doctor card hover effects
+    const doctorCards = document.querySelectorAll('.doctor-card');
+    doctorCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

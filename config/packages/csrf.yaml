@@ -1,0 +1,4 @@
+# Basic CSRF protection for forms using session-based tokens
+framework:
+    form:
+        csrf_protection: true

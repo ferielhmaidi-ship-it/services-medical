@@ -1,0 +1,386 @@
+{# templates/medecin_dashboard/profile.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil - MediNest{% endblock %}
+
+{% block body_class %}medecin-profile{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <!-- Profile Sidebar -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body text-center">
+                    <div class="avatar-circle bg-success-gradient text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                        Dr. {{ medecin.fullName|split(' ')|map(word => word|first)|join('')|upper }}
+                    </div>
+                    <h4 class="mb-1">Dr. {{ medecin.fullName }}</h4>
+                    <p class="text-muted mb-3">{{ medecin.specialty|specialty_display }}</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('medecin_dashboard') }}" class="btn btn-outline-success">
+                            <i class="fas fa-tachometer-alt me-2"></i>Tableau de Bord
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Status -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-user-shield me-2 text-warning"></i>Statut du Compte</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="status-indicator bg-success"></div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0">Compte Actif</h6>
+                            <small class="text-muted">
+                                {% if medecin.isActive %}
+                                    Votre compte est actif et visible
+                                {% else %}
+                                    Votre compte est désactivé
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="status-indicator {% if medecin.isVerified %}bg-info{% else %}bg-warning{% endif %}"></div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0">Vérification</h6>
+                            <small class="text-muted">
+                                {% if medecin.isVerified %}
+                                    Votre compte est vérifié
+                                {% else %}
+                                    En attente de vérification
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <!-- Profile Form -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-md me-2"></i>Modifier mon Profil Médical</h4>
+                </div>
+                <div class="card-body">
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+
+                    {{ form_start(form) }}
+
+                    <div class="row g-3">
+                        <!-- Personal Info -->
+                        <div class="col-md-6">
+                            {{ form_row(form.firstName, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.lastName, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+
+                        <!-- Contact Info -->
+                        <div class="col-md-6">
+                            {{ form_row(form.email, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.phoneNumber, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+
+                        <!-- Personal Details -->
+                        <div class="col-md-4">
+                            {{ form_row(form.age, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.gender, {
+                                'attr': {'class': 'form-select'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.governorate, {
+                                'attr': {'class': 'form-select'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+
+                        <!-- Professional Info -->
+                        <div class="col-md-6">
+                            {{ form_row(form.specialty, {
+                                'attr': {'class': 'form-select'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.cin, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+
+                        <!-- Address -->
+                        <div class="col-12">
+                            {{ form_row(form.address, {
+                                'attr': {'class': 'form-control', 'rows': 3},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+
+                        <!-- Education & Experience -->
+                        <div class="col-12">
+                            {{ form_row(form.education, {
+                                'attr': {'class': 'form-control', 'rows': 4},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+                        <div class="col-12">
+                            {{ form_row(form.experience, {
+                                'attr': {'class': 'form-control', 'rows': 4},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+
+                        <!-- Account Status -->
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                {{ form_widget(form.isActive, {
+                                    'attr': {'class': 'form-check-input'}
+                                }) }}
+                                {{ form_label(form.isActive, null, {
+                                    'label_attr': {'class': 'form-check-label'}
+                                }) }}
+                                <small class="form-text text-muted d-block">
+                                    Désactivez pour rendre votre compte temporairement invisible
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                {{ form_widget(form.isVerified, {
+                                    'attr': {'class': 'form-check-input'}
+                                }) }}
+                                {{ form_label(form.isVerified, null, {
+                                    'label_attr': {'class': 'form-check-label'}
+                                }) }}
+                                <small class="form-text text-muted d-block">
+                                    La vérification est gérée par l'administrateur
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('medecin_dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Retour
+                            </a>
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <!-- Account Security -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-shield-alt me-2 text-danger"></i>Sécurité du Compte</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center justify-content-between p-3 border rounded">
+                                <div>
+                                    <h6 class="mb-1">Mot de passe</h6>
+                                    <p class="mb-0 small text-muted">Mettez à jour votre mot de passe</p>
+                                </div>
+                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                    <i class="fas fa-key me-1"></i>Changer
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center justify-content-between p-3 border rounded">
+                                <div>
+                                    <h6 class="mb-1">Connexions actives</h6>
+                                    <p class="mb-0 small text-muted">Gérez vos sessions</p>
+                                </div>
+                                <button class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-eye me-1"></i>Voir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Changer le mot de passe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Mot de passe actuel</label>
+                        <input type="password" class="form-control" id="currentPassword">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Nouveau mot de passe</label>
+                        <input type="password" class="form-control" id="newPassword">
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirmer le nouveau mot de passe</label>
+                        <input type="password" class="form-control" id="confirmPassword">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-success">Mettre à jour</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+.medecin-profile {
+    background-color: #f8f9fa;
+}
+
+.avatar-circle {
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+.bg-success-gradient {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.card {
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.form-control, .form-select {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.btn-outline-success {
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+}
+
+.form-check-input:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+.form-text {
+    font-size: 0.85rem;
+}
+
+/* Style for optgroups in select */
+optgroup {
+    font-weight: bold;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+optgroup option {
+    font-weight: normal;
+    color: #495057;
+    padding-left: 20px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+}
+</style>
+{% endblock %}

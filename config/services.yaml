@@ -1,0 +1,63 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+parameters:
+    openrouter_api_key: '%env(OPENROUTER_API_KEY)%'
+    uploads_directory: '%kernel.project_dir%/public/uploads'
+    images_directory: '%kernel.project_dir%/public/uploads'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # Controllers are imported separately to make sure they can be used as services
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+        public: true
+
+    # Twig Extensions
+    App\Twig\SpecialtyExtension:
+        tags: ['twig.extension']
+
+    App\Twig\GovernorateExtension:
+        tags: ['twig.extension']
+
+    App\Twig\AppExtension:
+        tags: ['twig.extension']
+
+    # Custom Services with arguments
+    App\Service\AnnuaireService:
+        arguments:
+            $flaskApiUrl: '%env(FLASK_API_URL)%'
+
+    App\Service\DoctorVerificationService:
+        arguments:
+            $flaskApiUrl: '%env(FLASK_API_URL)%'
+
+    App\Service\ChatbotService:
+        arguments:
+            $openRouterApiKey: '%openrouter_api_key%'
+
+    App\Service\FileUploader:
+        arguments:
+            $targetDirectory: '%uploads_directory%'
+
+    App\Controller\IaController:
+        arguments:
+            $uploadDirectory: '%kernel.project_dir%/public/uploads'
+
+    App\Service\OllamaService:
+        arguments:
+            $openRouterApiKey: '%openrouter_api_key%'
