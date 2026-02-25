@@ -69,8 +69,8 @@ class WeatherService
             }
         }
 
-        // Only consider forecasts within a 3-hour window
-        if ($closestForecast && $minDiff < 5400) {
+        // Only consider forecasts within a 3-hour window (3 * 3600 seconds)
+        if ($closestForecast && $minDiff < 10800) {
             $weather = $closestForecast['weather'][0] ?? null;
             if ($weather) {
                 $main = $weather['main'];
