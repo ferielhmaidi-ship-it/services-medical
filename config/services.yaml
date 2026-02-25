@@ -61,3 +61,11 @@ services:
     App\Service\OllamaService:
         arguments:
             $openRouterApiKey: '%openrouter_api_key%'
+
+    App\Service\WeatherService:
+        arguments:
+            $apiKey: '%env(OPENWEATHER_API_KEY)%'
+
+    App\Service\AiSchedulingService:
+        arguments:
+            $apiKey: '%env(OPENROUTER_API_KEY)%'

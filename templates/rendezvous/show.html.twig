@@ -3,36 +3,40 @@
 {% block title %}RendezVous{% endblock %}
 
 {% block body %}
-    <h1>RendezVous</h1>
+    <h1>Appointment Details</h1>
 
     <table class="table">
         <tbody>
             <tr>
                 <th>Id</th>
-                <td>{{ rendez_vou.id }}</td>
+                <td>{{ appointment.id }}</td>
             </tr>
             <tr>
-                <th>AppointmentDate</th>
-                <td>{{ rendez_vou.appointmentDate ? rendez_vou.appointmentDate|date('Y-m-d H:i:s') : '' }}</td>
+                <th>Date</th>
+                <td>{{ appointment.date ? appointment.date|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Start Time</th>
+                <td>{{ appointment.startTime ? appointment.startTime|date('H:i') : '' }}</td>
             </tr>
             <tr>
                 <th>Message</th>
-                <td>{{ rendez_vou.message }}</td>
+                <td>{{ appointment.message }}</td>
             </tr>
             <tr>
-                <th>Statut</th>
-                <td>{{ rendez_vou.statut }}</td>
+                <th>Status</th>
+                <td>{{ appointment.status }}</td>
             </tr>
             <tr>
-                <th>CreatedAt</th>
-                <td>{{ rendez_vou.createdAt ? rendez_vou.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <th>Created At</th>
+                <td>{{ appointment.createdAt ? appointment.createdAt|date('Y-m-d H:i:s') : '' }}</td>
             </tr>
         </tbody>
     </table>
 
     <a href="{{ path('app_rendezvous_index') }}">back to list</a>
 
-    <a href="{{ path('app_rendezvous_edit', {'id': rendez_vou.id}) }}">edit</a>
+    <a href="{{ path('app_rendezvous_edit', {'id': appointment.id}) }}">edit</a>
 
     {{ include('rendezvous/_delete_form.html.twig') }}
 {% endblock %}

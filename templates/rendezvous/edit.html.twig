@@ -19,7 +19,7 @@
   <div class="container">
     <div class="row d-flex justify-content-center">
       <div class="col-lg-8">
-        <h3 class="mb-4">Edit Your Appointment</h3>
+        <h3 class="mb-4">Edit Appointment</h3>
 
         {% for message in app.flashes('error') %}
           <div class="alert alert-danger alert-dismissible fade show">
@@ -30,19 +30,25 @@
 
         {{ form_start(form) }}
           <div class="row">
-            <div class="col-md-6 form-group">
-              {{ form_row(form.patient) }}
+            <div class="col-md-4 form-group">
+              {{ form_row(form.date) }}
             </div>
-            <div class="col-md-6 form-group">
-              {{ form_row(form.appointmentDate) }}
+            <div class="col-md-4 form-group">
+              {{ form_row(form.startTime) }}
             </div>
           </div>
 
           <div class="row">
             <div class="col-md-6 form-group">
-              {{ form_row(form.doctor) }}
+              {{ form_row(form.patient) }}
             </div>
             <div class="col-md-6 form-group">
+              {{ form_row(form.doctor) }}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12 form-group">
               {{ form_row(form.message) }}
             </div>
           </div>
@@ -51,8 +57,8 @@
             <button type="submit" class="btn btn-primary btn-lg">
               <i class="bi bi-check-circle me-2"></i>Update Appointment
             </button>
-            <a href="{{ path('app_my_appointments') }}" class="btn btn-secondary btn-lg ms-2">
-              <i class="bi bi-arrow-left me-2"></i>Back
+            <a href="{{ path('app_rendezvous_index') }}" class="btn btn-secondary btn-lg ms-2">
+              <i class="bi bi-arrow-left me-2"></i>Back to List
             </a>
           </div>
         {{ form_end(form) }}

@@ -210,19 +210,7 @@ class Rapport
         return $this;
     }
 
-    public function getRendezVous(): ?Appointment
-    {
-        return $this->getAppointment();
-    }
-
-    public function setRendezVous(?Appointment $appointment): self
-    {
-        $this->setAppointment($appointment);
-
-        return $this;
-    }
-
-    public function getDocument(): ?Document
+public function getDocument(): ?Document
     {
         return $this->document;
     }

@@ -45,28 +45,28 @@
             <div class="row mb-3">
               <div class="col-md-6">
                 <p class="mb-2"><strong>Doctor:</strong></p>
-                <p>Dr. {{ rendezVous.doctor.firstName }} {{ rendezVous.doctor.lastName }}</p>
+                <p>Dr. {{ appointment.doctor.firstName }} {{ appointment.doctor.lastName }}</p>
               </div>
               <div class="col-md-6">
                 <p class="mb-2"><strong>Specialty:</strong></p>
-                <p>{{ rendezVous.doctor.specialite }}</p>
+                <p>{{ appointment.doctor.specialty }}</p>
               </div>
             </div>
             <div class="row">
               <div class="col-md-6">
                 <p class="mb-2"><strong>Date:</strong></p>
-                <p>{{ rendezVous.appointmentDate|date('d/m/Y H:i') }}</p>
+                <p>{{ appointment.date|date('d/m/Y H:i') }}</p>
               </div>
               <div class="col-md-6">
                 <p class="mb-2"><strong>Status:</strong></p>
                 <p><span class="badge bg-success">Completed</span></p>
               </div>
             </div>
-            {% if rendezVous.message %}
+            {% if appointment.message %}
               <div class="row">
                 <div class="col-12">
                   <p class="mb-2"><strong>Notes:</strong></p>
-                  <p class="text-muted">{{ rendezVous.message }}</p>
+                  <p class="text-muted">{{ appointment.message }}</p>
                 </div>
               </div>
             {% endif %}

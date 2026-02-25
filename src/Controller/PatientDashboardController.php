@@ -63,6 +63,47 @@ class PatientDashboardController extends AbstractController
         ]);
     }
 
+    #[Route('/my-appointments', name: 'app_patient_appointment_list')]
+    #[Route('/mes-rendezvous', name: 'app_my_appointments')]
+    public function appointmentsList(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        if (!$user instanceof Patient) {
+            throw $this->createAccessDeniedException('Accès réservé aux patients.');
+        }
+
+        $search = $request->query->get('search', '');
+        $sortBy = $request->query->get('sortBy', 'date');
+        $order = $request->query->get('order', 'DESC');
+
+        $repo = $entityManager->getRepository(Appointment::class);
+        $qb = $repo->createQueryBuilder('a')
+            ->leftJoin('a.doctor', 'd')
+            ->where('a.patient = :patient')
+            ->setParameter('patient', $user);
+
+        if ($search) {
+            $qb->andWhere('d.firstName LIKE :search OR d.lastName LIKE :search')
+               ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($sortBy === 'status') {
+            $qb->orderBy('a.status', $order);
+        } else {
+            $qb->orderBy('a.date', $order)
+               ->addOrderBy('a.startTime', $order);
+        }
+
+        $appointments = $qb->getQuery()->getResult();
+
+        return $this->render('pages/my_appointments.html.twig', [
+            'appointments' => $appointments,
+            'currentSearch' => $search,
+            'currentSortBy' => $sortBy,
+            'currentOrder' => $order,
+        ]);
+    }
+
     #[Route('/rapports-ordonnances', name: 'patient_reports_prescriptions')]
     public function reportsPrescriptions(EntityManagerInterface $entityManager): Response
     {

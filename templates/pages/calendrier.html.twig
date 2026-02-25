@@ -76,6 +76,7 @@
     .slot-available { background-color: #e3f2fd; border-left: 3px solid #007bff; color: #0d47a1; cursor: default; }
     .slot-planned { background-color: #e8f5e9; border-left: 3px solid #4caf50; color: #1b5e20; }
     .slot-pause { background-color: #f1f3f4; border-left: 3px solid #6c757d; color: #495057; opacity: 0.7; cursor: default; }
+    .slot-holiday { background-color: #fce4ec; border-left: 3px solid #e91e63; color: #880e4f; font-weight: bold; text-align: center; }
     .slot-emergency { background-color: #343a40 !important; color: #fff !important; text-align: center; font-weight: bold; width: 100%; padding-top: 15px; cursor: default; }
     
     .appt-status { font-weight: bold; font-size: 0.65rem; text-transform: uppercase; }
@@ -163,6 +164,7 @@
                     <small><span class="badge rounded-pill" style="background: #ff9800;">Programmé</span></small>
                     <small><span class="badge rounded-pill" style="background: #f44336;">Annulé</span></small>
                     <small><span class="badge rounded-pill" style="background: #607d8b;">Absent</span></small>
+                    <small><span class="badge rounded-pill" style="background: #e91e63;">Férié</span></small>
                 </div>
             </div>
           </div>
@@ -217,7 +219,7 @@
 </div>
 
 <script>
-    let dbConfig = { settings: { slotDuration: 30, pauseStart: "12:00", pauseEnd: "14:00" }, specifics: [], indisponibilities: [], appointments: [] };
+    let dbConfig = { settings: { slotDuration: 30, pauseStart: "12:00", pauseEnd: "14:00" }, specifics: [], indisponibilities: [], appointments: [], holidays: [] };
     
     function formatDateToISO(date) {
         const y = date.getFullYear();
@@ -227,16 +229,24 @@
     }
 
     async function fetchConfig() {
+        console.log("Fetching config...");
         try {
             const res = await fetch("/api/calendar/config");
+            if (!res.ok) {
+                console.error("API error", res.status);
+                return;
+            }
             dbConfig = await res.json();
+            console.log("Config loaded:", dbConfig);
             if (dbConfig.settings) {
                 document.getElementById("consultation_duration").value = dbConfig.settings.slotDuration;
                 document.getElementById("pause_start").value = dbConfig.settings.pauseStart;
                 document.getElementById("pause_end").value = dbConfig.settings.pauseEnd;
             }
-            updateCalendar();
-        } catch (e) { console.error(e); }
+            generateSlots(dbConfig.settings);
+        } catch (e) {
+            console.error("Fetch failed", e);
+        }
     }
 
     function timeToMins(timeStr) {
@@ -304,6 +314,7 @@
             }
 
             const specific = dbConfig.specifics.find(sp => sp.specificDate === dateStr);
+            const holiday = (dbConfig.holidays || []).find(h => h.date === dateStr);
             const dayAppts = dbConfig.appointments.filter(a => a.date === dateStr);
             
             let activeDuration;
@@ -315,10 +326,14 @@
                 activeDuration = s.slotDuration;
             }
 
+            if (holiday) {
+                const mid = cellMap[`12-${i}`]; 
+                if (mid) mid.innerHTML = `<div class="slot-item slot-holiday">JOUR FÉRIÉ<br><small>${holiday.name}</small></div>`;
+                return;
+            }
+
             if (specific) {
                 renderWorkSlots(date, i, timeToMins(specific.startTime), timeToMins(specific.endTime), s, dayAppts, cellMap, activeDuration);
-            } else if ([1,2,3,4,5].includes(date.getDay())) {
-                renderWorkSlots(date, i, 9*60, 17*60, s, dayAppts, cellMap, activeDuration);
             } else {
                 const mid = cellMap[`12-${i}`]; if (mid) mid.innerHTML = "<div class=\"text-center text-muted small mt-2\">Repos</div>";
             }

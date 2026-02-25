@@ -38,10 +38,6 @@ class Feedback
     #[ORM\JoinColumn(nullable: false)]
     private ?Medecin $medecin = null;
 
-    #[ORM\ManyToOne(targetEntity: RendezVous::class)]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?RendezVous $rendezVous = null;
-
     #[ORM\ManyToOne(targetEntity: Appointment::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?Appointment $appointment = null;
@@ -54,7 +50,6 @@ class Feedback
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    // GETTERS & SETTERS
     public function getId(): ?int { return $this->id; }
     public function getRating(): ?int { return $this->rating; }
     public function setRating(int $rating): self { $this->rating = $rating; return $this; }
@@ -66,14 +61,8 @@ class Feedback
     public function setPatient(?Patient $patient): self { $this->patient = $patient; return $this; }
     public function getMedecin(): ?Medecin { return $this->medecin; }
     public function setMedecin(?Medecin $medecin): self { $this->medecin = $medecin; return $this; }
-    public function getRendezVous(): ?RendezVous { return $this->rendezVous; }
-    public function setRendezVous(?RendezVous $rendezVous): self { $this->rendezVous = $rendezVous; return $this; }
-
     public function getAppointment(): ?Appointment { return $this->appointment; }
     public function setAppointment(?Appointment $appointment): self { $this->appointment = $appointment; return $this; }
-
     public function getSentimentScore(): ?float { return $this->sentimentScore; }
     public function setSentimentScore(?float $sentimentScore): self { $this->sentimentScore = $sentimentScore; return $this; }
-
-    public function getStars(): string { return str_repeat('', $this->rating); }
 }

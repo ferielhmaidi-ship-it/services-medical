@@ -1,4 +1,12 @@
 <?php
+/**
+ * Fix RendezvouscontrollerController.php - write via file_put_contents to bypass OneDrive
+ */
+
+$path = __DIR__ . '/src/Controller/RendezvouscontrollerController.php';
+
+$content = <<<'CONTROLLER'
+<?php
 
 namespace App\Controller;
 
@@ -82,3 +90,20 @@ class RendezvouscontrollerController extends AbstractController
         return $this->redirectToRoute('app_rendezvous_index', [], Response::HTTP_SEE_OTHER);
     }
 }
+CONTROLLER;
+
+$result = file_put_contents($path, $content);
+echo "Written: $result bytes\n";
+
+// Verify
+$readBack = file_get_contents($path);
+if (strpos($readBack, 'class RendezvouscontrollerController') !== false) {
+    echo "VERIFIED: Class definition found in file\n";
+}
+else {
+    echo "ERROR: Class definition NOT found after write!\n";
+    echo "File content starts with: " . substr($readBack, 0, 100) . "\n";
+}
+
+// Clear Symfony cache
+echo "\nClearing Symfony cache...\n";

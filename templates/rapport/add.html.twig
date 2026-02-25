@@ -535,13 +535,13 @@ textarea.form-control:focus + .input-icon {
                 </div>
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        {{ form_label(form.rendezVous, 'Choix du rendez-vous', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_label(form.appointment, 'Choix du rendez-vous', {'label_attr': {'class': 'form-label'}}) }}
                         <span class="required">*</span>
                         <div class="input-wrapper">
-                            {{ form_widget(form.rendezVous, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_widget(form.appointment, {'attr': {'class': 'form-control'}}) }}
                             <span class="input-icon">📋</span>
                         </div>
-                        <div class="form-error">{{ form_errors(form.rendezVous) }}</div>
+                        <div class="form-error">{{ form_errors(form.appointment) }}</div>
                         <span class="form-hint">
                             <span>🔗</span>
                             <span>Ce rapport sera lié au rendez-vous sélectionné</span>

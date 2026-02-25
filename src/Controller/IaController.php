@@ -7,7 +7,7 @@ use App\Entity\Medecin;
 use App\Entity\Rapport;
 use App\Entity\Ordonnance;
 use App\Entity\Document;
-use App\Entity\RendezVous;
+use App\Entity\Appointment;
 use App\Service\OllamaService;
 use App\Service\PdfReaderService;
 use App\Service\GoogleSearchService;
@@ -463,7 +463,7 @@ INSTRUCTIONS;
         $rapports = $em->getRepository(Rapport::class)->findBy(['medecin' => $currentMedecin]);
         $ordonnances = $em->getRepository(Ordonnance::class)->findBy(['medecin' => $currentMedecin]);
         $documents = $em->getRepository(Document::class)->findBy(['medecin' => $currentMedecin]);
-        $rdvs = $em->getRepository(RendezVous::class)->findBy(['doctor' => $currentMedecin]);
+        $rdvs = $em->getRepository(Appointment::class)->findBy(['doctor' => $currentMedecin]);
 
         $dbText = "BASE DE DONNÃ‰ES MÃ‰DICALE\n\n";
         $dbText .= "MEDECIN CONNECTE: Dr {$currentMedecin->getFullName()} (ID: {$currentMedecin->getId()})\n";

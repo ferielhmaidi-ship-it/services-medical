@@ -51,19 +51,25 @@
         
         {{ form_start(form) }}
           <div class="row">
-            <div class="col-md-6 form-group">
-              {{ form_row(form.patient) }}
+            <div class="col-md-4 form-group">
+              {{ form_row(form.date) }}
             </div>
-            <div class="col-md-6 form-group">
-              {{ form_row(form.appointmentDate) }}
+            <div class="col-md-4 form-group">
+              {{ form_row(form.startTime) }}
             </div>
           </div>
           
           <div class="row">
             <div class="col-md-6 form-group">
-              {{ form_row(form.doctor) }}
+              {{ form_row(form.patient) }}
             </div>
             <div class="col-md-6 form-group">
+              {{ form_row(form.doctor) }}
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-12 form-group">
               {{ form_row(form.message) }}
             </div>
           </div>
@@ -72,8 +78,8 @@
             <button type="submit" class="btn btn-primary btn-lg">
               <i class="bi bi-check-circle me-2"></i>Make an Appointment
             </button>
-            <a href="{{ path('app_my_appointments') }}" class="btn btn-secondary btn-lg ms-2">
-              <i class="bi bi-calendar-check me-2"></i>View My Appointments
+            <a href="{{ path('app_rendezvous_index') }}" class="btn btn-secondary btn-lg ms-2">
+              <i class="bi bi-calendar-check me-2"></i>Back to List
             </a>
           </div>
         {{ form_end(form) }}

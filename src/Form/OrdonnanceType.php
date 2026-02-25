@@ -69,9 +69,8 @@ class OrdonnanceType extends AbstractType
                 'required' => false,
                 'empty_data' => '',
             ])
-            ->add('rendezVous', EntityType::class, [
-                'property_path' => 'appointment',
-                'class' => Appointment::class,
+            ->add('appointment', EntityType::class, [
+                                'class' => Appointment::class,
                 'choice_label' => static function (Appointment $appointment): string {
                     $date = $appointment->getDate()?->format('Y-m-d') ?? 'Date inconnue';
                     $time = $appointment->getStartTime()?->format('H:i') ?? '--:--';

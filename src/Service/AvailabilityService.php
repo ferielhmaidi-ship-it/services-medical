@@ -3,20 +3,30 @@
 namespace App\Service;
 
 use App\Entity\Medecin;
-use App\Repository\AppointmentRepository;
-use App\Repository\CalendarSettingRepository;
+use App\Entity\Appointment;
 use App\Repository\IndisponibiliteRepository;
 use App\Repository\TempsTravailRepository;
+use App\Repository\AppointmentRepository;
+use Psr\Log\LoggerInterface;
 
 class AvailabilityService
 {
-    public function __construct(private
-        TempsTravailRepository $ttRepo, private
-        IndisponibiliteRepository $indispRepo, private
-        CalendarSettingRepository $settingsRepo, private
-        AppointmentRepository $apptRepo
+    private TempsTravailRepository $ttRepo;
+    private IndisponibiliteRepository $indispRepo;
+    private AppointmentRepository $apptRepo;
+    private LoggerInterface $logger;
+
+    public function __construct(
+        TempsTravailRepository $ttRepo,
+        IndisponibiliteRepository $indispRepo,
+        AppointmentRepository $apptRepo,
+        LoggerInterface $logger
         )
     {
+        $this->ttRepo = $ttRepo;
+        $this->indispRepo = $indispRepo;
+        $this->apptRepo = $apptRepo;
+        $this->logger = $logger;
     }
 
     /**
@@ -31,23 +41,12 @@ class AvailabilityService
         $currentDate = clone $startDate;
 
         while ($currentDate < $endDate) {
-            $hours = $this->getWorkingHoursForDay($doctorId, $currentDate);
-            $msg = "Checking Doc $doctorId | " . $currentDate->format('Y-m-d') . ": ";
-
+            $hours = $this->getWorkingHoursForDayOptimized($this->ttRepo->findBy(['doctorId' => $doctorId]), $currentDate);
             if (!empty($hours)) {
-                $msg .= "Working hours found. ";
-                if (!$this->isUnavailable($doctorId, $currentDate)) {
+                if (!$this->checkUnavailableBulk($this->indispRepo->findBy(['doctorId' => $doctorId]), $currentDate)) {
                     $workingDays[] = $this->formatFrenchDate($currentDate, 'EEE : d MMM');
-                    $msg .= "Added.";
-                }
-                else {
-                    $msg .= "Blocked by Indisponibilite.";
                 }
             }
-            else {
-                $msg .= "No working hours found.";
-            }
-
             $currentDate->modify('+1 day');
         }
 
@@ -55,78 +54,194 @@ class AvailabilityService
     }
 
     /**
-     * Find the next available slot for a doctor.
+     * Main logic to get all free slots for a window of $daysCount
      */
-    public function getNextAvailableSlot(Medecin $doctor, \DateTimeInterface $from): ?array
+    public function getAvailableSlots(Medecin $doctor, \DateTimeInterface $startDate, int $daysCount = 14): array
     {
         $doctorId = $doctor->getId();
-        $settings = $this->settingsRepo->findOneBy(['doctorId' => $doctorId]);
+        $this->logger->info("AvailabilityService: FETCHING slots for Doctor $doctorId starting " . $startDate->format('Y-m-d') . " for $daysCount days.");
 
-        $slotDuration = $settings ? $settings->getSlotDuration() : 30;
-        $pauseStart = $settings && $settings->getPauseStart() ? $settings->getPauseStart()->format('H:i') : '12:00';
-        $pauseEnd = $settings && $settings->getPauseEnd() ? $settings->getPauseEnd()->format('H:i') : '14:00';
+        $allTT = $this->ttRepo->findBy(['doctorId' => $doctorId]);
+        $allIndisps = $this->indispRepo->findBy(['doctorId' => $doctorId]);
 
-        // Check the next 30 days
-        $currentDate = clone $from;
-        $limitDate = (clone $from)->modify('+30 days');
+        $endDateLimit = (clone $startDate)->modify("+$daysCount days");
+        $allAppts = $this->apptRepo->findByDoctorAndRange($doctor, $startDate, $endDateLimit);
 
-        while ($currentDate < $limitDate) {
-            $dayWorkingHours = $this->getWorkingHoursForDay($doctorId, $currentDate);
+        $availableSlotsByDay = [];
 
-            if ($dayWorkingHours) {
-                foreach ($dayWorkingHours as $hours) {
-                    $startTime = \DateTime::createFromFormat('Y-m-d H:i', $currentDate->format('Y-m-d') . ' ' . $hours['start']);
-                    $endTime = \DateTime::createFromFormat('Y-m-d H:i', $currentDate->format('Y-m-d') . ' ' . $hours['end']);
+        for ($i = 0; $i < $daysCount; $i++) {
+            $currentDate = (clone $startDate)->modify("+$i days");
+            $currentDate->setTime(0, 0, 0);
+            $dateStr = $currentDate->format('Y-m-d');
 
-                    // If searching on the starting day, start from the 'from' time if it's after startTime
-                    if ($currentDate->format('Y-m-d') === $from->format('Y-m-d')) {
-                        if ($from > $startTime) {
-                            $startTime = clone $from;
-                            // Align to slot duration
-                            $minutes = (int)$startTime->format('i');
-                            $remainder = $minutes % $slotDuration;
-                            if ($remainder !== 0) {
-                                $startTime->modify('+' . ($slotDuration - $remainder) . ' minutes');
-                            }
-                            $startTime->setTime((int)$startTime->format('H'), (int)$startTime->format('i'), 0);
-                        }
-                    }
+            // 1. Get working hours
+            $workingHours = $this->getWorkingHoursForDayOptimized($allTT, $currentDate);
+            if (empty($workingHours))
+                continue;
 
-                    $slot = clone $startTime;
-                    while ($slot < $endTime) {
-                        $slotEnd = (clone $slot)->modify('+' . $slotDuration . ' minutes');
+            // 2. Check unavailability
+            if ($this->checkUnavailableBulk($allIndisps, $currentDate))
+                continue;
 
-                        // Check if slot overlaps with pause
-                        $slotTimeStr = $slot->format('H:i');
-                        if ($slotTimeStr >= $pauseStart && $slotTimeStr < $pauseEnd) {
-                            $slot->modify('+' . $slotDuration . ' minutes');
-                            continue;
-                        }
+            // 3. Generate slots
+            $daySlots = $this->generateSlotsForDay($currentDate, $workingHours, $allAppts);
 
-                        // Check if doctor is unavailable (indisponibilite)
-                        if ($this->isUnavailable($doctorId, $slot)) {
-                            break; // Skip rest of day if it's an emergency/full day indisp
-                        }
+            if (!empty($daySlots)) {
+                $availableSlotsByDay[] = [
+                    'date' => $dateStr,
+                    'slots' => $daySlots
+                ];
+            }
+        }
 
-                        // Check if slot is already booked
-                        if (!$this->isBooked($doctorId, $slot, $slotDuration)) {
-                            return [
-                                'date' => $this->formatFrenchDate($slot, 'd F Y'),
-                                'time' => $slot->format('H:i')
-                            ];
-                        }
+        $this->logger->info("AvailabilityService: Success. Found " . count($availableSlotsByDay) . " days with slots.");
+        return $availableSlotsByDay;
+    }
 
-                        $slot->modify('+' . $slotDuration . ' minutes');
-                    }
+    /**
+     * Fallback for empty windows: finds the next single available slot
+     */
+    public function getNextAvailableSlot(Medecin $doctor, \DateTimeInterface $startDate): ?array
+    {
+        for ($i = 0; $i < 45; $i++) {
+            $day = (clone $startDate)->modify("+$i days");
+            $slots = $this->getAvailableSlots($doctor, $day, 1);
+            if (!empty($slots)) {
+                return [
+                    'date' => $slots[0]['date'],
+                    'time' => $slots[0]['slots'][0]
+                ];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Internal slot generator
+     */
+    private function generateSlotsForDay(\DateTimeInterface $date, array $workingHours, array $allAppts): array
+    {
+        $slots = [];
+        $dateStr = $date->format('Y-m-d');
+        $dayAppts = array_filter($allAppts, fn($a) => $a->getDate()->format('Y-m-d') === $dateStr);
+        $now = new \DateTime();
+
+        foreach ($workingHours as $wh) {
+            $start = $wh['start'];
+            $end = $wh['end'];
+            $interval = 30;
+
+            // TT stores start/end as DateTime objects (usually today + time)
+            $current = (clone $date)->setTime($start->format('H'), $start->format('i'));
+            $endOfDay = (clone $date)->setTime($end->format('H'), $end->format('i'));
+
+            while ($current < $endOfDay) {
+                // Skip past slots
+                if ($current <= $now) {
+                    $current->modify("+$interval minutes");
+                    continue;
+                }
+
+                // Hardcoded pause for now (could be dynamic from settings later)
+                $slotTimeStr = $current->format('H:i');
+                if ($slotTimeStr >= '12:00' && $slotTimeStr < '14:00') {
+                    $current->modify("+$interval minutes");
+                    continue;
+                }
+
+                if ($this->isSlotFree($current, $dayAppts)) {
+                    $slots[] = $current->format('H:i');
+                }
+                $current->modify("+$interval minutes");
+            }
+        }
+
+        return array_unique($slots);
+    }
+
+    private function getWorkingHoursForDayOptimized(array $allTT, \DateTimeInterface $date): array
+    {
+        $dayNameEn = $date->format('l');
+        $dateStr = $date->format('Y-m-d');
+
+        $frenchDays = [
+            'Monday' => 'Lundi', 'Tuesday' => 'Mardi', 'Wednesday' => 'Mercredi',
+            'Thursday' => 'Jeudi', 'Friday' => 'Vendredi', 'Saturday' => 'Samedi', 'Sunday' => 'Dimanche'
+        ];
+        $dayNameFr = $frenchDays[$dayNameEn];
+
+        $results = [];
+        $specificFound = false;
+
+        // 1. Specific Dates priority
+        foreach ($allTT as $tt) {
+            if ($tt->getSpecificDate() && $tt->getSpecificDate()->format('Y-m-d') === $dateStr) {
+                $results[] = ['start' => $tt->getStartTime(), 'end' => $tt->getEndTime()];
+                $specificFound = true;
+            }
+        }
+        if ($specificFound)
+            return $results;
+
+        // 2. Weekly Schedule
+        foreach ($allTT as $tt) {
+            if (!$tt->getSpecificDate() && $tt->getDayOfWeek()) {
+                $dbDay = $tt->getDayOfWeek();
+                if ($dbDay === $dayNameEn || $dbDay === $dayNameFr) {
+                    $results[] = ['start' => $tt->getStartTime(), 'end' => $tt->getEndTime()];
+                }
+            }
+        }
+
+        // 3. Fallback: only if doctor has NO configuration at all
+        if (empty($results)) {
+            $hasAnyWeeklyConfig = false;
+            foreach ($allTT as $tt) {
+                if (!$tt->getSpecificDate()) {
+                    $hasAnyWeeklyConfig = true;
+                    break;
                 }
             }
 
-            $currentDate->modify('+1 day');
-            // Reset hours for the new day
-            $currentDate->setTime(0, 0);
+            if (!$hasAnyWeeklyConfig && !in_array($dayNameEn, ['Saturday', 'Sunday'])) {
+                $fallbackStart = (new \DateTime())->setTime(9, 0);
+                $fallbackEnd = (new \DateTime())->setTime(17, 0);
+                return [['start' => $fallbackStart, 'end' => $fallbackEnd]];
+            }
         }
 
-        return null;
+        return $results;
+    }
+
+    private function checkUnavailableBulk(array $allIndisp, \DateTimeInterface $date): bool
+    {
+        $dateStr = $date->format('Y-m-d');
+        foreach ($allIndisp as $i) {
+            if ($i->getDate()->format('Y-m-d') === $dateStr)
+                return true;
+        }
+        return false;
+    }
+
+    private function isSlotFree(\DateTimeInterface $slotTime, array $dayAppts): bool
+    {
+        $slotStr = $slotTime->format('H:i');
+        foreach ($dayAppts as $appt) {
+            // Check status - usually only active appointments block slots
+            if (in_array($appt->getStatus(), ['cancelled', 'annule'])) {
+                continue;
+            }
+
+            // Check if slot matches appointment time
+            if ($appt->getStartTime() && $appt->getStartTime()->format('H:i') === $slotStr) {
+                return false;
+            }
+            // Fallback for combined date field
+            if ($appt->getDate() && $appt->getDate()->format('H:i') === $slotStr) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private function formatFrenchDate(\DateTimeInterface $date, string $pattern): string
@@ -135,12 +250,6 @@ class AvailabilityService
             'Monday' => 'Lun', 'Tuesday' => 'Mar', 'Wednesday' => 'Mer',
             'Thursday' => 'Jeu', 'Friday' => 'Ven', 'Saturday' => 'Sam', 'Sunday' => 'Dim'
         ];
-        $months = [
-            'January' => 'janvier', 'February' => 'février', 'March' => 'mars',
-            'April' => 'avril', 'May' => 'mai', 'June' => 'juin',
-            'July' => 'juillet', 'August' => 'août', 'September' => 'septembre',
-            'October' => 'octobre', 'November' => 'novembre', 'December' => 'décembre'
-        ];
         $shortMonths = [
             'Jan' => 'janv.', 'Feb' => 'févr.', 'Mar' => 'mars', 'Apr' => 'avr.',
             'May' => 'mai', 'Jun' => 'juin', 'Jul' => 'juil.', 'Aug' => 'août',
@@ -148,101 +257,9 @@ class AvailabilityService
         ];
 
         if ($pattern === 'EEE : d MMM') {
-            return $days[$date->format('l')] . ' : ' . $date->format('d') . ' ' . $shortMonths[$date->format('M')];
-        }
-
-        if ($pattern === 'd F Y') {
-            return $date->format('d') . ' ' . $months[$date->format('F')] . ' ' . $date->format('Y');
+            return ($days[$date->format('l')] ?? $date->format('D')) . ' : ' . $date->format('d') . ' ' . ($shortMonths[$date->format('M')] ?? $date->format('M'));
         }
 
         return $date->format('d/m/Y');
     }
-
-    private function getWorkingHoursForDay(int $doctorId, \DateTimeInterface $date): array
-    {
-        $dateStr = $date->format('Y-m-d');
-        $dayName = strtolower(trim($date->format('l')));
-
-        // Fetch all to handle correctly in PHP (more robust against case/whitespace/nulls in DB)
-        $allTT = $this->ttRepo->findBy(['doctorId' => $doctorId]);
-
-        $result = [];
-        $specificFound = false;
-
-        // 1. Check for specific date first
-        foreach ($allTT as $tt) {
-            if ($tt->getSpecificDate() && $tt->getSpecificDate()->format('Y-m-d') === $dateStr) {
-                $result[] = [
-                    'start' => $tt->getStartTime()->format('H:i'),
-                    'end' => $tt->getEndTime()->format('H:i')
-                ];
-                $specificFound = true;
-            }
-        }
-
-        if ($specificFound) {
-            return $result;
-        }
-
-        // 2. Check regular weekly hours
-        foreach ($allTT as $tt) {
-            if (!$tt->getSpecificDate() && $tt->getDayOfWeek()) {
-                if (strtolower(trim($tt->getDayOfWeek())) === $dayName) {
-                    $result[] = [
-                        'start' => $tt->getStartTime()->format('H:i'),
-                        'end' => $tt->getEndTime()->format('H:i')
-                    ];
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    private function isUnavailable(int $doctorId, \DateTimeInterface $date): bool
-    {
-        $dateOnly = \DateTime::createFromFormat('Y-m-d', $date->format('Y-m-d'));
-        $dateOnly->setTime(0, 0, 0);
-
-        $indisp = $this->indispRepo->findOneBy([
-            'doctorId' => $doctorId,
-            'date' => $dateOnly
-        ]);
-        return $indisp !== null;
-    }
-
-    private function isBooked(int $doctorId, \DateTimeInterface $slot, int $slotDuration): bool
-    {
-        $slotStart = clone $slot;
-        $slotEnd = (clone $slot)->modify('+' . $slotDuration . ' minutes');
-
-        // Check for any appointment that overlaps with the slot
-        // Overlap condition: appointment_start < slot_end AND slot_start < appointment_end
-        // appointment_end = appointment_start + appointment_duration
-
-        $qb = $this->apptRepo->createQueryBuilder('a')
-            ->where('a.doctorId = :doctorId')
-            ->andWhere('a.date = :date')
-            ->andWhere('a.status = :status')
-            ->setParameter('doctorId', $doctorId)
-            ->setParameter('date', $slotStart->format('Y-m-d'))
-            ->setParameter('status', 'scheduled');
-
-        $appointments = $qb->getQuery()->getResult();
-
-        foreach ($appointments as $appt) {
-            $apptStart = clone $appt->getStartTime();
-            $apptStart->setDate((int)$slotStart->format('Y'), (int)$slotStart->format('m'), (int)$slotStart->format('d'));
-
-            $apptEnd = (clone $apptStart)->modify('+' . $appt->getDuration() . ' minutes');
-
-            if ($apptStart < $slotEnd && $slotStart < $apptEnd) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }
-
-

@@ -12,8 +12,6 @@ use App\Entity\Medecin;
 use App\Repository\PatientRepository;
 use App\Constants\Specialty;
 use App\Constants\Governorate;
-use App\Entity\RendezVous;
-use App\Form\RendezVousType;
 use App\Service\AvailabilityService;
 use App\Repository\SpecialiteRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;

@@ -539,10 +539,10 @@ textarea.form-control:focus + .input-icon {
                 </div>
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        {{ form_label(form.rendezVous, 'Choix du rendez-vous', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_label(form.appointment, 'Choix du rendez-vous', {'label_attr': {'class': 'form-label'}}) }}
                         <div class="input-wrapper">
-                            {{ form_widget(form.rendezVous, {'attr': {'class': 'form-control'}}) }}
-                            <div class="form-error">{{ form_errors(form.rendezVous) }}</div>
+                            {{ form_widget(form.appointment, {'attr': {'class': 'form-control'}}) }}
+                            <div class="form-error">{{ form_errors(form.appointment) }}</div>
                             <span class="input-icon">📋</span>
                         </div>
                         <span class="form-hint">

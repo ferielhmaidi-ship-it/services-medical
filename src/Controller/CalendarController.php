@@ -11,7 +11,6 @@ use App\Repository\IndisponibiliteRepository;
 use App\Repository\CalendarSettingRepository;
 use App\Repository\AppointmentRepository;
 use App\Repository\PatientRepository;
-use App\Repository\RendezVousRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -97,8 +96,7 @@ class CalendarController extends AbstractController
     public function selectAppointment(
         int $id,
         Request $request,
-        AppointmentRepository $appointmentRepository,
-        RendezVousRepository $rendezVousRepository
+        AppointmentRepository $appointmentRepository
     ): JsonResponse {
         $appointment = $appointmentRepository->find($id);
         if (!$appointment || $appointment->getDoctor() !== $this->getUser()) {

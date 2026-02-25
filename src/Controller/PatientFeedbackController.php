@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Feedback;
-use App\Entity\RendezVous;
+use App\Entity\Appointment;
 use App\Repository\PatientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,14 +16,14 @@ class PatientFeedbackController extends AbstractController
 {
     #[Route('/new/{id}', name: 'app_feedback_new_for_rdv')]
     public function newForRdv(
-        RendezVous $rendezVous,
+        Appointment $appointment,
         Request $request,
         EntityManagerInterface $em,
         PatientRepository $patientRepo
     ): Response
     {
         // Vérifier que le RDV est terminé
-        if ($rendezVous->getStatut() !== 'termine') {
+        if ($appointment->getStatus() !== 'completed') {
             $this->addFlash('error', 'Vous ne pouvez donner un avis que pour un rendez-vous terminé.');
             return $this->redirectToRoute('app_my_appointments');
         }
@@ -34,7 +34,7 @@ class PatientFeedbackController extends AbstractController
         // Vérifier si le patient a déjà donné un feedback pour ce médecin
         $existingFeedback = $em->getRepository(Feedback::class)->findOneBy([
             'patient' => $patient,
-            'medecin' => $rendezVous->getDoctor()
+            'medecin' => $appointment->getDoctor()
         ]);
 
         if ($existingFeedback) {
@@ -55,7 +55,7 @@ class PatientFeedbackController extends AbstractController
                 $feedback->setRating($rating);
                 $feedback->setComment($comment);
                 $feedback->setPatient($patient);
-                $feedback->setMedecin($rendezVous->getDoctor());
+                $feedback->setMedecin($appointment->getDoctor());
 
                 $em->persist($feedback);
                 $em->flush();
@@ -66,7 +66,7 @@ class PatientFeedbackController extends AbstractController
         }
 
         return $this->render('patient_feedback/new.html.twig', [
-            'rendezVous' => $rendezVous,
+            'rendezVous' => $appointment,
         ]);
     }
 }

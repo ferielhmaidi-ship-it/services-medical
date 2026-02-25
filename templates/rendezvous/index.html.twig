@@ -101,40 +101,31 @@
           </tr>
         </thead>
         <tbody>
-        {% for rdv in rendezVous %}
+        {% for appointment in appointments %}
           <tr>
-            <td>{{ rdv.appointmentDate|date('d/m/Y') }}</td>
-            <td>Dr. {{ rdv.doctor.firstName }} {{ rdv.doctor.lastName }}</td>
-            <td>{{ rdv.doctor.specialite }}</td>
+            <td>{{ appointment.date|date('d/m/Y') }}{% if appointment.startTime %} {{ appointment.startTime|date('H:i') }}{% endif %}</td>
+            <td>Dr. {{ appointment.doctor.firstName }} {{ appointment.doctor.lastName }}</td>
+            <td>{{ appointment.doctor.specialty }}</td>
             <td>
-              {% if rdv.statut == 'en_attente' %}
+              {% if appointment.status == 'pending' %}
                 <span class="badge bg-warning text-dark">Pending</span>
-              {% elseif rdv.statut == 'termine' %}
+              {% elseif appointment.status == 'scheduled' %}
+                <span class="badge bg-info text-dark">Scheduled</span>
+              {% elseif appointment.status == 'completed' %}
                 <span class="badge bg-success">Completed</span>
               {% else %}
-                <span class="badge bg-danger">Cancelled</span>
+                <span class="badge bg-danger">{{ appointment.status|capitalize }}</span>
               {% endif %}
             </td>
             <td>
-              {% if rdv.statut == 'en_attente' %}
-                <div class="btn-group btn-group-sm" role="group">
-                  <a href="{{ path('app_appointment_edit', {id: rdv.id}) }}" class="btn btn-primary" title="Edit appointment">
-                    <i class="bi bi-pencil"></i> Edit
-                  </a>
-                  <form method="post" action="{{ path('app_appointment_cancel', {id: rdv.id}) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
-                    <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ rdv.id) }}">
-                    <button type="submit" class="btn btn-danger" title="Cancel appointment">
-                      <i class="bi bi-x-circle"></i> Cancel
-                    </button>
-                  </form>
-                </div>
-              {% elseif rdv.statut == 'termine' %}
-                <a href="{{ path('app_appointment_feedback', {id: rdv.id}) }}" class="btn btn-sm btn-success" title="Leave feedback for this appointment">
-                  <i class="bi bi-star"></i> Give Feedback
+              <div class="btn-group btn-group-sm" role="group">
+                <a href="{{ path('app_rendezvous_show', {id: appointment.id}) }}" class="btn btn-secondary" title="View details">
+                  <i class="bi bi-eye"></i> Show
                 </a>
-              {% elseif rdv.statut == 'annule' %}
-                <span class="badge bg-danger">No Action</span>
-              {% endif %}
+                <a href="{{ path('app_rendezvous_edit', {id: appointment.id}) }}" class="btn btn-primary" title="Edit appointment">
+                  <i class="bi bi-pencil"></i> Edit
+                </a>
+              </div>
             </td>
           </tr>
         {% else %}

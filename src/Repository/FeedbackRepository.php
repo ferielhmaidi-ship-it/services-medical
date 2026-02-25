@@ -17,12 +17,12 @@ class FeedbackRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find feedback by appointment (RendezVous)
+     * Find feedback by appointment
      */
     public function findByAppointment($appointmentId)
     {
         return $this->createQueryBuilder('f')
-            ->andWhere('f.rendezVous = :appointmentId')
+            ->andWhere('f.appointment = :appointmentId')
             ->setParameter('appointmentId', $appointmentId)
             ->getQuery()
             ->getOneOrNullResult();

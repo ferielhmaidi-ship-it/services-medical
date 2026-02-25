@@ -69,9 +69,8 @@ class RapportType extends AbstractType
                     new NotBlank(['message' => 'Les traitements prescrits sont obligatoires.']),
                 ],
             ])
-            ->add('rendezVous', EntityType::class, [
-                'property_path' => 'appointment',
-                'class' => Appointment::class,
+            ->add('appointment', EntityType::class, [
+                                'class' => Appointment::class,
                 'choice_label' => static function (Appointment $appointment): string {
                     $date = $appointment->getDate()?->format('d/m/Y') ?? 'Date inconnue';
                     $time = $appointment->getStartTime()?->format('H:i') ?? '--:--';

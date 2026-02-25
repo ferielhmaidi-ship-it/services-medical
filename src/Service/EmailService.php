@@ -66,34 +66,20 @@ class EmailService
         $this->mailer->send($email);
     }
 
-    public function sendRendezVousConfirmation(mixed $rendezVous, Patient $patient, Medecin $doctor): void
-    {
-        // $rendezVous can be Appointment or RendezVous, templates use "appointment" variable
-        $email = (new TemplatedEmail())
-            ->from(new Address('noreply@medinest.com', 'MediNest'))
-            ->to(new Address($patient->getEmail(), $patient->getFirstName() . ' ' . $patient->getLastName()))
-            ->subject('Confirmation de rendez-vous - MediNest')
-            ->htmlTemplate('emails/appointment_confirmation.html.twig')
-            ->context([
-            'appointment' => $rendezVous,
-            'patient' => $patient,
-            'doctor' => $doctor,
-        ]);
 
-        $this->mailer->send($email);
-    }
 
-    public function sendRendezVousCancellation(mixed $rendezVous, Patient $patient, Medecin $doctor): void
+    public function sendWeatherAlertReschedulingSuggestion(Appointment $appointment, Patient $patient, Medecin $doctor, string $weatherDescription): void
     {
         $email = (new TemplatedEmail())
             ->from(new Address('noreply@medinest.com', 'MediNest'))
             ->to(new Address($patient->getEmail(), $patient->getFirstName() . ' ' . $patient->getLastName()))
-            ->subject('Annulation de rendez-vous - MediNest')
-            ->htmlTemplate('emails/appointment_cancellation.html.twig')
+            ->subject('Alerte Météo : Suggestion de report de rendez-vous - MediNest')
+            ->htmlTemplate('emails/weather_alert_reschedule.html.twig')
             ->context([
-            'appointment' => $rendezVous,
+            'appointment' => $appointment,
             'patient' => $patient,
             'doctor' => $doctor,
+            'weatherDescription' => $weatherDescription,
         ]);
 
         $this->mailer->send($email);

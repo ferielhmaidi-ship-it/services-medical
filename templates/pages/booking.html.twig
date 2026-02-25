@@ -115,6 +115,25 @@
     <!-- Booking Interface -->
     <div class="row justify-content-center">
         <div class="col-lg-10">
+            <!-- AI Recommendation Banner -->
+            <div id="ai-suggestion-container" class="card border-0 shadow-sm mb-4" style="display: none; background: #f0f7ff; border-left: 5px solid #007bff !important;">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-start">
+                        <div class="me-3 mt-1">
+                            <i class="fas fa-robot text-primary" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title text-primary mb-2">Suggestion Intelligente MediNest</h5>
+                            <p id="ai-recommendation-text" class="card-text mb-2"></p>
+                            <div id="ai-probability-badge" class="mb-3"></div>
+                            <div id="ai-suggested-slots" class="d-flex flex-wrap gap-2">
+                                <!-- Suggested slot buttons will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="calendar-wrapper" data-aos="fade-up" data-aos-delay="100">
                 <h4 class="mb-4">1. Sélectionnez une date</h4>
                 <div id="days-container" class="d-flex gap-3 overflow-auto pb-3 mb-4">
@@ -165,20 +184,96 @@
 {% block javascripts %}
 {{ parent() }}
 <script>
-    let availabilityData = null;
-    let selectedDate = null;
-    let selectedTime = null;
-    const doctorId = {{ medecin.id }};
+(function() {
+    var availabilityData = null;
+    var selectedDate = null;
+    var selectedTime = null;
+    var doctorId = {{ medecin.id }};
+
+    function safeSetInnerHTML(id, html) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = html;
+    }
+
+    function safeSetText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    }
+
+    function safeSetDisplay(id, display) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = display;
+    }
 
     async function fetchAvailability() {
         try {
             const res = await fetch(`/api/booking/availability/${doctorId}`);
+            if (!res.ok) throw new Error("API error");
             availabilityData = await res.json();
+            
+            if (availabilityData.aiSuggestions) {
+                renderAiSuggestions(availabilityData.aiSuggestions);
+            }
+            
             renderDays();
         } catch (e) {
             console.error(e);
-            document.getElementById('days-container').innerHTML = '<div class="alert alert-danger w-100">Erreur lors du chargement des disponibilités.</div>';
+            safeSetInnerHTML('days-container', '<div class="alert alert-danger w-100">Erreur lors du chargement des disponibilités.</div>');
         }
+    }
+
+    function renderAiSuggestions(data) {
+        const container = document.getElementById('ai-suggestion-container');
+        if (!container) return;
+
+        const textElem = document.getElementById('ai-recommendation-text');
+        const badgeElem = document.getElementById('ai-probability-badge');
+        const slotsElem = document.getElementById('ai-suggested-slots');
+
+        if (!data || !data.recommendation) {
+            container.style.display = 'none';
+            return;
+        }
+
+        if (textElem) textElem.textContent = data.recommendation;
+        container.style.display = 'block';
+
+        if (badgeElem) {
+            if (data.attendance_probability) {
+                badgeElem.innerHTML = `<span class="badge bg-success-soft text-success border border-success px-3 py-2">
+                    <i class="fas fa-chart-line me-1"></i> Probabilité : ${data.attendance_probability}
+                </span>`;
+            } else {
+                badgeElem.innerHTML = '';
+            }
+        }
+
+        if (slotsElem) {
+            slotsElem.innerHTML = '';
+            if (data.suggested_slots && data.suggested_slots.length > 0) {
+                const slot = data.suggested_slots[0];
+                const btn = document.createElement('button');
+                btn.id = 'btn-ai-confirm';
+                btn.className = 'btn btn-primary rounded-pill px-4 py-2 shadow-sm';
+                const dateObj = new Date(slot.date);
+                const formattedDate = dateObj.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+                btn.innerHTML = `<i class="far fa-calendar-check me-2"></i> Réserver le ${formattedDate} à ${slot.time}`;
+                btn.onclick = () => confirmAiRecommendation(slot.date, slot.time);
+                slotsElem.appendChild(btn);
+            }
+        }
+    }
+
+    function confirmAiRecommendation(dateStr, timeStr) {
+        selectedDate = dateStr;
+        selectedTime = timeStr;
+        handleConfirm(document.getElementById('btn-ai-confirm'));
+    }
+
+    function autoSelectSlot(dateStr, timeStr) {
+        selectDate(dateStr, new Date(dateStr));
+        const slotsSection = document.getElementById('slots-section');
+        if (slotsSection) slotsSection.scrollIntoView({ behavior: 'smooth' });
     }
 
     function formatDateToISO(date) {
@@ -190,18 +285,25 @@
 
     function renderDays() {
         const container = document.getElementById('days-container');
+        if (!container) return;
         container.innerHTML = '';
         
         const now = new Date();
-        // Show next 14 days
         for (let i = 0; i < 14; i++) {
             const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
             const dateStr = formatDateToISO(d);
-            const isWeekend = d.getDay() === 0 || d.getDay() === 6; // simplified check
+            const isWeekend = d.getDay() === 0 || d.getDay() === 6; 
+            const isHoliday = availabilityData && availabilityData.holidays ? availabilityData.holidays.some(h => h.date === dateStr) : false;
             
             const pill = document.createElement('div');
             pill.className = 'day-pill';
-            if (isWeekend) pill.classList.add('disabled');
+            if (isWeekend || isHoliday) {
+                pill.classList.add('disabled');
+                if (isHoliday && availabilityData.holidays) {
+                    const holiday = availabilityData.holidays.find(h => h.date === dateStr);
+                    pill.title = `Jour Férié: ${holiday ? holiday.name : 'Jour Férié'}`;
+                }
+            }
             
             pill.innerHTML = `
                 <div class="small text-uppercase">${d.toLocaleDateString('fr-FR', { weekday: 'short' })}</div>
@@ -223,21 +325,26 @@
     function selectDate(dateStr, dateObj) {
         selectedDate = dateStr;
         selectedTime = null;
-        document.getElementById('confirmation-section').style.display = 'none';
-        document.getElementById('slots-section').style.display = 'block';
+        safeSetDisplay('confirmation-section', 'none');
+        safeSetDisplay('slots-section', 'block');
         renderSlots(dateStr, dateObj);
     }
 
     function timeToMins(timeStr) {
         if (!timeStr) return 0;
-        const [h, m] = timeStr.split(':').map(Number);
+        const parts = timeStr.split(':');
+        if (parts.length < 2) return 0;
+        const [h, m] = parts.map(Number);
         return h * 60 + m;
     }
 
     function renderSlots(dateStr, dateObj) {
         const container = document.getElementById('slots-container');
+        if (!container) return;
         container.innerHTML = '';
         
+        if (!availabilityData) return;
+
         const specifics = availabilityData.specifics.find(s => s.specificDate === dateStr);
         const indisps = availabilityData.indisponibilities.find(i => i.date === dateStr);
         
@@ -246,8 +353,8 @@
             return;
         }
 
-        let startMins = 9 * 60; // Default 09:00
-        let endMins = 17 * 60;  // Default 17:00
+        let startMins = 9 * 60; 
+        let endMins = 17 * 60;  
         
         if (specifics) {
             startMins = timeToMins(specifics.startTime);
@@ -301,17 +408,22 @@
 
     function selectTime(timeStr) {
         selectedTime = timeStr;
-        document.getElementById('label-date').textContent = new Date(selectedDate).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        document.getElementById('label-time').textContent = timeStr;
-        document.getElementById('confirmation-section').style.display = 'block';
-        document.getElementById('confirmation-section').scrollIntoView({ behavior: 'smooth' });
+        const dateSpan = document.getElementById('label-date');
+        if (dateSpan) dateSpan.textContent = new Date(selectedDate).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        safeSetText('label-time', timeStr);
+        safeSetDisplay('confirmation-section', 'block');
+        const confirmSection = document.getElementById('confirmation-section');
+        if (confirmSection) confirmSection.scrollIntoView({ behavior: 'smooth' });
     }
 
-    document.getElementById('btn-confirm').onclick = async function() {
+    async function handleConfirm(triggerBtn = null) {
         if (!selectedDate || !selectedTime) return;
         
-        const btn = this;
+        const btn = triggerBtn || document.getElementById('btn-confirm');
+        if (!btn) return;
+
         btn.disabled = true;
+        const originalHTML = btn.innerHTML;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Confirmation...';
         
         try {
@@ -328,21 +440,50 @@
             
             const result = await res.json();
             if (res.ok) {
-                const modal = new bootstrap.Modal(document.getElementById('successModal'));
-                modal.show();
+                const modalEl = document.getElementById('successModal');
+                if (modalEl) {
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
             } else {
-                alert(result.error || "Une erreur est survenue lors de la réservation.");
+                const errorMsg = result.error || "Une erreur est survenue lors de la réservation.";
+                console.error("Booking Error:", errorMsg, result);
+                alert(errorMsg);
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Confirmer le rendez-vous';
+                btn.innerHTML = originalHTML;
             }
         } catch (e) {
-            console.error(e);
-            alert("Erreur de connexion au serveur.");
+            console.error("Fetch Error:", e);
+            alert("Erreur de connexion au serveur ou problème lors du traitement.");
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Confirmer le rendez-vous';
+            btn.innerHTML = originalHTML;
         }
-    };
+    }
 
-    window.addEventListener('load', fetchAvailability);
+    var isInitialized = false;
+    function init() {
+        if (isInitialized) return;
+        const container = document.getElementById('days-container');
+        if (!container) return; 
+        
+        isInitialized = true;
+        const confirmBtn = document.getElementById('btn-confirm');
+        if (confirmBtn) {
+            confirmBtn.onclick = handleConfirm;
+        }
+        
+        fetchAvailability();
+    }
+
+    // Turbo compatibility
+    document.addEventListener('turbo:load', function() {
+        init();
+    });
+
+    // If already loaded (first hit)
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        init();
+    }
+})();
 </script>
 {% endblock %}

@@ -52,7 +52,7 @@ class RapportController extends AbstractController
         $appointmentList = $qb->getQuery()->getResult();
 
         if ($form->isSubmitted()) {
-            $appointment = $form->get('rendezVous')->getData();
+            $appointment = $form->get('appointment')->getData();
             if ($appointment instanceof Appointment) {
                 $this->assertAppointmentOwner($appointment, $medecin);
                 $this->assertAppointmentMatchesSelectedPatient($appointment, $selectedPatient);
@@ -68,7 +68,7 @@ class RapportController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $appointment = $form->get('rendezVous')->getData();
+            $appointment = $form->get('appointment')->getData();
             if (!$appointment instanceof Appointment) {
                 throw $this->createAccessDeniedException('Rendez-vous invalide.');
             }
@@ -139,7 +139,7 @@ class RapportController extends AbstractController
             ->getResult();
 
         if ($form->isSubmitted()) {
-            $appointment = $form->get('rendezVous')->getData();
+            $appointment = $form->get('appointment')->getData();
             if ($appointment instanceof Appointment) {
                 $this->assertAppointmentOwner($appointment, $medecin);
                 $this->assertAppointmentMatchesSelectedPatient($appointment, $rapport->getPatient());
@@ -156,7 +156,7 @@ class RapportController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $appointment = $form->get('rendezVous')->getData();
+            $appointment = $form->get('appointment')->getData();
             if ($appointment instanceof Appointment) {
                 $this->assertAppointmentOwner($appointment, $medecin);
                 $this->assertAppointmentMatchesSelectedPatient($appointment, $rapport->getPatient());
@@ -222,7 +222,7 @@ class RapportController extends AbstractController
             ->getResult();
 
         if ($form->isSubmitted()) {
-            $appointment = $form->get('rendezVous')->getData();
+            $appointment = $form->get('appointment')->getData();
             if ($appointment instanceof Appointment) {
                 $this->assertAppointmentOwner($appointment, $medecin);
                 $this->assertAppointmentMatchesSelectedPatient($appointment, $rapport->getPatient());
@@ -239,7 +239,7 @@ class RapportController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $appointment = $form->get('rendezVous')->getData();
+            $appointment = $form->get('appointment')->getData();
             if ($appointment instanceof Appointment) {
                 $this->assertAppointmentOwner($appointment, $medecin);
                 $this->assertAppointmentMatchesSelectedPatient($appointment, $rapport->getPatient());
