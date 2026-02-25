@@ -1,0 +1,6 @@
+# 2. Configuration minimale (config/packages/gregwar_captcha.yaml)
+gregwar_captcha:
+    width: 160
+    height: 50
+    length: 5
+    quality: 80

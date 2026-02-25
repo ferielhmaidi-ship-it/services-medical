@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Médecins — Page {{ page }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 11px;
+            color: #1a1a2e;
+            background: #fff;
+        }
+
+        /* ── Header ── */
+        .pdf-header {
+            background: linear-gradient(135deg, #1967d2 0%, #0d47a1 100%);
+            color: white;
+            padding: 18px 24px;
+            margin-bottom: 16px;
+            border-radius: 6px;
+        }
+        .pdf-header h1 {
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        .pdf-header .meta {
+            margin-top: 6px;
+            font-size: 10px;
+            opacity: 0.85;
+            display: flex;
+            gap: 24px;
+        }
+
+        /* ── Active filters ── */
+        .filters-bar {
+            background: #f0f4ff;
+            border: 1px solid #c5d5f5;
+            border-radius: 5px;
+            padding: 8px 14px;
+            margin-bottom: 14px;
+            font-size: 10px;
+            color: #1967d2;
+        }
+        .filters-bar span { margin-right: 16px; }
+        .filters-bar strong { color: #0d47a1; }
+
+        /* ── Table ── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10.5px;
+        }
+        thead tr {
+            background: #1967d2;
+            color: white;
+        }
+        thead th {
+            padding: 9px 8px;
+            text-align: left;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+        }
+        tbody tr:nth-child(even) { background: #f3f8ff; }
+        tbody tr:nth-child(odd)  { background: #ffffff; }
+        tbody tr:hover           { background: #e8f0fe; }
+        tbody td {
+            padding: 8px 8px;
+            border-bottom: 1px solid #e0e7ff;
+            vertical-align: middle;
+        }
+
+        /* ── Badges ── */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 9.5px;
+            font-weight: bold;
+        }
+        .badge-actif     { background: #e6f4ea; color: #1e7e34; }
+        .badge-inactif   { background: #fce8e6; color: #d93025; }
+        .badge-verifie   { background: #e8f0fe; color: #1967d2; }
+        .badge-attente   { background: #fff4e5; color: #b06000; }
+        .badge-specialty { background: #ede7f6; color: #4527a0; }
+
+        /* ── Footer ── */
+        .pdf-footer {
+            margin-top: 16px;
+            padding-top: 8px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 9px;
+            color: #888;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ── Summary bar ── */
+        .summary {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 14px;
+        }
+        .summary-box {
+            background: #f8f9ff;
+            border: 1px solid #e0e7ff;
+            border-radius: 5px;
+            padding: 8px 16px;
+            text-align: center;
+        }
+        .summary-box .num { font-size: 18px; font-weight: bold; color: #1967d2; }
+        .summary-box .lbl { font-size: 9px; color: #666; margin-top: 2px; }
+    </style>
+</head>
+<body>
+
+    {# ── Header ─────────────────────────────────────────────────────────────── #}
+    <div class="pdf-header">
+        <h1>🏥 Liste des Médecins — Page {{ page }}</h1>
+        <div class="meta">
+            <span>📅 Généré le {{ generatedAt|date('d/m/Y à H:i') }}</span>
+            <span>📋 {{ medecins|length }} médecin(s) sur cette page</span>
+            <span>📊 {{ total }} au total (filtres appliqués)</span>
+        </div>
+    </div>
+
+    {# ── Active filters ──────────────────────────────────────────────────────── #}
+    {% set hasFilters = filters.search or filters.status or filters.verified or filters.specialty %}
+    {% if hasFilters %}
+    <div class="filters-bar">
+        <strong>Filtres actifs :</strong>
+        {% if filters.search %}    <span>🔍 Recherche: <strong>{{ filters.search }}</strong></span>{% endif %}
+        {% if filters.specialty %} <span>💊 Spécialité: <strong>{{ filters.specialty }}</strong></span>{% endif %}
+        {% if filters.status %}    <span>⚡ Statut: <strong>{{ filters.status == 'active' ? 'Actif' : 'Inactif' }}</strong></span>{% endif %}
+        {% if filters.verified %}  <span>✅ Vérification: <strong>{{ filters.verified == 'verified' ? 'Vérifié' : 'Non vérifié' }}</strong></span>{% endif %}
+    </div>
+    {% endif %}
+
+    {# ── Summary boxes ───────────────────────────────────────────────────────── #}
+    {% set activeCount   = medecins|filter(m => m.isActive)|length %}
+    {% set verifiedCount = medecins|filter(m => m.isVerified)|length %}
+    <div class="summary">
+        <div class="summary-box">
+            <div class="num">{{ medecins|length }}</div>
+            <div class="lbl">Sur cette page</div>
+        </div>
+        <div class="summary-box">
+            <div class="num">{{ activeCount }}</div>
+            <div class="lbl">Actifs</div>
+        </div>
+        <div class="summary-box">
+            <div class="num">{{ medecins|length - activeCount }}</div>
+            <div class="lbl">Inactifs</div>
+        </div>
+        <div class="summary-box">
+            <div class="num">{{ verifiedCount }}</div>
+            <div class="lbl">Vérifiés</div>
+        </div>
+        <div class="summary-box">
+            <div class="num">{{ medecins|length - verifiedCount }}</div>
+            <div class="lbl">En attente</div>
+        </div>
+    </div>
+
+    {# ── Table ───────────────────────────────────────────────────────────────── #}
+    <table>
+        <thead>
+            <tr>
+                <th style="width:5%">ID</th>
+                <th style="width:18%">Nom Complet</th>
+                <th style="width:22%">Email</th>
+                <th style="width:20%">Spécialité</th>
+                <th style="width:10%">CIN</th>
+                <th style="width:12%">Téléphone</th>
+                <th style="width:7%">Statut</th>
+                <th style="width:6%">Vérifié</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for medecin in medecins %}
+            <tr>
+                <td>#{{ medecin.id }}</td>
+                <td><strong>{{ medecin.getFullName() }}</strong></td>
+                <td>{{ medecin.email }}</td>
+                <td>
+                    <span class="badge badge-specialty">{{ medecin.specialty }}</span>
+                </td>
+                <td>{{ medecin.cin }}</td>
+                <td>{{ medecin.phoneNumber ?: '—' }}</td>
+                <td>
+                    {% if medecin.isActive %}
+                        <span class="badge badge-actif">Actif</span>
+                    {% else %}
+                        <span class="badge badge-inactif">Inactif</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if medecin.isVerified %}
+                        <span class="badge badge-verifie">✓</span>
+                    {% else %}
+                        <span class="badge badge-attente">⏳</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align:center; padding: 20px; color:#999;">
+                    Aucun médecin trouvé.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {# ── Footer ──────────────────────────────────────────────────────────────── #}
+    <div class="pdf-footer">
+        <span>TabibNet — Administration</span>
+        <span>Page {{ page }} · Exporté le {{ generatedAt|date('d/m/Y à H:i:s') }}</span>
+    </div>
+
+</body>
+</html>

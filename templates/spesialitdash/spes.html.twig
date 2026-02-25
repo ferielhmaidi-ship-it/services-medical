@@ -1,0 +1,140 @@
+{# templates/spesialitdash/spes.html.twig #}
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Liste des Specialites{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% include 'magazine-admin/magazine/_styles.html.twig' %}
+{% endblock %}
+
+{% block body %}
+    <section class="mag-shell">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="mag-header">
+                <div>
+                    <h1 class="mag-title">Gestion des Spécialités</h1>
+                    <p class="mag-subtitle">Consultez et gérez les expertises médicales de la plateforme.</p>
+                </div>
+                <div class="mag-actions">
+                    <button type="button" class="btn btn-mag" data-toggle="modal" data-target="#addSpecialtyModal">
+                        <i class="fas fa-plus me-1"></i> Ajouter une spécialité
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Listing -->
+            <div class="mag-card pb-0">
+                <div class="table-responsive">
+                    <table class="table mag-table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th class="border-0 ps-3">ID</th>
+                                <th class="border-0">Nom</th>
+                                <th class="border-0">Description</th>
+                                <th class="border-0 text-end pe-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in specialites %}
+                            <tr>
+                                <td class="ps-3 align-middle text-muted">#{{ s.id }}</td>
+                                <td class="align-middle">
+                                    <span class="fw-bold" style="color: var(--mag-ink);">{{ s.nom }}</span>
+                                </td>
+                                <td class="align-middle text-muted">
+                                    {{ s.description|length > 100 ? s.description|slice(0, 100) ~ '...' : s.description }}
+                                </td>
+                                <td class="align-middle text-end pe-3">
+                                    <div class="mag-actions justify-content-end">
+                                        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill btn-edit" data-id="{{ s.id }}" data-url="{{ path('update_specialite', {'id': s.id}) }}" title="Modifier">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                        <a href="{{ path('delete_specialite', {'id': s.id}) }}" class="btn btn-outline-danger btn-sm rounded-pill" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette spécialité ?')" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <i class="fas fa-info-circle me-1"></i> Aucune spécialité trouvée
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Add Specialty Modal -->
+    <div class="modal fade" id="addSpecialtyModal" tabindex="-1" role="dialog" aria-labelledby="addSpecialtyModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title fw-bold" id="addSpecialtyModalLabel">Nouvelle Spécialité</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body mag-form">
+                    {{ form_start(addForm) }}
+                        {% include 'specialite/_form.html.twig' with {'form': addForm} %}
+                    {{ form_end(addForm) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Specialty Modal -->
+    <div class="modal fade" id="editSpecialtyModal" tabindex="-1" role="dialog" aria-labelledby="editSpecialtyModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+                <div class="modal-header border-bottom-0 text-info">
+                    <h5 class="modal-title fw-bold" id="editSpecialtyModalLabel">Modifier la Spécialité</h5>
+                    <button type="button" class="close text-info" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body mag-form" id="editSpecialtyModalBody">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-info" role="status">
+                            <span class="sr-only">Chargement...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            $('.btn-edit').click(function() {
+                var url = $(this).data('url');
+                var modal = $('#editSpecialtyModal');
+                var modalBody = $('#editSpecialtyModalBody');
+
+                modalBody.html('<div class="text-center py-4"><div class="spinner-border text-info" role="status"><span class="sr-only">Chargement...</span></div></div>');
+                modal.modal('show');
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(response) {
+                        modalBody.html(response);
+                    },
+                    error: function() {
+                        modalBody.html('<div class="alert alert-danger">Une erreur est survenue lors du chargement.</div>');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

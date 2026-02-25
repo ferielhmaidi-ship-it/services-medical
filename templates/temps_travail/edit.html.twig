@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit TempsTravail{% endblock %}
+
+{% block body %}
+    <h1>Edit TempsTravail</h1>
+
+    {{ include('temps_travail/_form.html.twig') }}
+
+    <a href="{{ path('app_temps_travail_index') }}">back to list</a>
+
+    {{ include('temps_travail/_delete_form.html.twig') }}
+{% endblock %}

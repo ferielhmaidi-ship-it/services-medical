@@ -1,0 +1,285 @@
+{# templates/admin_medecin/index.html.twig #}
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Gestion des Médecins{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% include 'magazine-admin/magazine/_styles.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<section class="mag-shell">
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <div class="mag-header">
+            <div>
+                <h1 class="mag-title">Gestion des Médecins</h1>
+                <p class="mag-subtitle">Consultez et gérez les comptes des professionnels de santé.</p>
+            </div>
+            <div class="mag-toolbar">
+                <a href="{{ path('admin_medecin_new') }}" class="btn btn-primary btn-sm rounded-pill px-3 me-2">
+                    <i class="fas fa-plus me-1"></i> Ajouter un Médecin
+                </a>
+                <span class="badge rounded-pill bg-light text-primary border px-3 py-2">
+                    <i class="fas fa-user-md me-1"></i> {{ pagination.getTotalItemCount() }} Médecin(s)
+                </span>
+            </div>
+        </div>
+
+        <!-- Filter Card -->
+        <div class="mag-card mb-4">
+            <div class="mb-3 d-flex align-items-center">
+                <i class="fas fa-filter text-primary me-2"></i>
+                <h6 class="m-0 font-weight-bold text-primary">Filtres de recherche</h6>
+            </div>
+            <form method="GET" action="{{ path('admin_medecin_index') }}" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="search" class="form-label small fw-bold">Nom / Email / CIN</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" id="search" name="search"
+                                   class="form-control border-start-0"
+                                   placeholder="Rechercher..."
+                                   value="{{ search }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filterStatus" class="form-label small fw-bold">Statut du compte</label>
+                        <select id="filterStatus" name="status" class="form-control select2">
+                            <option value="">Tous les statuts</option>
+                            <option value="active"   {{ status == 'active'   ? 'selected' : '' }}>Actif</option>
+                            <option value="inactive" {{ status == 'inactive' ? 'selected' : '' }}>Inactif</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filterVerified" class="form-label small fw-bold">Vérification</label>
+                        <select id="filterVerified" name="verified" class="form-control select2">
+                            <option value="">Tous les états</option>
+                            <option value="verified"   {{ verified == 'verified'   ? 'selected' : '' }}>Vérifié</option>
+                            <option value="unverified" {{ verified == 'unverified' ? 'selected' : '' }}>Non vérifié</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filterSpecialty" class="form-label small fw-bold">Spécialité médicale</label>
+                        <select id="filterSpecialty" name="specialty" class="form-control select2">
+                            <option value="">Toutes les spécialités</option>
+                            {% for spec in specialties|sort %}
+                                <option value="{{ spec }}" {{ specialty == spec ? 'selected' : '' }}>{{ spec }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">
+                        <i class="fas fa-search me-1"></i> Rechercher
+                    </button>
+                    <a href="{{ path('admin_medecin_index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                        <i class="fas fa-redo me-1"></i> Réinitialiser
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Active filters info banner -->
+        {% if search or status or verified or specialty %}
+        <div class="alert alert-info py-2 px-3 mb-3 d-flex align-items-center gap-2">
+            <i class="fas fa-info-circle"></i>
+            <span>
+                <strong>{{ pagination.getTotalItemCount() }}</strong> résultat(s) trouvé(s)
+                {% if search %}pour "<strong>{{ search }}</strong>"{% endif %}
+                {% if specialty %}· spécialité: <strong>{{ specialty }}</strong>{% endif %}
+                {% if status %}· statut: <strong>{{ status == 'active' ? 'Actif' : 'Inactif' }}</strong>{% endif %}
+                {% if verified %}· vérification: <strong>{{ verified == 'verified' ? 'Vérifié' : 'Non vérifié' }}</strong>{% endif %}
+            </span>
+        </div>
+        {% endif %}
+
+        <!-- Main Listing -->
+        <div class="mag-card pb-0">
+            <div class="mb-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    Liste des Médecins
+                    <span class="text-muted fw-normal small ms-2">
+                        Page {{ pagination.getCurrentPageNumber() }} / {{ pagination.getPageCount() }}
+                    </span>
+                </h6>
+
+                {# ── Export buttons — pass current filters + page as query params ── #}
+                {% set exportParams = {
+                    search:    search,
+                    status:    status,
+                    verified:  verified,
+                    specialty: specialty,
+                    page:      pagination.getCurrentPageNumber()
+                } %}
+                <div class="d-flex gap-2">
+                    <a href="{{ path('admin_medecin_export_excel', exportParams) }}"
+                       class="btn btn-outline-success btn-sm rounded-pill px-3"
+                       title="Exporter la page courante en Excel">
+                        <i class="fas fa-file-excel me-1"></i> Excel
+                    </a>
+                    <a href="{{ path('admin_medecin_export_pdf', exportParams) }}"
+                       class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                       title="Exporter la page courante en PDF">
+                        <i class="fas fa-file-pdf me-1"></i> PDF
+                    </a>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table mag-table table-hover mb-0" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th class="border-0 ps-3">
+                                {{ knp_pagination_sortable(pagination, 'ID', 'm.id') }}
+                            </th>
+                            <th class="border-0">
+                                {{ knp_pagination_sortable(pagination, 'Nom Complet', 'm.lastName') }}
+                            </th>
+                            <th class="border-0">
+                                {{ knp_pagination_sortable(pagination, 'Email', 'm.email') }}
+                            </th>
+                            <th class="border-0">Spécialité</th>
+                            <th class="border-0">CIN</th>
+                            <th class="border-0">Téléphone</th>
+                            <th class="border-0">
+                                {{ knp_pagination_sortable(pagination, 'Statut', 'm.isActive') }}
+                            </th>
+                            <th class="border-0">
+                                {{ knp_pagination_sortable(pagination, 'Vérifié', 'm.isVerified') }}
+                            </th>
+                            <th class="border-0 text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for medecin in pagination %}
+                        <tr>
+                            <td class="ps-3 align-middle text-muted">#{{ medecin.id }}</td>
+                            <td class="align-middle">
+                                <span class="fw-bold" style="color: var(--mag-ink);">{{ medecin.getFullName() }}</span><br>
+                                <small class="text-muted">{{ medecin.age ? medecin.age ~ ' ans' : 'Âge non spécifié' }}</small>
+                            </td>
+                            <td class="align-middle text-muted small">{{ medecin.email }}</td>
+                            <td class="align-middle">
+                                <span class="badge rounded-pill bg-light text-primary border px-3">{{ medecin.specialty }}</span>
+                            </td>
+                            <td class="align-middle text-muted small">{{ medecin.cin }}</td>
+                            <td class="align-middle">
+                                {% if medecin.phoneNumber %}
+                                    <a href="tel:{{ medecin.phoneNumber }}" class="text-primary text-decoration-none small">
+                                        <i class="fas fa-phone me-1"></i>{{ medecin.phoneNumber }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted small">Non renseigné</span>
+                                {% endif %}
+                            </td>
+                            <td class="align-middle">
+                                {% if medecin.isActive %}
+                                    <span class="badge rounded-pill px-3" style="background-color:#e6f4ea;color:#1e7e34;">Actif</span>
+                                {% else %}
+                                    <span class="badge rounded-pill px-3" style="background-color:#fce8e6;color:#d93025;">Inactif</span>
+                                {% endif %}
+                            </td>
+                            <td class="align-middle">
+                                {% if medecin.isVerified %}
+                                    <span class="badge rounded-pill px-3" style="background-color:#e8f0fe;color:#1967d2;">
+                                        <i class="fas fa-check-circle me-1"></i>Vérifié
+                                    </span>
+                                {% else %}
+                                    <span class="badge rounded-pill px-3" style="background-color:#fff4e5;color:#b06000;">
+                                        <i class="fas fa-clock me-1"></i>En attente
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="align-middle text-end pe-3">
+                                <div class="mag-actions justify-content-end">
+                                    <a href="{{ path('admin_medecin_show', {'id': medecin.id}) }}"
+                                       class="btn btn-outline-primary btn-sm rounded-pill" title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('admin_medecin_edit', {'id': medecin.id}) }}"
+                                       class="btn btn-outline-warning btn-sm rounded-pill" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-outline-danger btn-sm rounded-pill"
+                                            data-toggle="modal"
+                                            data-target="#deleteModal{{ medecin.id }}"
+                                            title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Delete Modal -->
+                                <div class="modal fade" id="deleteModal{{ medecin.id }}" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content border-0 shadow-lg" style="border-radius:18px;">
+                                            <div class="modal-header border-bottom-0">
+                                                <h5 class="modal-title fw-bold">Confirmer la suppression</h5>
+                                                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                                            </div>
+                                            <div class="modal-body text-center py-4">
+                                                <div class="mb-3"><i class="fas fa-exclamation-circle text-danger fa-4x"></i></div>
+                                                <p class="mb-1">Êtes-vous sûr de vouloir supprimer le médecin</p>
+                                                <h5 class="fw-bold mb-3">{{ medecin.getFullName() }} ?</h5>
+                                                <p class="text-muted small mb-0">Cette action est irréversible.</p>
+                                            </div>
+                                            <div class="modal-footer border-top-0 justify-content-center pb-4">
+                                                <button type="button" class="btn btn-light rounded-pill px-4" data-dismiss="modal">Annuler</button>
+                                                <form method="post" action="{{ path('admin_medecin_delete', {'id': medecin.id}) }}" style="display:inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ medecin.id) }}">
+                                                    <button type="submit" class="btn btn-danger rounded-pill px-4">
+                                                        <i class="fas fa-trash me-1"></i> Supprimer définitivement
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center py-5">
+                                <i class="fas fa-user-md fa-3x text-muted mb-3 opacity-50"></i>
+                                <h5 class="text-muted">Aucun médecin trouvé</h5>
+                                <p class="text-muted small">Essayez de modifier vos critères de recherche.</p>
+                                <a href="{{ path('admin_medecin_index') }}" class="btn btn-outline-primary btn-sm rounded-pill">
+                                    <i class="fas fa-redo me-1"></i> Tout afficher
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- KnpPaginator navigation -->
+            {% if pagination.getPageCount() > 1 %}
+            <div class="d-flex justify-content-center align-items-center py-4">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(document).ready(function () {
+    $('.select2').select2({ theme: 'bootstrap4', width: '100%', allowClear: true });
+    $('#filterStatus, #filterVerified, #filterSpecialty').on('change', function () {
+        $('#filterForm').submit();
+    });
+    $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+{% endblock %}

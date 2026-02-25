@@ -1,0 +1,698 @@
+{% set isEmbed = app.request.query.getBoolean('embed') %}
+{% extends isEmbed ? 'base_embed.html.twig' : 'base.html.twig' %}
+
+{% block title %}Modifier le Rapport Médical{% endblock %}
+
+{% block body %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary: #0f766e;
+    --primary-light: #14b8a6;
+    --primary-dark: #0d9488;
+    --accent: #f59e0b;
+    --danger: #ef4444;
+    --success: #10b981;
+    --bg-warm: #fafaf9;
+    --surface: #ffffff;
+    --text-primary: #1c1917;
+    --text-secondary: #78716c;
+    --text-muted: #a8a29e;
+    --border: #e7e5e4;
+    --shadow-soft: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-large: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.report-editor {
+    min-height: {{ isEmbed ? 'auto' : '100vh' }};
+    background: {{ isEmbed ? 'transparent' : 'var(--bg-warm)' }};
+    /* AUGMENTATION DU PADDING pour descendre le contenu */
+    padding: {{ isEmbed ? '0' : '6rem 2rem' }};
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    /* CENTRAGE VERTICAL */
+    align-items: center;
+    line-height: 1.6;
+}
+
+.editor-container {
+    width: 100%;
+    max-width: 800px;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-large);
+    overflow: hidden;
+    position: relative;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    /* MARGE SUPÉRIEURE SUPPLÉMENTAIRE */
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header avec gradient organique */
+.editor-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, #064e3b 100%);
+    padding: 3rem 2.5rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.editor-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulse 4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.header-content {
+    position: relative;
+    z-index: 1;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.header-content h2 {
+    color: white;
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.header-content p {
+    color: rgba(255,255,255,0.8);
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Progress indicator */
+.progress-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.progress-step {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.progress-step.active {
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.progress-step.completed {
+    background: rgba(255,255,255,0.6);
+}
+
+/* Body */
+.editor-body {
+    padding: 2.5rem;
+}
+
+.form-section {
+    margin-bottom: 2.5rem;
+    animation: fadeIn 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+.form-section:nth-child(1) { animation-delay: 0.1s; }
+.form-section:nth-child(2) { animation-delay: 0.2s; }
+.form-section:nth-child(3) { animation-delay: 0.3s; }
+.form-section:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.section-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: var(--shadow-medium);
+}
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.section-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0.25rem 0 0 0;
+}
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.required {
+    color: var(--danger);
+    font-weight: 700;
+}
+
+/* Input styling avec focus animation */
+.input-wrapper {
+    position: relative;
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem 1rem 1rem 2.75rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    background: var(--surface);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+    font-weight: 500;
+}
+
+.form-control:hover {
+    border-color: #d6d3d1;
+    background: #fafaf9;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    background: var(--surface);
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1), var(--shadow-medium);
+}
+
+/* Style spécial pour le select */
+select.form-control {
+    padding-left: 2.75rem;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem;
+    padding-right: 3rem;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1.125rem;
+    transition: all 0.2s;
+    pointer-events: none;
+}
+
+.form-control:focus + .input-icon,
+.input-wrapper:focus-within .input-icon {
+    color: var(--primary);
+    transform: translateY(-50%) scale(1.1);
+}
+
+textarea.form-control {
+    min-height: 140px;
+    resize: vertical;
+    line-height: 1.7;
+    padding: 1rem;
+    padding-left: 1rem;
+}
+
+textarea.form-control + .input-icon {
+    top: 1.5rem;
+    transform: none;
+}
+
+textarea.form-control:focus + .input-icon {
+    transform: scale(1.1);
+}
+
+.form-hint {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.form-error {
+    color: var(--danger);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-top: 0.375rem;
+}
+
+.form-error ul {
+    margin: 0;
+    padding-left: 1rem;
+}
+
+/* Actions */
+.editor-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border);
+    position: sticky;
+    bottom: 0;
+    background: var(--surface);
+    z-index: 10;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-md);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    box-shadow: 0 4px 14px 0 rgba(13, 148, 136, 0.39);
+    flex: 1;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 148, 136, 0.23);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: var(--surface);
+    color: var(--text-secondary);
+    border: 2px solid var(--border);
+    flex: 0 0 auto;
+}
+
+.btn-secondary:hover {
+    border-color: var(--text-muted);
+    color: var(--text-primary);
+    background: var(--bg-warm);
+}
+
+/* Status indicator */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-left: auto;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: blink 2s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Appointment section highlight */
+.appointment-section {
+    background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 100%);
+    border: 2px solid #ccfbf1;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.appointment-section .section-header {
+    border-bottom-color: #99f6e4;
+    margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .report-editor {
+        /* MOINS DE MARGE SUR MOBILE */
+        padding: 3rem 1rem;
+    }
+    
+    .editor-container {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .editor-header {
+        padding: 2rem 1.5rem 1.5rem;
+    }
+    
+    .header-content h2 {
+        font-size: 1.5rem;
+    }
+    
+    .editor-body {
+        padding: 1.5rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+    
+    .editor-actions {
+        flex-direction: column-reverse;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+    
+    .appointment-section {
+        padding: 1rem;
+    }
+}
+</style>
+
+<div class="report-editor">
+    <div class="editor-container">
+        <header class="editor-header">
+            <div class="header-content">
+                <div class="badge">
+                    <span>✎</span>
+                    <span>Mode Édition</span>
+                </div>
+                <h2>Modifier le rapport médical</h2>
+                <p>Compte-rendu de consultation • Dernière modification : {{ "now"|date("d/m/Y H:i") }}</p>
+                
+                <div class="progress-bar">
+                    <div class="progress-step completed"></div>
+                    <div class="progress-step active"></div>
+                    <div class="progress-step"></div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="editor-body">
+            {{ form_start(form, {'attr': {'class': 'medical-form', 'novalidate': 'novalidate'}}) }}
+            {% if form.vars.submitted and not form.vars.valid %}
+                <div class="form-error" style="margin-bottom: 1rem;">
+                    {{ form_errors(form) }}
+                </div>
+            {% endif %}
+            
+            <!-- APPOINTMENT EN PREMIER -->
+            <div class="form-section appointment-section">
+                <div class="section-header">
+                    <div class="section-icon">📅</div>
+                    <div>
+                        <h3 class="section-title">Rendez-vous associé</h3>
+                        <p class="section-subtitle">Sélectionnez la consultation concernée</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        {{ form_label(form.rendezVous, 'Choix du rendez-vous', {'label_attr': {'class': 'form-label'}}) }}
+                        <span class="required">*</span>
+                        <div class="input-wrapper">
+                            {{ form_widget(form.rendezVous, {'attr': {'class': 'form-control'}}) }}
+                            <div class="form-error">{{ form_errors(form.rendezVous) }}</div>
+                            <span class="input-icon">📋</span>
+                        </div>
+                        <span class="form-hint">
+                            <span>🔗</span>
+                            <span>Ce rapport sera lié au rendez-vous sélectionné</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon">🩺</div>
+                    <div>
+                        <h3 class="section-title">Informations générales</h3>
+                        <p class="section-subtitle">Motif et contexte de la consultation</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        {{ form_label(form.consultation_reason, 'Motif de consultation', {'label_attr': {'class': 'form-label'}}) }}
+                        <span class="required">*</span>
+                        <div class="input-wrapper">
+                            {{ form_widget(form.consultation_reason, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Douleurs thoraciques, suivi diabète...'}}) }}
+                            <div class="form-error">{{ form_errors(form.consultation_reason) }}</div>
+                            <span class="input-icon">📝</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon">🔬</div>
+                    <div>
+                        <h3 class="section-title">Diagnostic et observations</h3>
+                        <p class="section-subtitle">Analyse clinique et constatations</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        {{ form_label(form.diagnosis, 'Diagnostic principal', {'label_attr': {'class': 'form-label'}}) }}
+                        <span class="required">*</span>
+                        <div class="input-wrapper">
+                            {{ form_widget(form.diagnosis, {'attr': {'class': 'form-control', 'placeholder': 'Diagnostic établi à l\'issue de l\'examen'}}) }}
+                            <div class="form-error">{{ form_errors(form.diagnosis) }}</div>
+                            <span class="input-icon">🩻</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        {{ form_label(form.observations, 'Observations cliniques', {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="input-wrapper">
+                            {{ form_widget(form.observations, {'attr': {'class': 'form-control', 'placeholder': 'Détaillez les symptômes, examens physiques, mesures vitales...', 'rows': 5}}) }}
+                            <div class="form-error">{{ form_errors(form.observations) }}</div>
+                        </div>
+                        <span class="form-hint">
+                            <span>💡</span>
+                            <span>Incluez les signes vitaux, résultats d'examens et observations pertinentes</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon">💊</div>
+                    <div>
+                        <h3 class="section-title">Plan de traitement</h3>
+                        <p class="section-subtitle">Prescriptions et recommandations</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        {{ form_label(form.recommendations, 'Recommandations', {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="input-wrapper">
+                            {{ form_widget(form.recommendations, {'attr': {'class': 'form-control', 'placeholder': 'Conseils hygiéno-diététiques, activités physiques, arrêt de travail...', 'rows': 4}}) }}
+                            <div class="form-error">{{ form_errors(form.recommendations) }}</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        {{ form_label(form.treatments, 'Traitements prescrits', {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="input-wrapper">
+                            {{ form_widget(form.treatments, {'attr': {'class': 'form-control', 'placeholder': 'Médicaments, posologies, durée du traitement...', 'rows': 4}}) }}
+                            <div class="form-error">{{ form_errors(form.treatments) }}</div>
+                        </div>
+                        <span class="form-hint">
+                            <span>⚕️</span>
+                            <span>Précisez les dosages et la durée pour chaque médicament</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="editor-actions">
+                {% if not isEmbed %}
+                    <a href="javascript:history.back()" class="btn btn-secondary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        Annuler
+                    </a>
+                {% endif %}
+                
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span>Modifications en cours...</span>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Enregistrer les modifications
+                </button>
+            </div>
+            
+            {{ form_row(form._token) }}
+            {{ form_end(form, {'render_rest': false}) }}
+        </div>
+    </div>
+</div>
+
+<script>
+// Animation au scroll
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.form-section').forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(20px)';
+    section.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+    observer.observe(section);
+});
+</script>
+{% endblock %}

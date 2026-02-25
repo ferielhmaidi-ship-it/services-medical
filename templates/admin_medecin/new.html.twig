@@ -1,0 +1,162 @@
+{# templates/admin_medecin/new.html.twig #}
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Ajouter un Médecin - TabibNet Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% include 'magazine-admin/magazine/_styles.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<section class="mag-shell">
+    <div class="container-fluid">
+        <!-- Page Heading -->
+        <div class="mag-header mb-4">
+            <div>
+                <h1 class="mag-title">Ajouter un nouveau Médecin</h1>
+                <p class="mag-subtitle">Remplissez les informations pour créer un compte praticien.</p>
+            </div>
+            <div class="mag-toolbar">
+                <a href="{{ path('admin_medecin_index') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                    <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                </a>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="mag-card">
+                    <div class="mag-card-header mb-4">
+                        <h5 class="fw-bold text-primary mb-0">
+                            <i class="fas fa-user-plus me-2"></i>Informations du Profil
+                        </h5>
+                    </div>
+
+                    {{ form_start(form) }}
+                        <div class="row g-4">
+                            <!-- Basic Info -->
+                            <div class="col-md-6">
+                                {{ form_label(form.email, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                {{ form_widget(form.email) }}
+                                {{ form_errors(form.email) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_label(form.firstName, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                {{ form_widget(form.firstName) }}
+                                {{ form_errors(form.firstName) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_label(form.lastName, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                {{ form_widget(form.lastName) }}
+                                {{ form_errors(form.lastName) }}
+                            </div>
+
+                            <div class="col-md-4">
+                                {{ form_label(form.cin, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                {{ form_widget(form.cin) }}
+                                {{ form_errors(form.cin) }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form_label(form.specialty, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                {{ form_widget(form.specialty) }}
+                                {{ form_errors(form.specialty) }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form_label(form.phoneNumber, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                {{ form_widget(form.phoneNumber) }}
+                                {{ form_errors(form.phoneNumber) }}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{ form_label(form.age, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                {{ form_widget(form.age) }}
+                                {{ form_errors(form.age) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_label(form.gender, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                {{ form_widget(form.gender) }}
+                                {{ form_errors(form.gender) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_label(form.governorate, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                {{ form_widget(form.governorate) }}
+                                {{ form_errors(form.governorate) }}
+                            </div>
+
+                            <div class="col-12">
+                                {{ form_label(form.address, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                {{ form_widget(form.address) }}
+                                {{ form_errors(form.address) }}
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form_label(form.education, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                {{ form_widget(form.education) }}
+                                {{ form_errors(form.education) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_label(form.experience, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                {{ form_widget(form.experience) }}
+                                {{ form_errors(form.experience) }}
+                            </div>
+
+                            <!-- Verification Status -->
+                            <div class="col-12">
+                                <hr class="my-4">
+                                <h6 class="fw-bold text-primary mb-3">Options du compte</h6>
+                                <div class="d-flex gap-4">
+                                    <div class="form-check form-switch">
+                                        {{ form_widget(form.isActive) }}
+                                        {{ form_label(form.isActive) }}
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        {{ form_widget(form.isVerified) }}
+                                        {{ form_label(form.isVerified) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Password Section -->
+                            <div class="col-12">
+                                <hr class="my-4">
+                                <h6 class="fw-bold text-primary mb-3">Sécurité</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        {{ form_label(form.plainPassword.first, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                        {{ form_widget(form.plainPassword.first) }}
+                                        {{ form_errors(form.plainPassword.first) }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form_label(form.plainPassword.second, null, {'label_attr': {'class': 'form-label fw-bold small'}}) }}
+                                        {{ form_widget(form.plainPassword.second) }}
+                                        {{ form_errors(form.plainPassword.second) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-5">
+                                <button type="submit" class="btn btn-primary rounded-pill px-5 py-2">
+                                    <i class="fas fa-save me-2"></i> Créer le compte médecin
+                                </button>
+                            </div>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap4',
+                width: '100%'
+            });
+        });
+    </script>
+{% endblock %}

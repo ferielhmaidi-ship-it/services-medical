@@ -1,0 +1,205 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Rendez-vous - TabibNet{% endblock %}
+
+{% block body %}
+<style>
+    .appointments-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+    }
+    .appointment-card {
+        background: white;
+        border-radius: 15px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid #e0e0e0;
+        overflow: hidden;
+    }
+    .appointment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .status-scheduled { background: #e3f2fd; color: #007bff; }
+    .status-completed { background: #e8f5e9; color: #2e7d32; }
+    .status-cancelled { background: #ffebee; color: #c62828; }
+    .status-missed { background: #f5f5f5; color: #616161; }
+    
+    .avatar-mini {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .filter-card {
+        margin-top: -30px;
+        border-radius: 15px;
+        z-index: 10;
+        position: relative;
+    }
+</style>
+
+<div class="appointments-header text-center">
+    <div class="container">
+        <h1>Mes Rendez-vous</h1>
+        <p class="lead">Retrouvez ici l'historique et les détails de vos consultations.</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <!-- Search and Filter Bar -->
+    <div class="filter-card card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold text-uppercase text-muted">Rechercher un médecin</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search"></i></span>
+                        <input type="text" name="search" class="form-control bg-light border-start-0" placeholder="Nom du médecin..." value="{{ currentSearch }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-uppercase text-muted">Trier par</label>
+                    <div class="d-flex gap-2">
+                        <select name="sortBy" class="form-select bg-light">
+                            <option value="date" {{ currentSortBy == 'date' ? 'selected' : '' }}>Date & Heure</option>
+                            <option value="status" {{ currentSortBy == 'status' ? 'selected' : '' }}>Statut</option>
+                        </select>
+                        <select name="order" class="form-select bg-light" style="width: auto;">
+                            <option value="DESC" {{ currentOrder == 'DESC' ? 'selected' : '' }}>↓</option>
+                            <option value="ASC" {{ currentOrder == 'ASC' ? 'selected' : '' }}>↑</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        <i class="fas fa-filter me-2"></i>Appliquer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            {% if appointments|length > 0 %}
+                <div class="row g-4">
+                    {% for item in appointments %}
+                        <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
+                            <div class="appointment-card h-100 shadow-sm">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-mini bg-primary text-white me-3">
+                                                {{ item.doctor ? item.doctor.fullName|split(' ')|map(word => word|first)|join('')|upper : 'DR' }}
+                                            </div>
+                                            <div>
+                                                <h5 class="mb-0">Dr. {{ item.doctor.fullName ?? 'Inconnu' }}</h5>
+                                                <small class="text-muted">{{ item.doctor.specialty ?? 'Spécialité non spécifiée' }}</small>
+                                            </div>
+                                        </div>
+                                        <span class="status-badge status-{{ item.status }}">
+                                            {% if item.status == 'scheduled' %}PROGR.{% else %}{{ item.status|upper }}{% endif %}
+                                        </span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="far fa-calendar-alt text-primary me-3" style="width: 20px;"></i>
+                                            <span>{{ item.date|date('d F Y') }}</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="far fa-clock text-primary me-3" style="width: 20px;"></i>
+                                            <span>{{ item.startTime|date('H:i') }} ({{ item.duration }} min)</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-map-marker-alt text-primary me-3" style="width: 20px;"></i>
+                                            <span class="small">{{ item.doctor.address ?? item.doctor.governorate ?? 'Adresse non disponible' }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-grid gap-2 mt-4">
+                                        {% if item.status == 'scheduled' %}
+                                            <button onclick="cancelAppointment({{ item.id }})" class="btn btn-outline-danger btn-sm">
+                                                <i class="fas fa-times me-2"></i>Annuler
+                                            </button>
+                                        {% endif %}
+
+                                        {% if item.status == 'completed' %}
+                                            {% if item.feedbackId %}
+                                                <a href="{{ path('app_appointment_feedback_manage', {id: item.feedbackId}) }}" class="btn btn-info btn-sm text-white">
+                                                    <i class="fas fa-comment me-2"></i>Voir mon avis
+                                                </a>
+                                            {% else %}
+                                                <a href="{{ path('app_appointment_feedback_new', {id: item.id}) }}" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-star me-2"></i>Laisser un avis
+                                                </a>
+                                            {% endif %}
+                                        {% endif %}
+
+                                        <a href="{{ path('app_booking_doctor', {id: item.doctor.id}) }}" class="btn btn-outline-primary btn-sm">
+                                            Reprendre rendez-vous
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="far fa-calendar-times text-muted" style="font-size: 5rem; opacity: 0.3;"></i>
+                    </div>
+                    <h3>Aucun rendez-vous trouvé</h3>
+                    {% if currentSearch %}
+                        <p class="text-muted">Aucun résultat pour "<strong>{{ currentSearch }}</strong>".</p>
+                        <a href="{{ path('app_patient_appointment_list') }}" class="btn btn-outline-primary mt-3">Réinitialiser les filtres</a>
+                    {% else %}
+                        <p class="text-muted">Vous n'avez pas encore pris de rendez-vous sur TabibNet.</p>
+                        <a href="{{ path('app_doctors') }}" class="btn btn-primary mt-3">Trouver un médecin</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+async function cancelAppointment(id) {
+    if (!confirm('Êtes-vous sûr de vouloir annuler ce rendez-vous ?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/booking/cancel/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert('Rendez-vous annulé avec succès.');
+            window.location.reload();
+        } else {
+            alert('Erreur : ' + (result.error || 'Une erreur est survenue.'));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Une erreur de réseau est survenue.');
+    }
+}
+</script>
+{% endblock %}

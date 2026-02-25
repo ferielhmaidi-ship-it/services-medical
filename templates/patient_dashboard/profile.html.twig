@@ -1,0 +1,297 @@
+{# templates/patient_dashboard/profile.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil - TabibNet{% endblock %}
+
+{% block body_class %}patient-profile{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <!-- Profile Sidebar -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body text-center">
+                    <div class="avatar-circle bg-primary-gradient text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                        {{ patient.fullName|split(' ')|map(word => word|first)|join('')|upper }}
+                    </div>
+                    <h4 class="mb-1">{{ patient.fullName }}</h4>
+                    <p class="text-muted mb-3">Patient</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('patient_dashboard') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-tachometer-alt me-2"></i>Tableau de Bord
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2 text-primary"></i>Mes Statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="stat-number text-primary">0</div>
+                            <div class="stat-label small text-muted">Rendez-vous</div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="stat-number text-success">0</div>
+                            <div class="stat-label small text-muted">Consultations</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-number text-info">0</div>
+                            <div class="stat-label small text-muted">Prescriptions</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-number text-warning">0</div>
+                            <div class="stat-label small text-muted">Messages</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <!-- Profile Form -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-edit me-2"></i>Modifier mon Profil</h4>
+                </div>
+                <div class="card-body">
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+
+                    {{ form_start(form) }}
+
+                    <div class="row g-3">
+                        <!-- Personal Info -->
+                        <div class="col-md-6">
+                            {{ form_row(form.firstName, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.lastName, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+
+                        <!-- Contact Info -->
+                        <div class="col-md-6">
+                            {{ form_row(form.email, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.phoneNumber, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+
+                        <!-- Personal Details -->
+                        <div class="col-md-4">
+                            {{ form_row(form.age, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.gender, {
+                                'attr': {'class': 'form-select'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.dateOfBirth, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+
+                        <!-- Address -->
+                        <div class="col-12">
+                            {{ form_row(form.address, {
+                                'attr': {'class': 'form-control', 'rows': 3},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+
+                        <!-- Insurance -->
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form_widget(form.hasInsurance, {
+                                    'attr': {'class': 'form-check-input'}
+                                }) }}
+                                {{ form_label(form.hasInsurance, null, {
+                                    'label_attr': {'class': 'form-check-label'}
+                                }) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.insuranceNumber, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label fw-semibold'}
+                            }) }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('patient_dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Retour
+                            </a>
+                            {{ form_widget(form.save, {
+                                'attr': {'class': 'btn btn-primary px-4'}
+                            }) }}
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <!-- Account Security -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-shield-alt me-2 text-warning"></i>Sécurité du Compte</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center justify-content-between p-3 border rounded">
+                                <div>
+                                    <h6 class="mb-1">Mot de passe</h6>
+                                    <p class="mb-0 small text-muted">Dernière modification il y a 30 jours</p>
+                                </div>
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-key me-1"></i>Changer
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center justify-content-between p-3 border rounded">
+                                <div>
+                                    <h6 class="mb-1">Connexion sécurisée</h6>
+                                    <p class="mb-0 small text-muted">Toutes vos sessions</p>
+                                </div>
+                                <button class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-eye me-1"></i>Voir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+.patient-profile {
+    background-color: #f8f9fa;
+}
+
+.avatar-circle {
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+.bg-primary-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.card {
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.form-control, .form-select {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-outline-primary {
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+}
+
+.form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
+}
+</style>
+{% endblock %}

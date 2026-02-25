@@ -1,0 +1,237 @@
+╔════════════════════════════════════════════════════════════════╗
+║   🧠 SENTIMENT ANALYSIS SYSTEM - QUICK REFERENCE CARD          ║
+╚════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 📍 ARCHITECTURE OVERVIEW                                        │
+└─────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────┐
+    │ Web Form    │
+    └──────┬──────┘
+           │
+    ┌──────▼──────────────┐
+    │ FeedbackController  │
+    │ (Symfony PHP)       │
+    └──────┬──────────────┘
+           │
+    ┌──────▼────────────────────────┐
+    │ SentimentAnalysisService      │
+    │ (HTTP client for Flask)       │
+    └──────┬──────────────────────┘
+           │
+    ┌──────▼──────────────────┐
+    │ Flask API :5000         │
+    │ ├─ /analyze             │
+    │ ├─ /analyze-batch       │
+    │ └─ /doctor-sentiment    │
+    │ (Python + TextBlob)     │
+    └──────┬──────────────────┘
+           │
+    ┌──────▼──────────────────┐
+    │ MySQL Database          │
+    │ ├─ feedback (new score) │
+    │ └─ medecin (avg score)  │
+    └─────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 🗂️  FILE LOCATIONS                                               │
+└─────────────────────────────────────────────────────────────────┘
+
+📂 PHP Backend:
+   ├─ src/Entity/Feedback.php ................. Entity with sentiment_score
+   ├─ src/Entity/Medecin.php ................. updateAiAverageScore() method
+   ├─ src/Controller/FeedbackController.php .. Sentiment analysis integration
+   └─ src/Service/SentimentAnalysisService.php NEW - API communication
+
+📂 Python API:
+   ├─ flask-sentiment-api/app.py ............ Main Flask app
+   ├─ flask-sentiment-api/test_api.py ....... Test suite
+   └─ flask-sentiment-api/API_CURL_TESTS.sh. Manual tests
+
+📂 Database:
+   ├─ migrations/Version20260210210851.php .. Migration
+   └─ SENTIMENT_DB_SCHEMA.sql .............. SQL reference
+
+📂 Documentation:
+   ├─ SENTIMENT_ANALYSIS_SETUP.md .......... Full guide
+   ├─ CHANGES_SUMMARY.md ................... What changed
+   └─ START_SENTIMENT_API.bat .............. Quick start
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 🚀 QUICK START                                                   │
+└─────────────────────────────────────────────────────────────────┘
+
+1. Start Flask API:
+   $ cd flask-sentiment-api
+   $ python app.py
+
+2. In another terminal, run migration:
+   $ php bin/console doctrine:migrations:migrate
+
+3. Add a feedback in the web app → Sentiment score auto-calculated!
+
+4. Test API:
+   $ python flask-sentiment-api/test_api.py
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 📊 KEY CONCEPTS                                                  │
+└─────────────────────────────────────────────────────────────────┘
+
+Sentiment Score Calculation:
+┌──────────────────────────────────────────────────┐
+│ Rating Score (1-5)        → 60% weight          │
+│ Text Sentiment Analysis   → 40% weight          │
+│ ──────────────────────────────────────────────   │
+│ FINAL SCORE (0-5) used for doctor evaluation    │
+└──────────────────────────────────────────────────┘
+
+Sentiment Labels:
+  ✅ very_positive   (score ≥ 4.0)
+  ✅ positive        (score ≥ 3.0)
+  ⚪ neutral         (score ≥ 2.0)
+  ❌ negative        (score ≥ 1.0)
+  ❌ very_negative   (score < 1.0)
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 🔌 API ENDPOINTS                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+GET /health
+├─ Check if API is running
+└─ Response: {"status": "ok", "message": "API running"}
+
+POST /analyze
+├─ Analyze single feedback
+├─ Body: {"comment": "text", "rating": 5}
+└─ Returns: {sentiment_score, final_score, label, confidence}
+
+POST /analyze-batch
+├─ Analyze multiple feedbacks
+├─ Body: {"feedbacks": [{comment, rating}, ...]}
+└─ Returns: {average_score, total_count, feedbacks array}
+
+POST /doctor-sentiment-score
+├─ Calculate doctor's average sentiment
+├─ Body: {"feedbacks": [{comment, rating}, ...]}
+└─ Returns: {average_sentiment_score, average_rating, total}
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 🐛 TROUBLESHOOTING                                               │
+└─────────────────────────────────────────────────────────────────┘
+
+❌ "Flask API not responding"
+   → Check: curl http://localhost:5000/health
+   → Ensure Flask is running: python flask-sentiment-api/app.py
+
+❌ "sentiment_score column not found"
+   → Run: php bin/console doctrine:migrations:migrate
+   → Check status: php bin/console doctrine:migrations:status
+
+❌ "SentimentAnalysisService not found"
+   → Check: php bin/console lint:container
+   → Verify: src/Service/SentimentAnalysisService.php exists
+
+❌ "Wrong score calculation"
+   → Fallback: If Flask fails, uses rating as sentiment_score
+   → Check Flask logs for errors
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 🔄 DATA FLOW EXAMPLE                                             │
+└─────────────────────────────────────────────────────────────────┘
+
+Patient Action:
+┌─────────────────────────────────────────────────────┐
+│ 1. Patient fills feedback form:                     │
+│    ├─ Rating: 5 stars                              │
+│    └─ Comment: "Excellent docteur!"                │
+│                                                     │
+│ 2. Form submitted → FeedbackController::new()      │
+│                                                     │
+│ 3. Service calls Flask /analyze                    │
+│    ├─ TextBlob analyzes: "Excellent docteur!"     │
+│    ├─ VADER confirms: positive sentiment           │
+│    └─ Returns: {sentiment_score: 4.8, label: ...} │
+│                                                     │
+│ 4. Feedback saved with:                            │
+│    ├─ rating: 5                                    │
+│    ├─ sentiment_score: 4.8                         │
+│    └─ comment: "Excellent docteur!"               │
+│                                                     │
+│ 5. Doctor's score recalculated:                    │
+│    ├─ All doctor feedbacks: [4.8, 4.5, 3.9]      │
+│    ├─ Average: (4.8 + 4.5 + 3.9) / 3 = 4.4       │
+│    └─ aiAverageScore: 4.4 ⭐                      │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 📈 USEFUL SQL QUERIES                                            │
+└─────────────────────────────────────────────────────────────────┘
+
+Top doctors by sentiment:
+  SELECT firstName, lastName, ai_average_score
+  FROM medecin
+  ORDER BY ai_average_score DESC
+  LIMIT 5;
+
+Doctor's feedback details:
+  SELECT f.comment, f.rating, f.sentiment_score
+  FROM feedback f
+  WHERE f.medecin_id = 1
+  ORDER BY f.created_at DESC;
+
+Average sentiment by category:
+  SELECT COUNT(*),
+    CASE WHEN sentiment_score >= 4 THEN 'very_positive'
+         WHEN sentiment_score >= 3 THEN 'positive'
+         ELSE 'negative' END AS category
+  FROM feedback
+  GROUP BY category;
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ⚙️  SYSTEM REQUIREMENTS                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+Python Side:
+  ├─ Python 3.8+
+  ├─ pip install flask flask-cors textblob vaderSentiment
+  ├─ python -m textblob.download_corpora
+  └─ Flask runs on port 5000
+
+PHP Side:
+  ├─ Symfony 6.0+
+  ├─ PHP 8.0+
+  ├─ Doctrine ORM
+  └─ Symfony HttpClient
+
+Database:
+  ├─ MySQL 5.7+ or MariaDB 10.2+
+  ├─ Tables: feedback, medecin
+  └─ New columns: sentiment_score, ai_average_score, ai_score_updated_at
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 📞 HELP & DOCUMENTATION                                          │
+└─────────────────────────────────────────────────────────────────┘
+
+Main Documentation:
+  → SENTIMENT_ANALYSIS_SETUP.md (complete guide)
+
+Database Schema:
+  → SENTIMENT_DB_SCHEMA.sql (SQL reference + queries)
+
+Changes Made:
+  → CHANGES_SUMMARY.md (what was modified)
+
+Testing:
+  → flask-sentiment-api/test_api.py (run: python test_api.py)
+  → flask-sentiment-api/API_CURL_TESTS.sh (manual API tests)
+
+Quick Start:
+  → START_SENTIMENT_API.bat (Windows batch script)
+
+═══════════════════════════════════════════════════════════════════
+
+✅ System Ready for Production!
+   Start with: python flask-sentiment-api/app.py
+
+═══════════════════════════════════════════════════════════════════

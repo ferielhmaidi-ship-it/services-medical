@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gérer mon avis - TabibNet{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white py-4 text-center border-0">
+                    <h2 class="h4 mb-0">Votre avis</h2>
+                    <p class="text-white-50 mb-0">Publié le {{ feedback.createdAt|date('d/m/Y') }}</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <!-- Rating display -->
+                    <div class="text-center mb-4">
+                        <div class="h1 text-warning">
+                            {% for i in 1..5 %}
+                                <i class="{{ i <= feedback.rating ? 'fas' : 'far' }} fa-star"></i>
+                            {% endfor %}
+                        </div>
+                        <div class="fw-bold text-muted text-uppercase small tracking-wider">Note : {{ feedback.rating }}/5</div>
+                    </div>
+
+                    <!-- Comment -->
+                    <div class="bg-light p-4 rounded-4 mb-4 italic">
+                        <i class="fas fa-quote-left text-primary opacity-25 h2 d-block mb-3"></i>
+                        <p class="mb-0 fs-5 text-dark" style="line-height: 1.6;">{{ feedback.comment }}</p>
+                    </div>
+
+                    <!-- Sentiment Badge -->
+                    {% if feedback.sentimentScore is not null %}
+                        <div class="text-center mb-4">
+                            {% set score = feedback.sentimentScore %}
+                            {% if score >= 4 %}
+                                <span class="badge rounded-pill bg-success-subtle text-success border border-success px-4 py-2">
+                                    <i class="fas fa-smile me-2"></i>Avis très positif
+                                </span>
+                            {% elseif score >= 3 %}
+                                <span class="badge rounded-pill bg-info-subtle text-info border border-info px-4 py-2">
+                                    <i class="fas fa-meh me-2"></i>Avis constructif
+                                </span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning px-4 py-2">
+                                    <i class="fas fa-frown me-2"></i>Avis mitigé
+                                </span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Doctor Info -->
+                    <div class="d-flex align-items-center mb-5 p-3 border rounded-3 bg-white">
+                        <div class="avatar me-3 bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fas fa-user-md text-primary h4 mb-0"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Dr. {{ feedback.medecin.firstName }} {{ feedback.medecin.lastName }}</div>
+                            <div class="small text-muted">{{ feedback.medecin.specialty }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <a href="{{ path('app_appointment_feedback_edit', {id: feedback.id}) }}" class="btn btn-outline-primary w-100 py-3 rounded-pill fw-bold">
+                                <i class="fas fa-edit me-2"></i>Modifier
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <form action="{{ path('app_appointment_feedback_delete', {id: feedback.id}) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet avis ?');">
+                                <button type="submit" class="btn btn-outline-danger w-100 py-3 rounded-pill fw-bold">
+                                    <i class="fas fa-trash-alt me-2"></i>Supprimer
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-12 mt-4 text-center">
+                            <a href="{{ path('app_patient_appointment_list') }}" class="btn btn-link text-muted text-decoration-none">
+                                <i class="fas fa-arrow-left me-2"></i>Retour à mes rendez-vous
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.tracking-wider {
+    letter-spacing: 0.15em;
+}
+.bg-success-subtle { background-color: #d1e7dd !important; }
+.bg-info-subtle { background-color: #cff4fc !important; }
+.bg-warning-subtle { background-color: #fff3cd !important; }
+</style>
+{% endblock %}
