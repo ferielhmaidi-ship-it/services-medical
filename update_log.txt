@@ -1,0 +1,127 @@
+ Updating database schema...
+
+
+In ExceptionConverter.php line 56:
+
+  [Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException (1452)]
+  An exception occu
+  rred while execut
+  ing a query: SQLS
+  TATE[23000]: Inte
+  grity constraint
+  violation: 1452 C
+  annot add or upda
+  te a child row: a
+   foreign key cons
+  traint fails (`pi
+  dev_1`.`#sql-alte
+  r-349681-421ef4c`
+  , CONSTRAINT `FK_
+  5FB6DEC74F31A84`
+  FOREIGN KEY (`med
+  ecin_id`) REFEREN
+  CES `medecins` (`
+  id`))
+
+
+Exception trace:
+  at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Driver\API\MySQL\ExceptionConverter.php:56
+ Doctrine\DBAL\Driver\API\MySQL\ExceptionConverter->convert() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Connection.php:1460
+ Doctrine\DBAL\Connection->handleDriverException() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Connection.php:1396
+ Doctrine\DBAL\Connection->convertExceptionDuringQuery() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Connection.php:911
+ Doctrine\DBAL\Connection->executeStatement() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\orm\src\Tools\SchemaTool.php:984
+ Doctrine\ORM\Tools\SchemaTool->updateSchema() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\orm\src\Tools\Console\Command\SchemaTool\UpdateCommand.php:113
+ Doctrine\ORM\Tools\Console\Command\SchemaTool\UpdateCommand->executeSchemaCommand() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\orm\src\Tools\Console\Command\SchemaTool\AbstractCommand.php:37
+ Doctrine\ORM\Tools\Console\Command\SchemaTool\AbstractCommand->execute() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\console\Command\Command.php:341
+ Symfony\Component\Console\Command\Command->run() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\console\Application.php:1102
+ Symfony\Component\Console\Application->doRunCommand() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\framework-bundle\Console\Application.php:123
+ Symfony\Bundle\FrameworkBundle\Console\Application->doRunCommand() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\console\Application.php:356
+ Symfony\Component\Console\Application->doRun() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\framework-bundle\Console\Application.php:77
+ Symfony\Bundle\FrameworkBundle\Console\Application->doRun() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\console\Application.php:195
+ Symfony\Component\Console\Application->run() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\runtime\Runner\Symfony\ConsoleApplicationRunner.php:49
+ Symfony\Component\Runtime\Runner\Symfony\ConsoleApplicationRunner->run() at C:\Users\ADEM\Desktop\PIDEV\vendor\autoload_runtime.php:32
+ require_once() at C:\Users\ADEM\Desktop\PIDEV\bin\console:15
+
+In Exception.php line 24:
+
+  [Doctrine\DBAL\Driver\PDO\Exception (1452)]
+  SQLSTATE[23000]:
+  Integrity constra
+  int violation: 14
+  52 Cannot add or
+  update a child ro
+  w: a foreign key
+  constraint fails
+  (`pidev_1`.`#sql-
+  alter-349681-421e
+  f4c`, CONSTRAINT
+  `FK_5FB6DEC74F31A
+  84` FOREIGN KEY (
+  `medecin_id`) REF
+  ERENCES `medecins
+  ` (`id`))
+
+
+Exception trace:
+  at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Driver\PDO\Exception.php:24
+ Doctrine\DBAL\Driver\PDO\Exception::new() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Driver\PDO\Connection.php:33
+ Doctrine\DBAL\Driver\PDO\Connection->exec() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Driver\Middleware\AbstractConnectionMiddleware.php:34
+ Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware->exec() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Logging\Connection.php:46
+ Doctrine\DBAL\Logging\Connection->exec() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Driver\Middleware\AbstractConnectionMiddleware.php:34
+ Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware->exec() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\doctrine-bridge\Middleware\Debug\Connection.php:70
+ Symfony\Bridge\Doctrine\Middleware\Debug\Connection->exec() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Connection.php:909
+ Doctrine\DBAL\Connection->executeStatement() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\orm\src\Tools\SchemaTool.php:984
+ Doctrine\ORM\Tools\SchemaTool->updateSchema() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\orm\src\Tools\Console\Command\SchemaTool\UpdateCommand.php:113
+ Doctrine\ORM\Tools\Console\Command\SchemaTool\UpdateCommand->executeSchemaCommand() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\orm\src\Tools\Console\Command\SchemaTool\AbstractCommand.php:37
+ Doctrine\ORM\Tools\Console\Command\SchemaTool\AbstractCommand->execute() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\console\Command\Command.php:341
+ Symfony\Component\Console\Command\Command->run() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\console\Application.php:1102
+ Symfony\Component\Console\Application->doRunCommand() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\framework-bundle\Console\Application.php:123
+ Symfony\Bundle\FrameworkBundle\Console\Application->doRunCommand() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\console\Application.php:356
+ Symfony\Component\Console\Application->doRun() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\framework-bundle\Console\Application.php:77
+ Symfony\Bundle\FrameworkBundle\Console\Application->doRun() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\console\Application.php:195
+ Symfony\Component\Console\Application->run() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\runtime\Runner\Symfony\ConsoleApplicationRunner.php:49
+ Symfony\Component\Runtime\Runner\Symfony\ConsoleApplicationRunner->run() at C:\Users\ADEM\Desktop\PIDEV\vendor\autoload_runtime.php:32
+ require_once() at C:\Users\ADEM\Desktop\PIDEV\bin\console:15
+
+In Connection.php line 27:
+
+  [PDOException (23000)]
+  SQLSTATE[23000]:
+  Integrity constra
+  int violation: 14
+  52 Cannot add or
+  update a child ro
+  w: a foreign key
+  constraint fails
+  (`pidev_1`.`#sql-
+  alter-349681-421e
+  f4c`, CONSTRAINT
+  `FK_5FB6DEC74F31A
+  84` FOREIGN KEY (
+  `medecin_id`) REF
+  ERENCES `medecins
+  ` (`id`))
+
+
+Exception trace:
+  at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Driver\PDO\Connection.php:27
+ PDO->exec() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Driver\PDO\Connection.php:27
+ Doctrine\DBAL\Driver\PDO\Connection->exec() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Driver\Middleware\AbstractConnectionMiddleware.php:34
+ Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware->exec() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Logging\Connection.php:46
+ Doctrine\DBAL\Logging\Connection->exec() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Driver\Middleware\AbstractConnectionMiddleware.php:34
+ Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware->exec() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\doctrine-bridge\Middleware\Debug\Connection.php:70
+ Symfony\Bridge\Doctrine\Middleware\Debug\Connection->exec() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\dbal\src\Connection.php:909
+ Doctrine\DBAL\Connection->executeStatement() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\orm\src\Tools\SchemaTool.php:984
+ Doctrine\ORM\Tools\SchemaTool->updateSchema() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\orm\src\Tools\Console\Command\SchemaTool\UpdateCommand.php:113
+ Doctrine\ORM\Tools\Console\Command\SchemaTool\UpdateCommand->executeSchemaCommand() at C:\Users\ADEM\Desktop\PIDEV\vendor\doctrine\orm\src\Tools\Console\Command\SchemaTool\AbstractCommand.php:37
+ Doctrine\ORM\Tools\Console\Command\SchemaTool\AbstractCommand->execute() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\console\Command\Command.php:341
+ Symfony\Component\Console\Command\Command->run() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\console\Application.php:1102
+ Symfony\Component\Console\Application->doRunCommand() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\framework-bundle\Console\Application.php:123
+ Symfony\Bundle\FrameworkBundle\Console\Application->doRunCommand() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\console\Application.php:356
+ Symfony\Component\Console\Application->doRun() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\framework-bundle\Console\Application.php:77
+ Symfony\Bundle\FrameworkBundle\Console\Application->doRun() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\console\Application.php:195
+ Symfony\Component\Console\Application->run() at C:\Users\ADEM\Desktop\PIDEV\vendor\symfony\runtime\Runner\Symfony\ConsoleApplicationRunner.php:49
+ Symfony\Component\Runtime\Runner\Symfony\ConsoleApplicationRunner->run() at C:\Users\ADEM\Desktop\PIDEV\vendor\autoload_runtime.php:32
+ require_once() at C:\Users\ADEM\Desktop\PIDEV\bin\console:15
+
+doctrine:schema:update [--em EM] [--complete] [--dump-sql] [-f|--force]

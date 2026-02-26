@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Department Details - MediNest{% endblock %}
+{% block body_class %}department-details-page{% endblock %}
+
+{% block body %}
+<div class="page-title">
+  <div class="heading">
+    <div class="container">
+      <div class="row d-flex justify-content-center text-center">
+        <div class="col-lg-8">
+          <h1 class="heading-title">Department Details</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="breadcrumbs">
+    <div class="container">
+      <ol>
+        <li><a href="{{ path('app_home') }}">Home</a></li>
+        <li><a href="{{ path('app_departments') }}">Departments</a></li>
+        <li class="current">Details</li>
+      </ol>
+    </div>
+  </nav>
+</div>
+
+<section id="department-details" class="department-details section">
+  <div class="container" data-aos="fade-up">
+    <div class="row">
+      <div class="col-lg-8">
+        <h2>Cardiology Department</h2>
+        <p>Our cardiology department provides comprehensive care for heart conditions with advanced diagnostic and treatment options.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ article.title }} | TabibNet{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/magazine.css') }}">
+{% endblock %}
+
+{% block body %}
+<section class="mag-section">
+  <div class="container">
+
+    <div class="article-card" style="padding:28px;">
+
+      <div style="margin-bottom:14px;">
+        <a href="{{ path('front_magazine_show', { id: article.magazine.id }) }}" class="mag-kicker" style="text-decoration:none;">
+          ← Retour au magazine : {{ article.magazine.title }}
+        </a>
+      </div>
+
+      {% if article.image %}
+        <div class="article-card__image" style="margin-bottom:18px;">
+          <img src="{{ asset('uploads/' ~ article.image) }}" alt="{{ article.title }}">
+        </div>
+      {% endif %}
+
+      <h1 class="trans-title" style="margin:0 0 10px 0;">{{ article.title }}</h1>
+      {% include 'magazine-patient/_translate_selector.html.twig' with {'type': 'article', 'id': article.id} %}
+
+
+      <div class="article-card__meta" style="margin-bottom:18px;">
+        <span>{{ article.auteur }}</span>
+        <span>•</span>
+        <span>{{ article.datePub ? article.datePub|date('d/m/Y') : '' }}</span>
+      </div>
+
+      {# إذا عندك contenu استعمله، إذا ما عندكش نعرض resume #}
+      <div class="trans-resume" id="article-content" style="color:#334155; line-height:1.9; font-size:16px;">
+        {% if article.contenu is defined and article.contenu %}
+          {{ article.contenu|raw }}
+        {% else %}
+          {{ article.resume }}
+        {% endif %}
+      </div>
+
+      <div style="margin-top:18px; display:flex; gap:12px; align-items:center;">
+        <button id="generate-summary-btn" class="btn btn-outline-secondary">Résumé</button>
+        <div id="ai-summary-status" style="color:#6b7280; font-size:14px;"></div>
+      </div>
+
+      <div id="ai-summary" style="margin-top:18px; background:#f8fafc; padding:12px; border-radius:6px; display: {% if article.summary %}block{% else %}none{% endif %};">
+        {% if article.summary %}
+          {{ article.summary|raw }}
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- NAV BUTTONS -->
+    <div style="display:flex; justify-content:space-between; gap:12px; margin-top:24px;">
+
+      {% if previous %}
+        <a class="btn btn-outline-primary"
+           href="{{ path('front_article_show', { magazineId: previous.magazine.id, id: previous.id }) }}">
+          ← Précédent
+        </a>
+      {% else %}
+        <span></span>
+      {% endif %}
+
+      {% if next %}
+        <a class="btn btn-primary"
+           href="{{ path('front_article_show', { magazineId: next.magazine.id, id: next.id }) }}">
+          Suivant →
+        </a>
+      {% endif %}
+
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% include 'magazine-patient/_translation_assets.html.twig' %}
+
+    <script>
+      (function(){
+        const btn = document.getElementById('generate-summary-btn');
+        const status = document.getElementById('ai-summary-status');
+        const out = document.getElementById('ai-summary');
+        if (!btn || !status || !out) return;
+
+        btn.addEventListener('click', function(){
+          const url = '{{ path('app_article_generate_summary', { id: article.id }) }}';
+          btn.disabled = true;
+          status.textContent = 'Génération en cours…';
+
+          fetch(url, { method: 'POST', headers: { 'Accept': 'application/json' } })
+            .then(function(res){ return res.json().then(function(j){ return {ok: res.ok, status: res.status, json: j}; }); })
+            .then(function(r){
+              if (!r.ok) {
+                status.textContent = 'Erreur: ' + (r.json.error || 'Impossible d\'obtenir le résumé.');
+                btn.disabled = false;
+                return;
+              }
+              const summary = r.json.summary || '';
+              out.innerHTML = summary;
+              out.style.display = 'block';
+              status.textContent = '';
+              btn.disabled = false;
+            })
+            .catch(function(err){
+              status.textContent = 'Erreur réseau';
+              btn.disabled = false;
+            });
+        });
+      })();
+    </script>
+{% endblock %}

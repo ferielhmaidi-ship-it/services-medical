@@ -1,0 +1,243 @@
+{# templates/magazine-patient/_translation_assets.html.twig #}
+<style>
+    /* Translation UI Styles */
+    .translate-wrapper {
+        display: inline-flex;
+        align-items: center;
+        background: #fff;
+        padding: 5px 15px;
+        border-radius: 50px;
+        border: 1px solid var(--mag-border, #e2e8f0);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin: 10px 0;
+    }
+    .translate-label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--mag-gray, #64748b);
+        margin-right: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .translate-select {
+        border: none;
+        background: transparent;
+        font-weight: 600;
+        color: var(--mag-primary, #6366f1);
+        cursor: pointer;
+        outline: none;
+        font-size: 0.85rem;
+    }
+    
+    /* Loading Overlay */
+    #translate-loader {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        z-index: 9999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+    }
+    .loader-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #e2e8f0;
+        border-top: 5px solid var(--mag-primary, #6366f1);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .loader-text {
+        margin-top: 15px;
+        font-weight: 600;
+        color: var(--mag-primary, #6366f1);
+    }
+    
+    /* Highlight translated content */
+    .is-translated {
+        animation: highlightFade 2s ease-out;
+    }
+    @keyframes highlightFade {
+        0% { background-color: rgba(99, 102, 241, 0.1); }
+        100% { background-color: transparent; }
+    }
+</style>
+
+<!-- Loader HTML -->
+<div id="translate-loader">
+    <div class="loader-spinner"></div>
+    <div class="loader-text">Traduction AI en cours...</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Translation Logic
+    $('.translate-select').off('change').on('change', async function() {
+        const targetLang = $(this).val();
+        if (!targetLang) return;
+
+        const wrapper = $(this).closest('[data-translate-type]');
+        const type = wrapper.data('translate-type');
+        const id = wrapper.data('translate-id');
+
+        if (id) {
+            await translateEntity(type, id, targetLang);
+            // On magazine detail page, also translate listed articles.
+            if (type === 'magazine' && $('.article-card[data-id]').length > 0) {
+                await translateList('article', targetLang);
+            }
+        } else {
+            await translateList(type, targetLang);
+        }
+
+        await translateStaticPageText(targetLang);
+    });
+
+    async function translateEntity(type, id, target) {
+        $('#translate-loader').css('display', 'flex');
+        try {
+            const response = await fetch('/api/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, id, target })
+            });
+            const data = await response.json();
+
+            if (!response.ok || data.error) {
+                throw new Error(data.details || data.error || 'Erreur de traduction');
+            }
+
+            updateDOM(data);
+        } catch (e) {
+            console.error(e);
+            alert('Traduction indisponible: ' + e.message);
+        } finally {
+            $('#translate-loader').hide();
+        }
+    }
+
+    async function translateList(type, target) {
+        const elements = getTranslatableRows(type);
+        if (elements.length === 0) return;
+
+        $('#translate-loader').css('display', 'flex');
+        
+        for (let el of elements) {
+            const id = $(el).data('id');
+            try {
+                const response = await fetch('/api/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, id, target })
+                });
+                const data = await response.json();
+                if (response.ok && !data.error) {
+                    updateRowDOM($(el), data);
+                }
+            } catch (e) {}
+        }
+        
+        $('#translate-loader').hide();
+    }
+
+    async function translateStaticPageText(target) {
+        const staticElements = document.querySelectorAll('[data-trans-static]');
+        const placeholderElements = document.querySelectorAll('[data-trans-placeholder]');
+
+        for (const element of staticElements) {
+            const source = element.dataset.originalText || element.textContent.trim();
+            if (!source) continue;
+
+            if (!element.dataset.originalText) {
+                element.dataset.originalText = source;
+            }
+
+            const translated = await translateText(source, target);
+            if (translated) {
+                element.textContent = translated;
+                element.classList.add('is-translated');
+            }
+        }
+
+        for (const element of placeholderElements) {
+            const source = element.dataset.originalPlaceholder || element.getAttribute('placeholder') || '';
+            if (!source.trim()) continue;
+
+            if (!element.dataset.originalPlaceholder) {
+                element.dataset.originalPlaceholder = source;
+            }
+
+            const translated = await translateText(source, target);
+            if (translated) {
+                element.setAttribute('placeholder', translated);
+            }
+        }
+    }
+
+    async function translateText(text, target) {
+        try {
+            const response = await fetch('/api/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'text', text, target })
+            });
+            const data = await response.json();
+            if (!response.ok || data.error) return null;
+            return data.translated || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function getTranslatableRows(type) {
+        if (type === 'magazine') {
+            return $('.magazine-card[data-id]');
+        }
+        if (type === 'article') {
+            return $('.article-card[data-id]');
+        }
+        return $();
+    }
+
+    function updateDOM(data) {
+        if (data.title) {
+            $('.trans-title').text(data.title).addClass('is-translated');
+        }
+        if (data.resume) {
+            $('.trans-resume').text(data.resume).addClass('is-translated');
+            // Support for non-classed elements that directly follow title
+            if ($('.article-content').length) {
+                $('.article-content').text(data.resume).addClass('is-translated');
+            }
+        }
+        if (data.description) {
+            $('.trans-desc').text(data.description).addClass('is-translated');
+        }
+    }
+
+    function updateRowDOM(rowElem, data) {
+        if (data.title) {
+            rowElem.find('.trans-title').text(data.title).addClass('is-translated');
+        }
+        if (data.resume) {
+            rowElem.find('.trans-resume').text(data.resume).addClass('is-translated');
+        }
+        if (data.description) {
+            rowElem.find('.trans-desc').text(data.description).addClass('is-translated');
+        }
+    }
+});
+</script>

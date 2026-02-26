@@ -1,0 +1,247 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Détails du Patient - {{ patient.getFullName() }}{% endblock %}
+
+{% block body %}
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user-injured text-primary"></i> Détails du Patient
+        </h1>
+        <div>
+            <a href="{{ path('admin_patient_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+            <a href="{{ path('admin_patient_edit', {'id': patient.id}) }}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Informations Personnelles -->
+        <div class="col-xl-8 col-lg-7">
+            <!-- Informations de Base Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-id-card"></i> Informations Personnelles
+                    </h6>
+                    <div>
+                        {% if patient.isActive %}
+                            <span class="badge badge-success">Actif</span>
+                        {% else %}
+                            <span class="badge badge-danger">Inactif</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Nom complet:</th>
+                                    <td><strong>{{ patient.getFullName() }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Email:</th>
+                                    <td>
+                                        <a href="mailto:{{ patient.email }}">{{ patient.email }}</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Âge:</th>
+                                    <td>
+                                        {% if patient.age %}
+                                            {{ patient.age }} ans
+                                        {% elseif patient.dateOfBirth %}
+                                            {{ calculate_age(patient.dateOfBirth) }} ans
+                                        {% else %}
+                                            Non spécifié
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Genre:</th>
+                                    <td>{{ patient.gender ? patient.gender|trans : 'Non spécifié' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Téléphone:</th>
+                                    <td>
+                                        {% if patient.phoneNumber %}
+                                            <a href="tel:{{ patient.phoneNumber }}" class="text-primary">
+                                                <i class="fas fa-phone"></i> {{ patient.phoneNumber }}
+                                            </a>
+                                        {% else %}
+                                            Non renseigné
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Date de naissance:</th>
+                                    <td>
+                                        {% if patient.dateOfBirth %}
+                                            {{ patient.dateOfBirth|date('d/m/Y') }}
+                                        {% else %}
+                                            Non spécifiée
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Assurance:</th>
+                                    <td>
+                                        {% if patient.hasInsurance %}
+                                            <span class="badge badge-success">Oui</span><br>
+                                            <small>{{ patient.insuranceNumber ?? 'N° non renseigné' }}</small>
+                                        {% else %}
+                                            <span class="badge badge-warning">Non</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adresse -->
+            {% if patient.address %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-map-marker-alt"></i> Adresse
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p>{{ patient.address }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar Widgets Column -->
+        <div class="col-xl-4 col-lg-5">
+            <!-- Statut Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar"></i> Statut
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-user-injured fa-4x text-primary"></i>
+                    </div>
+                    <h5 class="font-weight-bold">{{ patient.getFullName() }}</h5>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Statut
+                                    </div>
+                                    <div class="h5 mb-0">
+                                        {% if patient.isActive %}
+                                            <span class="text-success">Actif</span>
+                                        {% else %}
+                                            <span class="text-danger">Inactif</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Assurance
+                                    </div>
+                                    <div class="h5 mb-0">
+                                        {% if patient.hasInsurance %}
+                                            <span class="text-success">Oui</span>
+                                        {% else %}
+                                            <span class="text-warning">Non</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Rapides Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt"></i> Actions Rapides
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <a href="{{ path('admin_patient_edit', {'id': patient.id}) }}" class="btn btn-warning btn-block mb-3">
+                        <i class="fas fa-edit"></i> Modifier le profil
+                    </a>
+
+                    {% if patient.isActive %}
+                        <form method="post" action="{{ path('admin_patient_toggle_status', {'id': patient.id}) }}" class="mb-3">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle_status' ~ patient.id) }}">
+                            <button type="submit" class="btn btn-secondary btn-block">
+                                <i class="fas fa-ban"></i> Désactiver le compte
+                            </button>
+                        </form>
+                    {% else %}
+                        <form method="post" action="{{ path('admin_patient_toggle_status', {'id': patient.id}) }}" class="mb-3">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle_status' ~ patient.id) }}">
+                            <button type="submit" class="btn btn-success btn-block">
+                                <i class="fas fa-check"></i> Activer le compte
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#deleteModal">
+                        <i class="fas fa-trash"></i> Supprimer le compte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmer la suppression</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer définitivement le compte du patient <strong>{{ patient.getFullName() }}</strong> ?</p>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Attention:</strong> Cette action supprimera toutes les données associées et est irréversible !
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <form method="post" action="{{ path('admin_patient_delete', {'id': patient.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ patient.id) }}">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Supprimer définitivement
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

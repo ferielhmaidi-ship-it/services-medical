@@ -1,0 +1,313 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ article.title }} | {{ article.magazine.title|default('MediNest') }}{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    :root {
+      --mag-primary: #6366f1;
+      --mag-primary-dark: #4f46e5;
+      --mag-secondary: #ec4899;
+      --mag-accent: #f59e0b;
+      --mag-dark: #0f172a;
+      --mag-gray: #64748b;
+      --mag-light: #f8fafc;
+      --mag-border: #e2e8f0;
+      --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Hero Section */
+    .mag-hero {
+      position: relative;
+      padding: 100px 0 80px;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f5f3ff 100%);
+      overflow: hidden;
+    }
+
+    .mag-hero::before {
+      content: '';
+      position: absolute;
+      top: -20%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+      animation: float 20s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-30px, 30px) scale(1.05); }
+    }
+
+    .mag-hero__content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .mag-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%);
+      color: var(--mag-primary-dark);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-radius: 30px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .mag-hero h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      color: var(--mag-dark);
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+      line-height: 1.1;
+    }
+
+    .mag-hero p {
+      font-size: 18px;
+      color: var(--mag-gray);
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+
+    /* Content Section */
+    .mag-section {
+      padding: 60px 0 100px;
+      background: #fff;
+    }
+
+    /* Detail Header */
+    .mag-detail__header {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 48px;
+      margin-bottom: 60px;
+      align-items: start;
+    }
+
+    .mag-detail__media {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.2);
+    }
+
+    .mag-detail__media img {
+      width: 100%;
+      height: 500px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .mag-card__placeholder {
+      width: 100%;
+      height: 500px;
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-size: 18px;
+    }
+
+    .mag-detail__text h2 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--mag-dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mag-detail__text h2::before {
+      content: '';
+      width: 4px;
+      height: 32px;
+      background: linear-gradient(180deg, var(--mag-primary), var(--mag-secondary));
+      border-radius: 2px;
+    }
+
+    .mag-detail__text p {
+      font-size: 16px;
+      color: var(--mag-gray);
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .mag-detail__meta {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 24px;
+      padding: 24px;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 16px;
+    }
+
+    .mag-detail__meta-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+    }
+
+    .mag-detail__meta-item strong {
+      color: var(--mag-dark);
+      min-width: 80px;
+    }
+
+    /* Articles Table */
+    .mag-articles {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 28px;
+      margin-top: 40px;
+    }
+
+    .article-card {
+      background: #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--mag-border);
+      transition: var(--transition);
+    }
+
+    .article-card:hover {
+      transform: translateY(-8px);
+    }
+
+    .article-card__image {
+      height: 180px;
+      overflow: hidden;
+    }
+
+    .article-card__image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .article-card__body {
+      padding: 20px;
+    }
+
+    .article-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .article-card h3 a {
+      color: var(--mag-dark);
+      text-decoration: none;
+    }
+
+    .article-card p {
+      font-size: 14px;
+      color: var(--mag-gray);
+      line-height: 1.6;
+    }
+  </style>
+
+  <!-- ================= HERO SECTION ================= -->  
+  <section class="mag-hero">
+    <div class="container">
+      <div class="mag-hero__content">
+        <span class="mag-kicker">
+          <i class="fas fa-newspaper"></i>
+          Article Santé
+        </span>
+        <h1>{{ article.title }}</h1>
+        <p>{{ article.resume|slice(0, 200) }}...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONTENT SECTION ================= -->
+  <section class="mag-section">
+    <div class="container">
+      <div class="mag-detail__header">
+        <div class="mag-detail__media">
+          {% if article.image %}
+            <img src="{{ asset('uploads/' ~ article.image) | imagine_filter('article_thumbnail') }}" alt="{{ article.title }}">
+          {% else %}
+            <div class="mag-card__placeholder">
+              <i class="fas fa-file-alt fa-3x mb-3"></i>
+              <div>Image non disponible</div>
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="mag-detail__text">
+          <h2>Contenu de l'article</h2>
+          <p>{{ article.resume|nl2br }}</p>
+
+          <div class="mag-detail__meta">
+            <div class="mag-detail__meta-item">
+              <strong><i class="fas fa-user-edit text-primary"></i> Auteur</strong>
+              <span>{{ article.auteur }}</span>
+            </div>
+            <div class="mag-detail__meta-item">
+              <strong><i class="fas fa-calendar-alt text-primary"></i> Date</strong>
+              <span>{{ article.datePub ? article.datePub|date('d F Y') : 'Non spécifiée' }}</span>
+            </div>
+            {% if article.magazine %}
+              <div class="mag-detail__meta-item">
+                <strong><i class="fas fa-book text-primary"></i> Magazine</strong>
+                <span>{{ article.magazine.title }}</span>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="mt-4 d-flex align-items-center gap-3">
+             <a href="{{ path('app_article_index') }}" class="btn btn-outline-primary ms-2">
+                <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+             </a>
+             {% if article.magazine %}
+                <a href="{{ path('app_article_by_magazine', {id: article.magazine.id}) }}" class="btn btn-primary ms-2">
+                    <i class="fas fa-book me-2"></i> Voir le magazine
+                </a>
+             {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- RELATED ARTICLES -->
+      {% if article.magazine and article.magazine.articles|length > 1 %}
+        <div class="mt-5 pt-5 border-top">
+          <h3>Autres articles dans ce magazine</h3>
+          <div class="mag-articles">
+            {% for related in article.magazine.articles %}
+              {% if related.id != article.id %}
+                <div class="article-card">
+                  {% if related.image %}
+                    <div class="article-card__image">
+                      <img src="{{ asset('uploads/' ~ related.image) }}" alt="{{ related.title }}">
+                    </div>
+                  {% endif %}
+                  <div class="article-card__body">
+                    <h3><a href="{{ path('app_article_show', {id: related.id}) }}">{{ related.title }}</a></h3>
+                    <p>{{ related.resume|slice(0, 100) }}...</p>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

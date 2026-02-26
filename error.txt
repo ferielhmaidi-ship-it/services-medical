@@ -1,0 +1,22 @@
+
+In ClassExistenceResource.php line 66:
+                     
+  The autoloader ex  
+  pected class "App  
+  \Controller\Appoi  
+  ntmentController"  
+   to be defined in  
+   file "C:\Users\A  
+  DEM\Desktop\PIDEV  
+  \vendor\composer/  
+  ../../src\Control  
+  ler\AppointmentCo  
+  ntroller.php". Th  
+  e file was found   
+  but the class was  
+   not in it, the c  
+  lass name or name  
+  space probably ha  
+  s a typo.          
+                     
+

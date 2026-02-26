@@ -1,0 +1,147 @@
+:root {
+    /* Refined Color Palette */
+    --p-indigo: #4f46e5;
+    --p-indigo-light: #6366f1;
+    --p-indigo-dark: #3730a3;
+    --p-teal: #0d9488;
+    --p-teal-light: #14b8a6;
+    --p-slate: #1e293b;
+    --p-slate-light: #334155;
+    --p-bg: #f8fafc;
+
+    /* 3D Shadows (Multi-layered for depth) */
+    --shadow-3d-sm: 0 2px 4px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    --shadow-3d-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    --shadow-3d-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    --shadow-3d-glow: 0 0 20px rgba(79, 70, 229, 0.2), 0 0 40px rgba(79, 70, 229, 0.1);
+
+    /* Glassmorphism */
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-blur: blur(12px);
+
+    /* Transitions */
+    --t-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global Styles Overrides */
+body {
+    background-color: var(--p-bg);
+    color: var(--p-slate);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 3D Professional Components */
+
+/* Glass Header */
+.header.fixed-top {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 12px 0;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+}
+
+.header .logo h1 {
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--p-indigo) 0%, var(--p-teal) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* 3D Cards */
+.card-3d {
+    background: white;
+    border: none;
+    border-radius: 20px;
+    box-shadow: var(--shadow-3d-md);
+    transition: var(--t-smooth);
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.card-3d:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-3d-lg);
+}
+
+/* 3D Buttons */
+.btn-3d {
+    background: var(--p-indigo);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4), 0 0 0 1px rgba(79, 70, 229, 0.1);
+    transition: var(--t-smooth);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-3d:hover {
+    background: var(--p-indigo-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-3d-glow);
+    color: white;
+}
+
+.btn-3d:active {
+    transform: translateY(0);
+}
+
+/* Section Refinement */
+section {
+    padding: 100px 0;
+}
+
+.section-title h2 {
+    font-weight: 800;
+    font-size: 2.5rem;
+    margin-bottom: 24px;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: var(--p-indigo);
+    border-radius: 2px;
+}
+
+/* Float Animation */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.float-3d {
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Responsive Blur Fix */
+@media (max-width: 768px) {
+    .header.fixed-top {
+        padding: 8px 0;
+    }
+}

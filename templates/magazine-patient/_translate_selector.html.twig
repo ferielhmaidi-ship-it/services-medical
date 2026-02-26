@@ -1,0 +1,14 @@
+{# templates/magazine-patient/_translate_selector.html.twig #}
+<div class="translate-wrapper" data-translate-type="{{ type }}" {% if id is defined %}data-translate-id="{{ id }}"{% endif %}>
+    <span class="translate-label">
+        <i class="fas fa-language"></i> Traduction
+    </span>
+    <select class="translate-select" aria-label="Choisir la langue">
+        <option value="" selected disabled>Choisir...</option>
+        <option value="fr">Français</option>
+        <option value="en">English (Anglais)</option>
+        <option value="ar">العربية (Arabe)</option>
+        <option value="es">Español (Espagnol)</option>
+        <option value="de">Deutsch (Allemand)</option>
+    </select>
+</div>

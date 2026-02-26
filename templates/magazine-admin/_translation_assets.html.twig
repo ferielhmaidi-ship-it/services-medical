@@ -1,0 +1,168 @@
+{# templates/magazine-admin/_translation_assets.html.twig #}
+<style>
+    /* Translation UI Styles */
+    .translate-wrapper {
+        display: inline-flex;
+        align-items: center;
+        background: #f8fafc;
+        padding: 5px 15px;
+        border-radius: 50px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .translate-label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #64748b;
+        margin-right: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .translate-select {
+        border: none;
+        background: transparent;
+        font-weight: 600;
+        color: #4f46e5;
+        cursor: pointer;
+        outline: none;
+    }
+    
+    /* Loading Overlay */
+    #translate-loader {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        z-index: 9999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+    }
+    .loader-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #e2e8f0;
+        border-top: 5px solid #6366f1;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .loader-text {
+        margin-top: 15px;
+        font-weight: 600;
+        color: #4f46e5;
+    }
+    
+    /* Highlight translated content */
+    .is-translated {
+        animation: highlightFade 2s ease-out;
+    }
+    @keyframes highlightFade {
+        0% { background-color: rgba(99, 102, 241, 0.2); }
+        100% { background-color: transparent; }
+    }
+</style>
+
+<!-- Loader HTML -->
+<div id="translate-loader">
+    <div class="loader-spinner"></div>
+    <div class="loader-text">Traduction AI en cours...</div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Translation Logic
+    $('.translate-select').off('change').on('change', function() {
+        const targetLang = $(this).val();
+        if (!targetLang) return;
+
+        const wrapper = $(this).closest('[data-translate-type]');
+        const type = wrapper.data('translate-type');
+        const id = wrapper.data('translate-id');
+
+        if (id) {
+            translateEntity(type, id, targetLang);
+        } else {
+            translateList(type, targetLang);
+        }
+    });
+
+    async function translateEntity(type, id, target) {
+        $('#translate-loader').css('display', 'flex');
+        try {
+            const response = await fetch('/api/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, id, target })
+            });
+            const data = await response.json();
+            
+            if (data.error) {
+                alert('Erreur: ' + data.error);
+            } else {
+                updateDOM(data);
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Erreur lors de la traduction');
+        } finally {
+            $('#translate-loader').hide();
+        }
+    }
+
+    async function translateList(type, target) {
+        const elements = $('[data-id]');
+        if (elements.length === 0) return;
+
+        $('#translate-loader').css('display', 'flex');
+        
+        for (let el of elements) {
+            const id = $(el).data('id');
+            try {
+                const response = await fetch('/api/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, id, target })
+                });
+                const data = await response.json();
+                if (!data.error) {
+                    updateRowDOM($(el), data);
+                }
+            } catch (e) {}
+        }
+        
+        $('#translate-loader').hide();
+    }
+
+    function updateDOM(data) {
+        if (data.title) {
+            $('.trans-title').text(data.title).addClass('is-translated');
+        }
+        if (data.resume) {
+            $('.trans-resume').text(data.resume).addClass('is-translated');
+        }
+        if (data.description) {
+            $('.trans-desc').text(data.description).addClass('is-translated');
+        }
+    }
+
+    function updateRowDOM(rowElem, data) {
+        if (data.title) {
+            rowElem.find('.trans-title').text(data.title).addClass('is-translated');
+        }
+        if (data.resume) {
+            rowElem.find('.trans-resume').text(data.resume).addClass('is-translated');
+        }
+        if (data.description) {
+            rowElem.find('.trans-desc').text(data.description).addClass('is-translated');
+        }
+    }
+});
+</script>

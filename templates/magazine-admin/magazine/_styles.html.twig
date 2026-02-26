@@ -1,0 +1,138 @@
+<style>
+    :root {
+        --mag-ink: #0f1b2d;
+        --mag-muted: #6a7a92;
+        --mag-accent: #1c9ea7;
+        --mag-accent-dark: #157b82;
+        --mag-surface: #ffffff;
+        --mag-shell: #f6f8fb;
+        --mag-border: #e3e8f0;
+        --mag-shadow: 0 18px 45px rgba(15, 27, 45, 0.08);
+    }
+
+        .mag-shell {
+            background:
+                radial-gradient(800px 300px at 15% 0%, rgba(28, 158, 167, 0.12), transparent 60%),
+                radial-gradient(600px 260px at 85% 15%, rgba(21, 123, 130, 0.10), transparent 60%),
+                var(--mag-shell);
+            padding: 48px 0 72px;
+        }
+
+        .mag-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .mag-title {
+            font-size: clamp(1.8rem, 2.6vw, 2.6rem);
+            font-weight: 700;
+            color: var(--mag-ink);
+            margin: 0;
+        }
+
+        .mag-subtitle {
+            color: var(--mag-muted);
+            margin: 6px 0 0;
+        }
+
+        .mag-card {
+            background: var(--mag-surface);
+            border: 1px solid var(--mag-border);
+            border-radius: 18px;
+            box-shadow: var(--mag-shadow);
+            padding: 24px;
+        }
+
+        .mag-table thead th {
+            color: var(--mag-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.04em;
+            border-bottom: 1px solid var(--mag-border);
+        }
+
+        .mag-table tbody td {
+            vertical-align: middle;
+        }
+
+        .mag-actions {
+            display: inline-flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .mag-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(28, 158, 167, 0.12);
+            color: var(--mag-accent-dark);
+        }
+
+        .btn-mag {
+            background: var(--mag-accent);
+            border: none;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-weight: 600;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        .btn-mag:hover {
+            background: var(--mag-accent-dark);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(28, 158, 167, 0.25);
+        }
+
+        .mag-link {
+            color: var(--mag-accent-dark);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .mag-link:hover {
+            text-decoration: underline;
+        }
+
+        .mag-form .form-label {
+            font-weight: 600;
+            color: var(--mag-ink);
+        }
+
+        .mag-form .form-control,
+        .mag-form .form-select {
+            border-radius: 12px;
+            border-color: var(--mag-border);
+            padding: 10px 14px;
+            box-shadow: none;
+        }
+
+        .mag-form .form-control:focus,
+        .mag-form .form-select:focus {
+            border-color: var(--mag-accent);
+            box-shadow: 0 0 0 0.15rem rgba(28, 158, 167, 0.18);
+        }
+
+        .mag-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .mag-kpi {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            color: var(--mag-muted);
+            font-size: 0.9rem;
+        }
+</style>

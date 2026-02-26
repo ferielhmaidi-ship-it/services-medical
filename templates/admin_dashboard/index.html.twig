@@ -1,0 +1,312 @@
+{# templates/admin_dashboard/index.html.twig #}
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Tableau de Bord Administrateur{% endblock %}
+
+{% block body %}
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Tableau de Bord</h1>
+        <span class="text-muted">Bienvenue, {{ app.user.getFullName() }}</span>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+
+        <!-- Earnings (Monthly) Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Médecins Inscrits</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ doctors_count|default(0) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-md fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earnings (Annual) Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Patients Inscrits</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ patients_count|default(0) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-injured fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Médecins Vérifiés</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ verified_doctors|default(0) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                En attente de vérification</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ (doctors_count|default(0) - verified_doctors|default(0)) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Area Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Aperçu des Inscriptions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="registrationsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Distribution par Spécialité</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="specialtyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions Rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ path('admin_medecin_index') }}" class="btn btn-primary btn-block">
+                                <i class="fas fa-user-md"></i> Gérer Médecins
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="#" class="btn btn-success btn-block">
+                                <i class="fas fa-user-injured"></i> Gérer Patients
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="#" class="btn btn-info btn-block">
+                                <i class="fas fa-calendar-check"></i> Voir Rendez-vous
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="#" class="btn btn-warning btn-block">
+                                <i class="fas fa-cog"></i> Paramètres
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Derniers Médecins Inscrits</h6>
+                    <a href="{{ path('admin_medecin_index') }}" class="btn btn-sm btn-primary">Voir tous</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Spécialité</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if recent_medecins is defined and recent_medecins|length > 0 %}
+                                    {% for medecin in recent_medecins %}
+                                    <tr>
+                                        <td>{{ medecin.getFullName() }}</td>
+                                        <td>{{ medecin.email }}</td>
+                                        <td><span class="badge badge-info">{{ medecin.specialty }}</span></td>
+                                        <td>
+                                            {% if medecin.isActive %}
+                                                <span class="badge badge-success">Actif</span>
+                                            {% else %}
+                                                <span class="badge badge-danger">Inactif</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ path('admin_medecin_show', {'id': medecin.id}) }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">Aucun médecin trouvé</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prepare specialty data from PHP
+            const specialtyData = {{ specialty_counts|json_encode|raw }};
+
+            // Convert to arrays for Chart.js
+            const specialtyLabels = Object.keys(specialtyData);
+            const specialtyValues = Object.values(specialtyData);
+
+            // Define colors for specialties
+            const colors = [
+                'rgba(255, 99, 132, 0.8)',
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(255, 206, 86, 0.8)',
+                'rgba(75, 192, 192, 0.8)',
+                'rgba(153, 102, 255, 0.8)',
+                'rgba(255, 159, 64, 0.8)',
+                'rgba(201, 203, 207, 0.8)',
+                'rgba(0, 128, 0, 0.8)',
+                'rgba(128, 0, 128, 0.8)',
+                'rgba(0, 128, 128, 0.8)'
+            ];
+
+            // Registrations Chart
+            var ctx = document.getElementById('registrationsChart').getContext('2d');
+            var registrationsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+                    datasets: [{
+                        label: 'Médecins',
+                        data: [12, 19, 15, 25, 22, 30, 28, 35, 40, 38, 45, 50],
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Patients',
+                        data: [8, 12, 10, 18, 20, 25, 22, 30, 35, 32, 38, 45],
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Évolution des inscriptions mensuelles'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre d\'inscriptions'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Specialty Chart
+            var ctx2 = document.getElementById('specialtyChart').getContext('2d');
+            var specialtyChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: specialtyLabels,
+                    datasets: [{
+                        data: specialtyValues,
+                        backgroundColor: colors.slice(0, specialtyLabels.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Répartition des médecins par spécialité'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{{ form_start(form, {'attr': {'class': 'article-form'}}) }}
+
+{# Affichage des erreurs globales #}
+{% if not form.vars.valid %}
+    <div style="background: #fee2e2; border-left: 4px solid #ef4444; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+        <h4 style="color: #991b1b; margin: 0 0 8px 0; font-size: 16px;">⚠️ Erreurs de validation</h4>
+        <ul style="color: #7f1d1d; margin: 0; padding-left: 20px;">
+            {{ form_errors(form) }}
+        </ul>
+    </div>
+{% endif %}
+
+<div class="article-form-group">
+    {{ form_label(form.title) }}
+    {{ form_widget(form.title, {'attr': {'class': 'article-form-control', 'placeholder': 'Ex: Les bienfaits de la vitamine D'}}) }}
+    {{ form_errors(form.title) }}
+</div>
+
+<div class="article-form-group">
+    {{ form_label(form.resume) }}
+    {{ form_widget(form.resume, {'attr': {'class': 'article-form-control', 'placeholder': 'Résumé de l\'article en quelques lignes...', 'rows': 4}}) }}
+    {{ form_errors(form.resume) }}
+</div>
+
+<div class="article-form-group">
+    {{ form_label(form.auteur) }}
+    {{ form_widget(form.auteur, {'attr': {'class': 'article-form-control', 'placeholder': 'Dr. Jean Dupont'}}) }}
+    {{ form_errors(form.auteur) }}
+</div>
+
+<div class="article-form-group">
+    {{ form_label(form.datePub) }}
+    <div class="article-date-group">
+        {{ form_widget(form.datePub, {'attr': {'class': 'article-form-control'}}) }}
+    </div>
+    {{ form_errors(form.datePub) }}
+</div>
+
+<div class="article-form-group">
+    {{ form_label(form.magazine) }}
+    {{ form_widget(form.magazine, {'attr': {'class': 'article-form-control'}}) }}
+    {{ form_errors(form.magazine) }}
+</div>
+
+<div class="article-form-group">
+    {{ form_label(form.statut) }}
+    {{ form_widget(form.statut, {'attr': {'class': 'article-form-control'}}) }}
+    {{ form_errors(form.statut) }}
+</div>
+
+<div class="article-form-group">
+    {{ form_label(form.image) }}
+    {{ form_widget(form.image, {'attr': {'class': 'article-file-input'}}) }}
+    <p class="article-help-text">Formats acceptés : JPEG, JPG, PNG, GIF, WebP (max 2MB)</p>
+    {{ form_errors(form.image) }}
+</div>
+
+
+
+
+
+<div class="article-btn-group">
+    <button type="submit" class="article-btn article-btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+        {{ button_label|default('Enregistrer') }}
+    </button>
+</div>
+
+{{ form_end(form) }}

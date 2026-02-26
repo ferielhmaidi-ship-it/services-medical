@@ -1,0 +1,219 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}{% if magazine is defined %}Articles de {{ magazine.title }}{% else %}Gestion des Articles{% endif %}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .toolbar-card {
+            background: #f4f5fb;
+            border: 1px solid #e4e7f2;
+            border-radius: 10px;
+            padding: 14px;
+        }
+        .toolbar-card .form-control-sm, .toolbar-card .btn-sm {
+            height: 38px;
+            font-size: 0.95rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-newspaper text-primary"></i>
+            {% if magazine is defined %}
+                Articles du magazine : <strong>{{ magazine.title }}</strong>
+            {% else %}
+                Gestion des Articles
+            {% endif %}
+        </h1>
+        <div>
+            <a href="{{ path('app_article_new') }}" class="btn btn-primary ml-2">
+                <i class="fas fa-plus-circle"></i> Nouvel Article
+            </a>
+            <a href="{{ path('app_article_top', {'limit': limit|default(10), 'order_by': 'views', 'order_dir': 'desc', 'q': searchQuery|default('')}) }}" class="btn btn-dark ml-2">
+                <i class="fas fa-chart-line"></i> Top Articles
+            </a>
+            <span class="badge badge-primary ml-2">
+                <i class="fas fa-newspaper"></i> {{ articles.getTotalItemCount }} Article(s)
+            </span>
+        </div>
+    </div>
+
+    {% if magazine is defined %}
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-filter"></i>
+        Affichage des articles du magazine : <strong>{{ magazine.title }}</strong>
+        &nbsp;-&nbsp;
+        <a href="{{ path('app_article_index') }}" class="alert-link">Voir tous les articles</a>
+        &nbsp;|&nbsp;
+        <a href="{{ path('app_magazine_index') }}" class="alert-link"><i class="fas fa-book"></i> Retour aux Magazines</a>
+    </div>
+    {% endif %}
+
+    <div class="toolbar-card mb-3">
+        <form method="get" class="form-inline justify-content-end">
+            <label for="q" class="mr-2 mb-0 text-muted">Recherche</label>
+            <input id="q"
+                   name="q"
+                   type="text"
+                   class="form-control form-control-sm mr-2"
+                   placeholder="Titre, resume, auteur, statut..."
+                   value="{{ searchQuery|default('') }}">
+            <label for="limit" class="mr-2 mb-0 text-muted">Par page</label>
+            <select id="limit" name="limit" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
+                <option value="5" {{ limit == 5 ? 'selected' : '' }}>5</option>
+                <option value="10" {{ limit == 10 ? 'selected' : '' }}>10</option>
+            </select>
+            <label for="order_by" class="mr-2 mb-0 text-muted">Tri</label>
+            <select id="order_by" name="order_by" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
+                <option value="date" {{ sort == 'date' ? 'selected' : '' }}>Date</option>
+                <option value="title" {{ sort == 'title' ? 'selected' : '' }}>Titre</option>
+                <option value="views" {{ sort == 'views' ? 'selected' : '' }}>Vues</option>
+                <option value="status" {{ sort == 'status' ? 'selected' : '' }}>Statut</option>
+            </select>
+            <label for="order_dir" class="mr-2 mb-0 text-muted">Ordre</label>
+            <select id="order_dir" name="order_dir" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
+                <option value="desc" {{ direction == 'desc' ? 'selected' : '' }}>Desc</option>
+                <option value="asc" {{ direction == 'asc' ? 'selected' : '' }}>Asc</option>
+            </select>
+            <input type="hidden" name="page" value="1">
+            <button type="submit" class="btn btn-sm btn-primary">Filtrer</button>
+            {% if searchQuery is defined and searchQuery is not empty %}
+                <a href="{{ path(currentRoute|default('app_article_index'), (currentRouteParams|default({}))|merge({'limit': limit, 'order_by': sort, 'order_dir': direction, 'page': 1})) }}" class="btn btn-sm btn-outline-secondary ml-2">Reset</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                {% if magazine is defined %}
+                    Articles de "{{ magazine.title }}"
+                {% else %}
+                    Liste des Articles
+                {% endif %}
+            </h6>
+            <div>
+                {% if magazine is defined %}
+                    <a href="{{ path('app_magazine_index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Retour aux Magazines
+                    </a>
+                {% else %}
+                    <a href="{{ path('app_magazine_index') }}" class="btn btn-info btn-sm">
+                        <i class="fas fa-book"></i> Voir les Magazines
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="articleTable" width="100%" cellspacing="0">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th>
+                                {% set nextTitleDirection = sort == 'title' and direction == 'asc' ? 'desc' : 'asc' %}
+                                <a href="{{ path(currentRoute|default('app_article_index'), (currentRouteParams|default({}))|merge({'order_by': 'title', 'order_dir': nextTitleDirection, 'limit': limit, 'q': searchQuery|default(''), 'page': 1})) }}" class="text-white">
+                                    Titre
+                                </a>
+                            </th>
+                            <th>Resume</th>
+                            <th>Auteur</th>
+                            <th>Magazine</th>
+                            <th>
+                                {% set nextDateDirection = sort == 'date' and direction == 'asc' ? 'desc' : 'asc' %}
+                                <a href="{{ path(currentRoute|default('app_article_index'), (currentRouteParams|default({}))|merge({'order_by': 'date', 'order_dir': nextDateDirection, 'limit': limit, 'q': searchQuery|default(''), 'page': 1})) }}" class="text-white">
+                                    Date Publication
+                                </a>
+                            </th>
+                            <th>
+                                {% set nextViewsDirection = sort == 'views' and direction == 'asc' ? 'desc' : 'asc' %}
+                                <a href="{{ path(currentRoute|default('app_article_index'), (currentRouteParams|default({}))|merge({'order_by': 'views', 'order_dir': nextViewsDirection, 'limit': limit, 'q': searchQuery|default(''), 'page': 1})) }}" class="text-white">
+                                    Vues
+                                </a>
+                            </th>
+                            <th>
+                                {% set nextStatusDirection = sort == 'status' and direction == 'asc' ? 'desc' : 'asc' %}
+                                <a href="{{ path(currentRoute|default('app_article_index'), (currentRouteParams|default({}))|merge({'order_by': 'status', 'order_dir': nextStatusDirection, 'limit': limit, 'q': searchQuery|default(''), 'page': 1})) }}" class="text-white">
+                                    Statut
+                                </a>
+                            </th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for article in articles %}
+                        <tr data-id="{{ article.id }}">
+                            <td>{{ article.id }}</td>
+                            <td class="text-center">
+                                {% if article.image %}
+                                    <img src="{{ asset('uploads/' ~ article.image) }}"
+                                         alt="{{ article.title }}"
+                                         class="img-thumbnail"
+                                         style="width: 60px; height: 60px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center"
+                                         style="width: 60px; height: 60px; border-radius: 4px;">
+                                        <i class="fas fa-file-alt fa-2x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ article.title }}</strong></td>
+                            <td><span>{{ article.resume|length > 50 ? article.resume|slice(0, 50) ~ '...' : article.resume }}</span></td>
+                            <td><i class="fas fa-user"></i> {{ article.auteur }}</td>
+                            <td>
+                                {% if article.magazine %}
+                                    <a href="{{ path('app_magazine_show', {'id': article.magazine.id}) }}" class="text-primary">
+                                        {{ article.magazine.title }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Aucun</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ article.datePub ? article.datePub|date('d/m/Y') : '-' }}</td>
+                            <td class="text-center">
+                                <span class="badge badge-dark">{{ article.views }}</span>
+                            </td>
+                            <td>
+                                {% if article.statut == 'published' %}
+                                    <span class="badge badge-success">Publie</span>
+                                {% else %}
+                                    <span class="badge badge-warning">Brouillon</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ path('app_article_show', {'id': article.id}) }}" class="btn btn-info"><i class="fas fa-eye"></i></a>
+                                    <a href="{{ path('app_article_edit', {'id': article.id}) }}" class="btn btn-warning"><i class="fas fa-edit"></i></a>
+                                    <form method="post" action="{{ path('app_article_delete', {'id': article.id}) }}" style="display: inline-block;" onsubmit="return confirm('Etes-vous sur ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ article.id) }}">
+                                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="10" class="text-center py-4">
+                                <i class="fas fa-newspaper fa-3x text-muted mb-2"></i><br>
+                                {% if magazine is defined %}
+                                    Aucun article trouve pour le magazine <strong>{{ magazine.title }}</strong>
+                                {% else %}
+                                    Aucun article trouve
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-3 d-flex justify-content-center">
+                {{ knp_pagination_render(articles) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

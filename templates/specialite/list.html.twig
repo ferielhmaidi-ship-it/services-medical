@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Specialites{% endblock %}
+
+{% block body %}
+<h1>Liste des Specialites</h1>
+
+<a href="{{ path('add_specialite') }}">Ajouter Nouvelle Specialite</a>
+
+<table border="1" cellpadding="5">
+    <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Description</th>
+        <th>Actions</th>
+    </tr>
+    {% for s in specialites %}
+    <tr>
+        <td>{{ s.id }}</td>
+        <td>{{ s.nom }}</td>
+        <td>{{ s.description }}</td>
+        <td>
+            <a href="{{ path('update_specialite', {'id': s.id}) }}">Modifier</a> |
+            <a href="{{ path('delete_specialite', {'id': s.id}) }}" onclick="return confirm('Supprimer ?')">Supprimer</a>
+        </td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="4">Pas de Specialites</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

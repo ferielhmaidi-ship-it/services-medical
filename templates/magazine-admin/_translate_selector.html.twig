@@ -1,0 +1,12 @@
+{# templates/magazine-admin/_translate_selector.html.twig #}
+<div class="translate-wrapper" data-translate-type="{{ type }}" {% if id is defined and id %}data-translate-id="{{ id }}"{% endif %}>
+    <span class="translate-label"><i class="fas fa-language"></i> Traduire</span>
+    <select class="translate-select">
+        <option value="" selected disabled>Choisir langue</option>
+        <option value="fr">Français (FR)</option>
+        <option value="ar">Arabe (AR)</option>
+        <option value="en">Anglais (EN)</option>
+        <option value="it">Italien (IT)</option>
+        <option value="es">Espagnol (ES)</option>
+    </select>
+</div>

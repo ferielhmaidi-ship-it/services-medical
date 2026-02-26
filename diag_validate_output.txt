@@ -1,0 +1,18 @@
+
+Mapping
+-------
+
+ [FAIL] The entity-class App\Entity\Medecin mapping is invalid:
+ * The field App\Entity\Medecin#rendezVous is on the inverse side of a bi-directional relationship, but the specified mappedBy association on the target-entity App\Entity\RendezVous#doctor does not contain the required 'inversedBy: "rendezVous"' attribute.
+
+
+ [FAIL] The entity-class App\Entity\Patient mapping is invalid:
+ * The field App\Entity\Patient#rendezVous is on the inverse side of a bi-directional relationship, but the specified mappedBy association on the target-entity App\Entity\RendezVous#patient does not contain the required 'inversedBy: "rendezVous"' attribute.
+
+
+Database
+--------
+
+ [OK] The database schema is in sync  
+      with the mapping files.         
+
