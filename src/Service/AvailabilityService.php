@@ -37,8 +37,8 @@ class AvailabilityService
         $workingDays = [];
         $doctorId = $doctor->getId();
 
-        $endDate = (clone $startDate)->modify('+7 days');
-        $currentDate = clone $startDate;
+        $currentDate = \DateTime::createFromInterface($startDate);
+        $endDate = (clone $currentDate)->modify('+7 days');
 
         while ($currentDate < $endDate) {
             $hours = $this->getWorkingHoursForDayOptimized($this->ttRepo->findBy(['doctorId' => $doctorId]), $currentDate);
@@ -64,13 +64,14 @@ class AvailabilityService
         $allTT = $this->ttRepo->findBy(['doctorId' => $doctorId]);
         $allIndisps = $this->indispRepo->findBy(['doctorId' => $doctorId]);
 
-        $endDateLimit = (clone $startDate)->modify("+$daysCount days");
-        $allAppts = $this->apptRepo->findByDoctorAndRange($doctor, $startDate, $endDateLimit);
+        $startDateTime = \DateTime::createFromInterface($startDate);
+        $endDateLimit = (clone $startDateTime)->modify("+$daysCount days");
+        $allAppts = $this->apptRepo->findByDoctorAndRange($doctor, $startDateTime, $endDateLimit);
 
         $availableSlotsByDay = [];
 
         for ($i = 0; $i < $daysCount; $i++) {
-            $currentDate = (clone $startDate)->modify("+$i days");
+            $currentDate = (clone $startDateTime)->modify("+$i days");
             $currentDate->setTime(0, 0, 0);
             $dateStr = $currentDate->format('Y-m-d');
 
@@ -103,8 +104,9 @@ class AvailabilityService
      */
     public function getNextAvailableSlot(Medecin $doctor, \DateTimeInterface $startDate): ?array
     {
+        $startDateTime = \DateTime::createFromInterface($startDate);
         for ($i = 0; $i < 45; $i++) {
-            $day = (clone $startDate)->modify("+$i days");
+            $day = (clone $startDateTime)->modify("+$i days");
             $slots = $this->getAvailableSlots($doctor, $day, 1);
             if (!empty($slots)) {
                 return [
@@ -132,8 +134,8 @@ class AvailabilityService
             $interval = 30;
 
             // TT stores start/end as DateTime objects (usually today + time)
-            $current = (clone $date)->setTime($start->format('H'), $start->format('i'));
-            $endOfDay = (clone $date)->setTime($end->format('H'), $end->format('i'));
+            $current = \DateTime::createFromInterface($date)->setTime((int)$start->format('H'), (int)$start->format('i'), 0);
+            $endOfDay = \DateTime::createFromInterface($date)->setTime((int)$end->format('H'), (int)$end->format('i'), 0);
 
             while ($current < $endOfDay) {
                 // Skip past slots

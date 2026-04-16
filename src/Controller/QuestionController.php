@@ -23,10 +23,16 @@ class QuestionController extends AbstractController
             return $this->json(['error' => 'Unauthorized'], 401);
         }
 
+        /** @var \App\Entity\BaseUser $user */
+        /** @var \App\Entity\BaseUser $user */
+        /** @var \App\Entity\BaseUser $user */
+        /** @var \App\Entity\BaseUser $user */
         if ($question->isLikedBy($user)) {
+            /** @var \App\Entity\BaseUser $user */
             $question->removeLikedBy($user);
             $question->setLikes(max(0, $question->getLikes() - 1));
         } else {
+            /** @var \App\Entity\BaseUser $user */
             $question->addLikedBy($user);
             $question->setLikes($question->getLikes() + 1);
         }

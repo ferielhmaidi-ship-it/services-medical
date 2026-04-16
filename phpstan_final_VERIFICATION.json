@@ -1,0 +1,1 @@
+﻿{"totals":{"errors":0,"file_errors":1},"files":{"C:\\Users\\PC\\OneDrive\\Desktop\\test1\\src\\Controller\\IaController.php":{"errors":1,"messages":[{"message":"Syntax error, unexpected T_STRING on line 546","line":546,"ignorable":false,"identifier":"phpstan.parse"}]}},"errors":[]}

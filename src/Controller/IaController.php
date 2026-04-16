@@ -20,9 +20,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class IaController extends AbstractController
 {
-    public function __construct(
-        private string $uploadDirectory
-    ) {}
+    public function __construct() {}
 
     #[Route('/ia-db', name: 'ia_db', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_MEDECIN')]
@@ -545,11 +543,11 @@ INSTRUCTIONS;
         // RENDEZ-VOUS
         $dbText .= "\nRENDEZ-VOUS:\n";
         foreach ($rdvs as $r) {
-            $date = $r->getAppointmentDate()?->format('Y-m-d H:i');
-            $dbText .= "- RDV #{$r->getId()} | Date: {$date}\n";
+            $dateStr = $r->getDate()?->format('Y-m-d') . ' ' . $r->getStartTime()?->format('H:i');
+            $dbText .= "- RDV #{$r->getId()} | Date: {$dateStr}\n";
             $dbText .= "  Patient: {$r->getPatient()->getFullName()}\n";
             $dbText .= "  MÃ©decin: Dr {$r->getDoctor()->getFullName()}\n";
-            $dbText .= "  Statut: {$r->getStatut()}\n\n";
+            $dbText .= "  Statut: {$r->getStatus()}\n\n";
         }
 
         return $dbText;
@@ -618,3 +616,4 @@ RÃ©ponds clairement et professionnellement.
 PROMPT;
     }
 }
+

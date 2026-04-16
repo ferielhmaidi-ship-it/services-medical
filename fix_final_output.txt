@@ -1,0 +1,2 @@
+﻿
+Parse error: syntax error, unexpected token "\" in C:\Users\PC\OneDrive\Desktop\test1\fix_final.php on line 30

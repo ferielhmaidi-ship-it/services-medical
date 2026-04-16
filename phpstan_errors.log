@@ -1,0 +1,615 @@
+ ------ -------------------------- 
+  Line   Command\CreateAdminComma  
+         nd.php                    
+ ------ -------------------------- 
+  :125   Call to an undefined      
+         method                    
+         Symfony\Component\Consol  
+         e\Helper\HelperInterface  
+         ::ask().                  
+         🪪  method.notFound       
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Command\TestLoginCommand  
+         .php                      
+ ------ -------------------------- 
+  :22    Property                  
+         App\Command\TestLoginCom  
+         mand::$passwordHasher is  
+         never read, only          
+         written.                  
+         🪪  property.onlyWritten  
+         💡  See:                  
+         https://phpstan.org/deve  
+         loping-extensions/always  
+         -read-written-properties  
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Controller\AdminMedecinC  
+         ontroller.php             
+ ------ -------------------------- 
+  :24    Property                  
+         App\Controller\AdminMede  
+         cinController::$doctorVe  
+         rificationService is      
+         never read, only          
+         written.                  
+         🪪  property.onlyWritten  
+         💡  See:                  
+         https://phpstan.org/deve  
+         loping-extensions/always  
+         -read-written-properties  
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Controller\BookingContro  
+         ller.php                  
+ ------ -------------------------- 
+  :88    Instanceof between        
+         App\Entity\Patient and    
+         App\Entity\Patient will   
+         always evaluate to true.  
+         🪪  instanceof.alwaysTrue  
+         💡  Because the type is   
+         coming from a PHPDoc,     
+         you can turn off this     
+         check by setting treatPh  
+         pDocTypesAsCertain:       
+         false in your phpstan.ne  
+         on.                       
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Controller\CalendarContr  
+         oller.php                 
+ ------ -------------------------- 
+  :25    Property                  
+         App\Controller\CalendarC  
+         ontroller::$patientRepo   
+         is never read, only       
+         written.                  
+         🪪  property.onlyWritten  
+         💡  See:                  
+         https://phpstan.org/deve  
+         loping-extensions/always  
+         -read-written-properties  
+  :41    Call to an undefined      
+         method                    
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce::getId().              
+         🪪  method.notFound       
+  :119   Undefined variable:       
+         $rendezVousRepository     
+         🪪  variable.undefined    
+  :162   Call to an undefined      
+         method                    
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce::getId().              
+         🪪  method.notFound       
+  :256   Call to an undefined      
+         method                    
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce::getId().              
+         🪪  method.notFound       
+  :283   Call to an undefined      
+         method                    
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce::getId().              
+         🪪  method.notFound       
+  :329   Call to an undefined      
+         method                    
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce::getId().              
+         🪪  method.notFound       
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Controller\DocumentPdfCo  
+         ntroller.php              
+ ------ -------------------------- 
+  :53    Call to an undefined      
+         method                    
+         App\Entity\Rapport::getI  
+         drapport().               
+         🪪  method.notFound       
+  :61    Call to an undefined      
+         method                    
+         App\Entity\Rapport::getI  
+         dpatient().               
+         🪪  method.notFound       
+  :61    Call to an undefined      
+         method                    
+         App\Entity\Rapport::getI  
+         dpatient().               
+         🪪  method.notFound       
+  :61    Call to an undefined      
+         method                    
+         App\Entity\Rapport::getI  
+         dpatient().               
+         🪪  method.notFound       
+  :62    Call to an undefined      
+         method                    
+         App\Entity\Rapport::getI  
+         dmedecin().               
+         🪪  method.notFound       
+  :62    Call to an undefined      
+         method                    
+         App\Entity\Rapport::getI  
+         dmedecin().               
+         🪪  method.notFound       
+  :73    Call to an undefined      
+         method                    
+         App\Entity\Ordonnance::g  
+         etIdordonnance().         
+         🪪  method.notFound       
+  :80    Call to an undefined      
+         method                    
+         App\Entity\Ordonnance::g  
+         etIdpatient().            
+         🪪  method.notFound       
+  :80    Call to an undefined      
+         method                    
+         App\Entity\Ordonnance::g  
+         etIdpatient().            
+         🪪  method.notFound       
+  :80    Call to an undefined      
+         method                    
+         App\Entity\Ordonnance::g  
+         etIdpatient().            
+         🪪  method.notFound       
+  :81    Call to an undefined      
+         method                    
+         App\Entity\Ordonnance::g  
+         etIdmedecin().            
+         🪪  method.notFound       
+  :81    Call to an undefined      
+         method                    
+         App\Entity\Ordonnance::g  
+         etIdmedecin().            
+         🪪  method.notFound       
+  :97    Call to an undefined      
+         method                    
+         App\Entity\Document::get  
+         Iddocument().             
+         🪪  method.notFound       
+  :98    Parameter #2 $values of   
+         method                    
+         Symfony\Component\HttpFo  
+         undation\ResponseHeaderB  
+         ag::set() expects array<  
+         string>|string|null, int  
+         <0, max> given.           
+         🪪  argument.type         
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Controller\IaController.  
+         php                       
+ ------ -------------------------- 
+  :24    Property                  
+         App\Controller\IaControl  
+         ler::$uploadDirectory is  
+         never read, only          
+         written.                  
+         🪪  property.onlyWritten  
+         💡  See:                  
+         https://phpstan.org/deve  
+         loping-extensions/always  
+         -read-written-properties  
+  :548   Call to an undefined      
+         method                    
+         App\Entity\Appointment::  
+         getAppointmentDate().     
+         🪪  method.notFound       
+  :552   Call to an undefined      
+         method                    
+         App\Entity\Appointment::  
+         getStatut().              
+         🪪  method.notFound       
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Controller\PatientDashbo  
+         ardController.php         
+ ------ -------------------------- 
+  :242   Parameter #1 $array       
+         (list<array{doctor:       
+         App\Entity\Medecin,       
+         appointments:             
+         non-empty-list<array{app  
+         ointment:                 
+         App\Entity\Appointment,   
+         rapports: list<App\Entit  
+         y\Rapport>, ordonnances:  
+          list<App\Entity\Ordonna  
+         nce>}>}>) of array_value  
+         s is already a list,      
+         call has no effect.       
+         🪪  arrayValues.list      
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Controller\QuestionContr  
+         oller.php                 
+ ------ -------------------------- 
+  :26    Parameter #1 $user of     
+         method                    
+         App\Entity\Question::isL  
+         ikedBy() expects          
+         App\Entity\BaseUser,      
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce given.                 
+         🪪  argument.type         
+  :27    Parameter #1 $user of     
+         method                    
+         App\Entity\Question::rem  
+         oveLikedBy() expects      
+         App\Entity\BaseUser,      
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce given.                 
+         🪪  argument.type         
+  :30    Parameter #1 $user of     
+         method                    
+         App\Entity\Question::add  
+         LikedBy() expects         
+         App\Entity\BaseUser,      
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce given.                 
+         🪪  argument.type         
+  :38    Parameter #1 $user of     
+         method                    
+         App\Entity\Question::isL  
+         ikedBy() expects          
+         App\Entity\BaseUser,      
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce given.                 
+         🪪  argument.type         
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Controller\ReponseContro  
+         ller.php                  
+ ------ -------------------------- 
+  :27    Parameter #1 $user of     
+         method                    
+         App\Entity\Reponse::isLi  
+         kedBy() expects           
+         App\Entity\BaseUser,      
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce given.                 
+         🪪  argument.type         
+  :28    Parameter #1 $user of     
+         method                    
+         App\Entity\Reponse::remo  
+         veLikedBy() expects       
+         App\Entity\BaseUser,      
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce given.                 
+         🪪  argument.type         
+  :31    Parameter #1 $user of     
+         method                    
+         App\Entity\Reponse::addL  
+         ikedBy() expects          
+         App\Entity\BaseUser,      
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce given.                 
+         🪪  argument.type         
+  :39    Parameter #1 $user of     
+         method                    
+         App\Entity\Reponse::isLi  
+         kedBy() expects           
+         App\Entity\BaseUser,      
+         Symfony\Component\Securi  
+         ty\Core\User\UserInterfa  
+         ce given.                 
+         🪪  argument.type         
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Controller\TestEmailCont  
+         roller.php                
+ ------ -------------------------- 
+  :26    Method                    
+         App\Service\EmailService  
+         ::sendAppointmentConfirm  
+         ation() invoked with 1    
+         parameter, 3 required.    
+         🪪  arguments.count       
+  :29    Method                    
+         App\Service\EmailService  
+         ::sendAppointmentReminde  
+         r() invoked with 1        
+         parameter, 3 required.    
+         🪪  arguments.count       
+  :32    Method                    
+         App\Service\EmailService  
+         ::sendAppointmentCancell  
+         ation() invoked with 1    
+         parameter, 3 required.    
+         🪪  arguments.count       
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Entity\Appointment.php    
+ ------ -------------------------- 
+  :16    Property                  
+         App\Entity\Appointment::  
+         $id (int|null) is never   
+         assigned int so it can    
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+  :27    Property                  
+         App\Entity\Appointment::  
+         $duration (int|null) is   
+         never assigned null so    
+         it can be removed from    
+         the property type.        
+         🪪  property.unusedType   
+  :30    Property                  
+         App\Entity\Appointment::  
+         $status (string|null) is  
+         never assigned null so    
+         it can be removed from    
+         the property type.        
+         🪪  property.unusedType   
+  :51    Property                  
+         App\Entity\Appointment::  
+         $reminderSent             
+         (bool|null) is never      
+         assigned null so it can   
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+ ------ -------------------------- 
+
+ ------ ------------------------- 
+  Line   Entity\Article.php       
+ ------ ------------------------- 
+  :16    Property                 
+         App\Entity\Article::$id  
+         (int|null) is never      
+         assigned int so it can   
+         be removed from the      
+         property type.           
+         🪪  property.unusedType  
+ ------ ------------------------- 
+
+ ------ -------------------------- 
+  Line   Entity\CalendarSetting.p  
+         hp                        
+ ------ -------------------------- 
+  :15    Property                  
+         App\Entity\CalendarSetti  
+         ng::$id (int|null) is     
+         never assigned int so it  
+         can be removed from the   
+         property type.            
+         🪪  property.unusedType   
+  :18    Property                  
+         App\Entity\CalendarSetti  
+         ng::$slotDuration         
+         (int|null) is never       
+         assigned null so it can   
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+  :27    Property                  
+         App\Entity\CalendarSetti  
+         ng::$doctorId (int|null)  
+         is never assigned null    
+         so it can be removed      
+         from the property type.   
+         🪪  property.unusedType   
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Entity\Document.php       
+ ------ -------------------------- 
+  :16    Property                  
+         App\Entity\Document::$id  
+         (int|null) is never       
+         assigned int so it can    
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Entity\Feedback.php       
+ ------ -------------------------- 
+  :16    Property                  
+         App\Entity\Feedback::$id  
+         (int|null) is never       
+         assigned int so it can    
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Entity\Indisponibilite.p  
+         hp                        
+ ------ -------------------------- 
+  :15    Property                  
+         App\Entity\Indisponibili  
+         te::$id (int|null) is     
+         never assigned int so it  
+         can be removed from the   
+         property type.            
+         🪪  property.unusedType   
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Entity\Magazine.php       
+ ------ -------------------------- 
+  :18    Property                  
+         App\Entity\Magazine::$id  
+         (int|null) is never       
+         assigned int so it can    
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Entity\Ordonnance.php     
+ ------ -------------------------- 
+  :17    Property                  
+         App\Entity\Ordonnance::$  
+         id (int|null) is never    
+         assigned int so it can    
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Entity\Question.php       
+ ------ -------------------------- 
+  :17    Property                  
+         App\Entity\Question::$id  
+         (int|null) is never       
+         assigned int so it can    
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+  :55    Property                  
+         App\Entity\Question::$li  
+         kes (int|null) is never   
+         assigned null so it can   
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+  :178   Access to an undefined    
+         property                  
+         App\Entity\Question::$li  
+         kedBy.                    
+         🪪  property.notFound     
+         💡  Learn more: https://p  
+         hpstan.org/blog/solving-  
+         phpstan-access-to-undefi  
+         ned-property              
+ ------ -------------------------- 
+
+ ------ ------------------------- 
+  Line   Entity\Rapport.php       
+ ------ ------------------------- 
+  :17    Property                 
+         App\Entity\Rapport::$id  
+         (int|null) is never      
+         assigned int so it can   
+         be removed from the      
+         property type.           
+         🪪  property.unusedType  
+ ------ ------------------------- 
+
+ ------ -------------------------- 
+  Line   Entity\Reponse.php        
+ ------ -------------------------- 
+  :17    Property                  
+         App\Entity\Reponse::$id   
+         (int|null) is never       
+         assigned int so it can    
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+  :42    Property                  
+         App\Entity\Reponse::$lik  
+         es (int|null) is never    
+         assigned null so it can   
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+  :119   Access to an undefined    
+         property                  
+         App\Entity\Reponse::$lik  
+         edBy.                     
+         🪪  property.notFound     
+         💡  Learn more: https://p  
+         hpstan.org/blog/solving-  
+         phpstan-access-to-undefi  
+         ned-property              
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Entity\Specialite.php     
+ ------ -------------------------- 
+  :17    Property                  
+         App\Entity\Specialite::$  
+         id (int|null) is never    
+         assigned int so it can    
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Entity\TempsTravail.php   
+ ------ -------------------------- 
+  :15    Property                  
+         App\Entity\TempsTravail:  
+         :$id (int|null) is never  
+         assigned int so it can    
+         be removed from the       
+         property type.            
+         🪪  property.unusedType   
+ ------ -------------------------- 
+
+ ------ -------------------------- 
+  Line   Service\AvailabilityServ  
+         ice.php                   
+ ------ -------------------------- 
+  :40    Call to an undefined      
+         method                    
+         DateTimeInterface::modif  
+         y().                      
+         🪪  method.notFound       
+  :50    Call to an undefined      
+         method                    
+         DateTimeInterface::modif  
+         y().                      
+         🪪  method.notFound       
+  :67    Call to an undefined      
+         method                    
+         DateTimeInterface::modif  
+         y().                      
+         🪪  method.notFound       
+  :73    Call to an undefined      
+         method                    
+         DateTimeInterface::modif  
+         y().                      
+         🪪  method.notFound       
+  :107   Call to an undefined      
+         method                    
+         DateTimeInterface::modif  
+         y().                      
+         🪪  method.notFound       
+  :135   Call to an undefined      
+         method                    
+         DateTimeInterface::setTi  
+         me().                     
+         🪪  method.notFound       
+  :136   Call to an undefined      
+         method                    
+         DateTimeInterface::setTi  
+         me().                     
+         🪪  method.notFound       
+ ------ -------------------------- 
+
+ [ERROR] Found 69 errors          
+

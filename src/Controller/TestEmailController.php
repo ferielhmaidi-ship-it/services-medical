@@ -23,13 +23,16 @@ class TestEmailController extends AbstractController
         }
 
         try {
-            $emailService->sendAppointmentConfirmation($appointment);
+            $patient = $appointment->getPatient();
+            $doctor = $appointment->getDoctor();
+
+            $emailService->sendAppointmentConfirmation($appointment, $patient, $doctor);
             $confirmationResult = '✅ Confirmation email sent successfully!<br>';
             
-            $emailService->sendAppointmentReminder($appointment);
+            $emailService->sendAppointmentReminder($appointment, $patient, $doctor);
             $reminderResult = '✅ Reminder email sent successfully!<br>';
 
-            $emailService->sendAppointmentCancellation($appointment);
+            $emailService->sendAppointmentCancellation($appointment, $patient, $doctor);
             $cancellationResult = '✅ Cancellation email sent successfully!<br>';
 
             return new Response(

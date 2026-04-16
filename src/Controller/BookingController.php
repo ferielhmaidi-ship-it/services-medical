@@ -83,9 +83,7 @@ class BookingController extends AbstractController
         ];
 
         $user = $this->getUser();
-        $isPatient = ($user instanceof Patient);
-
-        if ($isPatient && $user instanceof Patient) {
+        if ($user instanceof Patient) {
             $slotsForAi = $availabilityService->getAvailableSlots($medecin, new \DateTime('today'), 21);
             $closestSlot = null;
 

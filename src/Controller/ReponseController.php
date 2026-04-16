@@ -24,10 +24,16 @@ final class ReponseController extends AbstractController
             return $this->json(['error' => 'Unauthorized'], 401);
         }
 
+        /** @var \App\Entity\BaseUser $user */
+        /** @var \App\Entity\BaseUser $user */
+        /** @var \App\Entity\BaseUser $user */
+        /** @var \App\Entity\BaseUser $user */
         if ($reponse->isLikedBy($user)) {
+            /** @var \App\Entity\BaseUser $user */
             $reponse->removeLikedBy($user);
             $reponse->setLikes(max(0, $reponse->getLikes() - 1));
         } else {
+            /** @var \App\Entity\BaseUser $user */
             $reponse->addLikedBy($user);
             $reponse->setLikes($reponse->getLikes() + 1);
         }

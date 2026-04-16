@@ -1,0 +1,10 @@
+parameters: 
+    level: 5    
+    paths :
+        - src
+    excludePaths:
+        - src/Migrations (?)
+    ignoreErrors:
+        -
+            message: '#Property App\\Entity\\[a-zA-Z0-9_]+::\$[A-Za-z0-9_]+ .* is never assigned .* so it can be removed from the property type\.#'
+            reportUnmatched: false

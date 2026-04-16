@@ -239,7 +239,7 @@ class PatientDashboardController extends AbstractController
             $filteredGroups[] = $group;
         }
 
-        $doctorGroups = array_values($filteredGroups);
+        $doctorGroups = $filteredGroups;
 
         return $this->render('patient_dashboard/reports_prescriptions.html.twig', [
             'doctorGroups' => $doctorGroups,

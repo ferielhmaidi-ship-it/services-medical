@@ -19,13 +19,12 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class TestLoginCommand extends Command
 {
     private EntityManagerInterface $entityManager;
-    private UserPasswordHasherInterface $passwordHasher;
+    
 
-    public function __construct(EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
-        $this->passwordHasher = $passwordHasher;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -47,3 +46,4 @@ class TestLoginCommand extends Command
         return Command::SUCCESS;
     }
 }
+

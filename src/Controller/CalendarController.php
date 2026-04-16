@@ -22,12 +22,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_MEDECIN')]
 class CalendarController extends AbstractController
 {
-    private PatientRepository $patientRepo;
-
-    public function __construct(PatientRepository $patientRepo)
-    {
-        $this->patientRepo = $patientRepo;
-    }
+    
 
     #[Route('/calendrier', name: 'app_calendrier')]
     public function index(): Response
@@ -38,7 +33,9 @@ class CalendarController extends AbstractController
     #[Route('/doctor/appointments', name: 'app_doctor_appointments')]
     public function appointmentsList(Request $request, AppointmentRepository $apptRepo): Response
     {
-        $doctorId = $this->getUser()->getId();
+        /** @var \App\Entity\Medecin $user */
+        $user = $this->getUser();
+        $doctorId = $user->getId();
         
         $search = $request->query->get('search');
         $date = $request->query->get('date');
@@ -116,10 +113,10 @@ class CalendarController extends AbstractController
         $dayStart = (new \DateTimeImmutable($targetDate->format('Y-m-d')))->setTime(0, 0, 0);
         $dayEnd = $dayStart->setTime(23, 59, 59);
 
-        $candidateRendezVous = $rendezVousRepository->createQueryBuilder('rv')
+        $candidateRendezVous = $appointmentRepository->createQueryBuilder('rv')
             ->where('rv.patient = :patient')
             ->andWhere('rv.doctor = :doctor')
-            ->andWhere('rv.appointmentDate BETWEEN :dayStart AND :dayEnd')
+            ->andWhere('rv.date BETWEEN :dayStart AND :dayEnd')
             ->setParameter('patient', $patient)
             ->setParameter('doctor', $this->getUser())
             ->setParameter('dayStart', $dayStart)
@@ -130,7 +127,8 @@ class CalendarController extends AbstractController
         $selectedRendezVous = null;
         $bestDelta = PHP_INT_MAX;
         foreach ($candidateRendezVous as $rendezVous) {
-            $delta = abs($rendezVous->getAppointmentDate()->getTimestamp() - $targetDateTime->getTimestamp());
+            $rvTargetTime = (new \DateTimeImmutable($rendezVous->getDate()->format('Y-m-d H:i:s')))->setTime((int) $rendezVous->getStartTime()->format('H'), (int) $rendezVous->getStartTime()->format('i'));
+            $delta = abs($rvTargetTime->getTimestamp() - $targetDateTime->getTimestamp());
             if ($delta < $bestDelta) {
                 $bestDelta = $delta;
                 $selectedRendezVous = $rendezVous;
@@ -159,8 +157,10 @@ class CalendarController extends AbstractController
         AppointmentRepository $apptRepo
     ): JsonResponse
     {
-        $doctorId = $this->getUser()->getId();
-        $doctor = $this->getUser();
+        /** @var \App\Entity\Medecin $user */
+        $user = $this->getUser();
+        $doctorId = $user->getId();
+        $doctor = $user;
 
         $specifics = $ttRepo->createQueryBuilder('tt')
             ->where('tt.specificDate IS NOT NULL')
@@ -253,7 +253,9 @@ class CalendarController extends AbstractController
         $data = json_decode($request->getContent(), true);
         if (!$data) return new JsonResponse(['error' => 'Invalid data'], 400);
 
-        $doctorId = $this->getUser()->getId();
+        /** @var \App\Entity\Medecin $user */
+        $user = $this->getUser();
+        $doctorId = $user->getId();
         $settings = $settingsRepo->findOneBy(['doctorId' => $doctorId]) ?: new CalendarSetting();
         $settings->setDoctorId($doctorId);
         $settings->setSlotDuration((int)($data['slotDuration'] ?? 30));
@@ -280,7 +282,9 @@ class CalendarController extends AbstractController
         $minDate = new \DateTime($allWeekDates[0]);
         $maxDate = new \DateTime(end($allWeekDates));
 
-        $doctorId = $this->getUser()->getId();
+        /** @var \App\Entity\Medecin $user */
+        $user = $this->getUser();
+        $doctorId = $user->getId();
 
         $existingInRange = $ttRepo->createQueryBuilder('tt')
             ->where('tt.specificDate >= :min')
@@ -326,7 +330,9 @@ class CalendarController extends AbstractController
         $indisp = new Indisponibilite();
         $indisp->setDate($date);
         $indisp->setIsEmergency(true);
-        $indisp->setDoctorId($this->getUser()->getId());
+        /** @var \App\Entity\Medecin $user */
+        $user = $this->getUser();
+        $indisp->setDoctorId($user->getId());
 
         $em->persist($indisp);
         $em->flush();

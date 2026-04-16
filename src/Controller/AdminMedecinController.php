@@ -21,12 +21,10 @@ use App\Service\DoctorVerificationService;
 class AdminMedecinController extends AbstractController
 {
     private UserPasswordHasherInterface $passwordHasher;
-    private DoctorVerificationService $doctorVerificationService;
 
-    public function __construct(UserPasswordHasherInterface $passwordHasher, DoctorVerificationService $doctorVerificationService)
+    public function __construct(UserPasswordHasherInterface $passwordHasher)
     {
         $this->passwordHasher = $passwordHasher;
-        $this->doctorVerificationService = $doctorVerificationService;
     }
 
     #[Route('/new', name: 'admin_medecin_new', methods: ['GET', 'POST'])]

@@ -121,8 +121,10 @@ class CreateAdminCommand extends Command
             });
         }
 
+        /** @var \Symfony\Component\Console\Helper\QuestionHelper $helper */
+        $helper = $this->getHelper('question');
         foreach ($questions as $name => $question) {
-            $answer = $this->getHelper('question')->ask($input, $output, $question);
+            $answer = $helper->ask($input, $output, $question);
             $input->setArgument($name, $answer);
         }
     }

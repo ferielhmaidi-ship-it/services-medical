@@ -116,7 +116,10 @@ class Reponse
      */
     public function getLikedBy(): Collection
     {
-        return $this->likedBy;
+        return new ArrayCollection(array_merge(
+            $this->likedByPatients->toArray(),
+            $this->likedByMedecins->toArray()
+        ));
     }
 
     public function addLikedBy(BaseUser $user): self
